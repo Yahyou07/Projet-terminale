@@ -21,7 +21,7 @@ arcs = [
     ("Exploration de la forêt", "Énigme de géographie"),
     ("Exploration de la forêt", "Combat contre un boss"),
     ("Énigme de géographie", "Trouver un artefact"),
-    ("Combat contre le boss finale ", "Trouver un artefact"),
+    ("Combat contre le boss final", "Trouver un artefact"),
     ("Trouver un artefact", "Énigme d'histoire"),
     ("Énigme d'histoire", "Accès au château"),
     ("Accès au château", "Combat final")
