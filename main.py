@@ -43,7 +43,7 @@ def input():
 
 while True : 
     screen.fill((0,0,50))
-
+    
     for event in pygame.event.get():
         quit()
     
