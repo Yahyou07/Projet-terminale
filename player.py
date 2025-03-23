@@ -1,8 +1,9 @@
 
 import pygame
 
-class Player: 
+class Player(pygame.sprite.Sprite): 
     def __init__(self,pos_x,pos_y,screen):
+        super().__init__()  # Initialisation du sprite
         self.x = pos_x
         self.y = pos_y
         self.speed = 2
@@ -22,7 +23,7 @@ class Player:
         #Index que l'on utlise pour l'animation
         self.current_sprite = 0
         self.image = pygame.image.load("anim\idle1.png")
-        self.rectangle = self.image.get_rect()
+        self.rect = self.image.get_rect()
 
 
     def affiche(self):
@@ -35,35 +36,35 @@ class Player:
         self.image = liste_mouv[int(self.current_sprite)]
     
     def move_left(self):
-        self.x -=self.speed
+        self.rect.x -=self.speed
         self.animation(self.left)
     
     def move_right(self):
-        self.x +=self.speed
+        self.rect.x +=self.speed
         self.animation(self.right)
     
     def move_up(self):
-        self.y -=self.speed
+        self.rect.y -=self.speed
         self.animation(self.up)
 
     def move_down(self):
-        self.y +=self.speed
+        self.rect.y +=self.speed
         self.animation(self.down)
 
     #Méthodes pour le sprint
     def run_left(self):
-        self.x -=self.speed_run
+        self.rect.x -=self.speed_run
         self.animation(self.run_left_mouv)
     
     def run_right(self):
-        self.x +=self.speed_run
+        self.rect.x +=self.speed_run
         self.animation(self.run_right_mouv)
     
     def run_up(self):
-        self.y -=self.speed_run
+        self.rect.y -=self.speed_run
         self.animation(self.run_up_mouv)
 
     def run_down(self):
-        self.y +=self.speed_run
+        self.rect.y +=self.speed_run
         self.animation(self.run_down_mouv)
         
