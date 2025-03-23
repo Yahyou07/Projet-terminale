@@ -25,19 +25,48 @@ def input():
      
      pressed = pygame.key.get_pressed()
 
-     if pressed[pygame.K_UP] or pressed[pygame.K_z]:
+
+     if pressed[pygame.K_UP] and pressed[pygame.K_r] or pressed[pygame.K_z] and pressed[pygame.K_r]:
+          player.run_up()
+
+     elif pressed[pygame.K_UP] or pressed[pygame.K_z]:
           player.move_up()
-          
 
-     if pressed[pygame.K_DOWN] or pressed[pygame.K_s] :
+     if pressed[pygame.K_DOWN] and pressed[pygame.K_r] or pressed[pygame.K_s] and pressed[pygame.K_r]:
+          player.run_down()
+     elif pressed[pygame.K_DOWN] or pressed[pygame.K_s] :
           player.move_down()
-
-     if pressed[pygame.K_RIGHT] or pressed[pygame.K_d]:
+          
+     if pressed[pygame.K_RIGHT] and pressed[pygame.K_r] or pressed[pygame.K_d] and pressed[pygame.K_r]:
+          player.run_right()
+     elif pressed[pygame.K_RIGHT] or pressed[pygame.K_d]:
           player.move_right()
 
-     if pressed[pygame.K_LEFT] or pressed[pygame.K_q]:
+     if pressed[pygame.K_LEFT] and pressed[pygame.K_r] or pressed[pygame.K_q] and pressed[pygame.K_r]:
+          player.run_left()
+     elif pressed[pygame.K_LEFT] or pressed[pygame.K_q]:
           player.move_left()
-    
+     
+     
+     
+          
+          
+
+     
+     
+     '''
+     #Controle pour le sprint
+     if pressed[pygame.K_LEFT] and pressed[pygame.K_r] or pressed[pygame.K_q] and pressed[pygame.K_r]:
+          player.run_left()
+     
+     
+     
+          
+
+     if pressed[pygame.K_LEFT] and pressed[pygame.K_r] or pressed[pygame.K_q] and pressed[pygame.K_r]:
+          player.run_left()
+          
+    '''
 
           
 
@@ -49,5 +78,6 @@ while True :
     
     player.affiche()
     input()
+    
     pygame.display.update()
     mainClock.tick(60)
