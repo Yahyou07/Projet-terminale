@@ -1,12 +1,25 @@
+import re
 class enigme(object):
     """
     Attribut :
         questions sous forme de dictionnaire de type: 
             questions = {"une question " : [réponseA,réponseB,réponseC,réponseD,bonneréponse]}
     """
-    def __init__(self,questions : dict):
+    def __init__(self,questions : dict, enigmes : list):
         assert type(questions) == dict , "Attention : le groupe de questions doit être un dictionnaire"
+        self.enigmes = enigmes
         self.questions = questions
+
+    def verif_dico(self):
+        """
+        Vérifie si les questions sous forme de dictionnaire est de la structure demandée
+        """
+        for enigme in self.enigmes :
+            for question in self.questions:
+                if enigme != question :
+                    return False
+                
+        return True
     
     def search(self,question : str):
         """
