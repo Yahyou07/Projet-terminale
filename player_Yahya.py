@@ -9,19 +9,16 @@ class Player(pygame.sprite.Sprite):
         self.speed = 2
         self.speed_run = 3.5
         self.screen = screen
-        
+        self.health = 100
+        self.mana = 0
+        self.endurance = 100
+
         #On stocke ici les mouvement du personnage selon s'il va en haut, en bas, a droite ou a gauche
         self.down  =  [pygame.image.load(f"animation/walk/walk1/down{i}.png") for i in range(1, 6)]
         self.up    =  [pygame.image.load(f"animation/walk/walk2/up{j}.png") for j in range(1, 6)]
         self.right =  [pygame.image.load(f"animation/walk/walk3/right{j}.png") for j in range(1, 6)]
         self.left  =  [pygame.image.load(f"animation/walk/walk4/left{j}.png") for j in range(1, 6)]
-        '''
-        #On stocke ici les mouvment du sprint
-        self.run_down_mouv = [pygame.image.load(f"anim/run/run1/down{j}.png") for j in range(1, 6)]
-        self.run_up_mouv = [pygame.image.load(f"anim/run/run2/up{j}.png") for j in range(1, 6)]
-        self.run_right_mouv = [pygame.image.load(f"anim/run/run3/right{j}.png") for j in range(1, 4)]
-        self.run_left_mouv = [pygame.image.load(f"anim/run/run4/left{j}.png") for j in range(1, 4)]
-        '''
+        
 
         #On stocke ici les mouvements de l'idle 
         self.idle_down_mouv = [pygame.image.load(f"animation/idle/idle1/down{j}.png") for j in range(1, 4)]
@@ -33,15 +30,15 @@ class Player(pygame.sprite.Sprite):
 
         #Index que l'on utlise pour l'animation
         self.current_sprite = 0
-        self.image = pygame.image.load("anim\idle1.png")
+        #On prend comme image de base idle1
+        self.image = pygame.image.load("animation/idle/idle1/down1.png")
+        #On récupère le rectangle de l'image
         self.rect = self.image.get_rect()
 
-        # Variable qui stocke la dernière direction du personnage par défaut on la met à down
+        # Variable qui stocke la dernière direction du personnage, par défaut on la met à down
         self.last_direction = "down"
 
-    def affiche(self):
-        self.screen.blit(self.image,(self.x,self.y))
-
+    
     
     def animation(self,liste_mouv,speed):
         self.current_sprite += speed

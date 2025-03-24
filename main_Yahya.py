@@ -15,7 +15,7 @@ pygame.display.set_caption("Test")
 screen = pygame.display.set_mode((1280,720),pygame.RESIZABLE)
 
 # Chargement de la carte Tiled
-tmx_data = load_pygame("maps/map_base.tmx")  # Remplace par ton fichier .tmx
+tmx_data = load_pygame("maps/maps.tmx")  # Remplace par ton fichier .tmx
 
 
 # Récupérer la position du joueur depuis les objets Tiled
@@ -101,9 +101,7 @@ def handle_resize(event):
     
 
 while True : 
-    
-    screen.fill((0,0,50))
-    
+
     for event in pygame.event.get():
         quit()
         handle_resize(event)  # Gérer le redimensionnement
