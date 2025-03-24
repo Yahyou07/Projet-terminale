@@ -18,7 +18,6 @@ screen = pygame.display.set_mode((1280,720),pygame.RESIZABLE)
 tmx_data = load_pygame("maps/map_base.tmx")  # Remplace par ton fichier .tmx
 
 
-
 # Récupérer la position du joueur depuis les objets Tiled
 def get_player_spawn():
     for obj in tmx_data.objects:
@@ -48,27 +47,52 @@ def quit():
 def input():
      pressed = pygame.key.get_pressed()
 
+     moving = False  # Variable pour suivre si une touche de déplacement est pressée
+
 
      if pressed[pygame.K_UP] and pressed[pygame.K_r] or pressed[pygame.K_z] and pressed[pygame.K_r]:
           player.run_up()
+          moving = True
 
      elif pressed[pygame.K_UP] or pressed[pygame.K_z]:
           player.move_up()
+          moving = True
 
      if pressed[pygame.K_DOWN] and pressed[pygame.K_r] or pressed[pygame.K_s] and pressed[pygame.K_r]:
           player.run_down()
+          moving = True
+
      elif pressed[pygame.K_DOWN] or pressed[pygame.K_s] :
           player.move_down()
+          moving = True
           
      if pressed[pygame.K_RIGHT] and pressed[pygame.K_r] or pressed[pygame.K_d] and pressed[pygame.K_r]:
           player.run_right()
+          moving = True
+
      elif pressed[pygame.K_RIGHT] or pressed[pygame.K_d]:
           player.move_right()
+          moving = True
 
      if pressed[pygame.K_LEFT] and pressed[pygame.K_r] or pressed[pygame.K_q] and pressed[pygame.K_r]:
           player.run_left()
+          moving = True
+
      elif pressed[pygame.K_LEFT] or pressed[pygame.K_q]:
           player.move_left()
+          moving = True
+     
+     
+     
+     if not moving and player.last_direction == "down":
+          player.idle_down()
+     elif not moving and player.last_direction == "up":
+          player.idle_up()
+     elif not moving and player.last_direction == "right":
+          player.idle_right()
+     elif not moving and player.last_direction == "left":
+          player.idle_left()
+     
 
 def handle_resize(event):
     if event.type == pygame.VIDEORESIZE:
@@ -83,8 +107,9 @@ while True :
     for event in pygame.event.get():
         quit()
         handle_resize(event)  # Gérer le redimensionnement
-    
+        
     input()
+    
     group.update()
     group.center(player.rect.center)  # Centre la caméra sur le joueur
     group.draw(screen)
