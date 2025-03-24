@@ -6,8 +6,8 @@ class enigme(object):
             questions = {"question (numéro):  ?" : ["réponseA : ","réponseB : ","réponseC : ","réponseD : ","bonneréponse : "]}
     """
     def __init__(self,questions : str):
-        self.questions = questions
-        self.enigmes = None
+        self.questions = questions 
+        self.enigmes = self.verif_dico()
 
     def verif_dico(self):
         """
@@ -31,14 +31,14 @@ class enigme(object):
                 f'bonne réponse : {match.group(7)}'
             ]
             
-            return {question_key: reponses}  # Retourne un dictionnaire avec la clé complète
+            self.enigmes = {question_key:reponses}
+            return self.enigmes  # Retourne un dictionnaire avec la clé complète
         else:
             print("Structure invalide.")
-            return None
+            self.enigmes = None
+            return self.enigmes
 
-
-    def obtenir_enigmes(self): return self.enigmes
-
+    def obtenir_enigmes(self) : return self.enigmes
 
     def search(self,question : str):
         """
@@ -61,4 +61,4 @@ class enigme(object):
     
 dico = "{'question 1 : Qui est le singe?' : ['réponse A : Tu es fous','réponse B : Tu es fouuu','réponse C : Tu es picece','réponse D : rhgreg','bonne réponse : Tu es fous']}"
 
-print(enigme(dico).verif_dico())
+print(enigme(dico).enigmes)
