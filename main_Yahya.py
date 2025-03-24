@@ -1,7 +1,7 @@
 import pygame,sys
 import pytmx
 from pytmx.util_pygame import load_pygame
-from player import *
+from player_Yahya import *
 mainClock = pygame.time.Clock()
 from pygame.locals import *
 import pyscroll
