@@ -1,7 +1,9 @@
 from PIL import Image
 
+#Petit programme qui permet d'extraire les images d'un gif
+
 # Ouvrir le GIF
-gif = Image.open("gif.gif")
+gif = Image.open("UI/livre.gif")
 
 # Extraire chaque frame
 for i in range(gif.n_frames):

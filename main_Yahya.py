@@ -6,7 +6,7 @@ mainClock = pygame.time.Clock()
 from pygame.locals import *
 import pyscroll
 import pyscroll.data
-
+import time
 pygame.init()
 pygame.display.set_caption("Test")
 
@@ -48,9 +48,12 @@ def input():
      pressed = pygame.key.get_pressed()
 
      moving = False  # Variable pour suivre si une touche de déplacement est pressée
+     sprinting = True
 
+     if player.endurance_value == 0:
+          sprinting =False
 
-     if pressed[pygame.K_UP] and pressed[pygame.K_r] or pressed[pygame.K_z] and pressed[pygame.K_r]:
+     if pressed[pygame.K_UP] and pressed[pygame.K_r] and sprinting ==True  or pressed[pygame.K_z] and pressed[pygame.K_r] and sprinting ==True :
           player.run_up()
           moving = True
 
@@ -58,7 +61,7 @@ def input():
           player.move_up()
           moving = True
 
-     if pressed[pygame.K_DOWN] and pressed[pygame.K_r] or pressed[pygame.K_s] and pressed[pygame.K_r]:
+     if pressed[pygame.K_DOWN] and pressed[pygame.K_r] and sprinting ==True or pressed[pygame.K_s] and pressed[pygame.K_r] and sprinting ==True:
           player.run_down()
           moving = True
 
@@ -66,7 +69,7 @@ def input():
           player.move_down()
           moving = True
           
-     if pressed[pygame.K_RIGHT] and pressed[pygame.K_r] or pressed[pygame.K_d] and pressed[pygame.K_r]:
+     if pressed[pygame.K_RIGHT] and pressed[pygame.K_r] and sprinting ==True or pressed[pygame.K_d] and pressed[pygame.K_r] and sprinting ==True:
           player.run_right()
           moving = True
 
@@ -74,7 +77,7 @@ def input():
           player.move_right()
           moving = True
 
-     if pressed[pygame.K_LEFT] and pressed[pygame.K_r] or pressed[pygame.K_q] and pressed[pygame.K_r]:
+     if pressed[pygame.K_LEFT] and pressed[pygame.K_r] and sprinting ==True or pressed[pygame.K_q] and pressed[pygame.K_r] and sprinting ==True:
           player.run_left()
           moving = True
 
@@ -112,6 +115,6 @@ while True :
     group.center(player.rect.center)  # Centre la caméra sur le joueur
     group.draw(screen)
     player.affiche_ui()
-    
+    player.regeneration()
     pygame.display.update()
     mainClock.tick(60)

@@ -1,5 +1,7 @@
 
 import pygame
+import threading
+import time
 
 class Player(pygame.sprite.Sprite): 
     def __init__(self,pos_x,pos_y,screen):
@@ -12,6 +14,8 @@ class Player(pygame.sprite.Sprite):
         self.health_value = 100
         self.mana_value = 0
         self.endurance_value = 100
+        
+        
 
         #On stocke ici les mouvement du personnage selon s'il va en haut, en bas, a droite ou a gauche
         self.down  =  [pygame.image.load(f"animation/walk/walk1/down{i}.png") for i in range(1, 6)]
@@ -68,7 +72,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.x +=self.speed
         self.animation(self.right,0.15)
         self.last_direction = "right"
-        self.endurance_value-=0.125
+        
         
     
     def move_up(self):
@@ -85,18 +89,22 @@ class Player(pygame.sprite.Sprite):
     def run_left(self):
         self.rect.x -=self.speed_run
         self.animation(self.left,0.3)
+        self.endurance_value-=0.25
     
     def run_right(self):
         self.rect.x +=self.speed_run
         self.animation(self.right,0.3)
+        self.endurance_value-=0.25
     
     def run_up(self):
         self.rect.y -=self.speed_run
         self.animation(self.up,0.3)
+        self.endurance_value-=0.25
 
     def run_down(self):
         self.rect.y +=self.speed_run
         self.animation(self.down,0.3)
+        self.endurance_value-=0.25
 
     #méthodes pour gérer l'idle
     def idle_up(self):
@@ -148,13 +156,11 @@ class Player(pygame.sprite.Sprite):
             self.current_endurance = self.endurance[5]
 
     
-
+        #Affichage des différents UI de vie, de mana, d'endurance et le profil
         self.screen.blit(self.profile,(15,30))
         self.screen.blit(self.current_health,(100,15))
         self.screen.blit(self.current_mana,(93,65))
         self.screen.blit(self.current_endurance,(10,120))
 
-
-
-
-
+    
+    
