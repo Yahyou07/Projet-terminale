@@ -27,7 +27,7 @@ def get_player_spawn():
 
 player_x, player_y = get_player_spawn()
 player = Player(player_x, player_y, screen)  # Positionner le joueur
-
+print(player_x,player_y)
 # Créer un groupe de rendu pour pyscroll
 map_layer = pyscroll.orthographic.BufferedRenderer(pyscroll.data.TiledMapData(tmx_data), screen.get_size())
 map_layer.zoom = 2  # Facteur de zoom (1 = taille normale, 2 = zoomé x2)
