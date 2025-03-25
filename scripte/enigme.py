@@ -6,37 +6,40 @@ class enigme(object):
             questions = {"question (numéro):  ?" : ["réponseA : ","réponseB : ","réponseC : ","réponseD : ","bonneréponse : "]}
     """
     def __init__(self,questions : str):
-        self.questions = questions 
-        self.enigmes = self.verif_dico()
+        self.questions = questions #il faut que les questions soient de type string afin de vérifier si le futur dictionnaire souhaité respecte la structure souhaitée
+        self.enigmes = self.verif_dico() #dictionnaire construit à l'aide de la méthode vérification de 
 
     def verif_dico(self):
         """
-        Vérifie si les questions sous forme de dictionnaire et extrait correctement la question dans la clé.
+        Vérifie si les questions sont de la structure demandée et construit le dictionnaire s'il le respecte sinon il n'y aura pas de groupe d'énigmes.
         """
-        pattern = r"^\{\s*'question (\d+) : ([^']+)'\s*:\s*\[\s*'réponse A : ([^']+)',\s*'réponse B : ([^']+)',\s*'réponse C : ([^']+)',\s*'réponse D : ([^']+)',\s*'bonne réponse : ([^']+)'\s*\]\s*\}$"
+        pattern = r"'question (\d+) : ([^']+)'\s*:\s*\[\s*'réponse A : ([^']+)',\s*'réponse B : ([^']+)',\s*'réponse C : ([^']+)',\s*'réponse D : ([^']+)',\s*'bonne réponse : ([^']+)'\s*\]"
         
-        match = re.match(pattern, self.questions)
+        matches = re.findall(pattern, self.questions)
         
-        if match:
+        if matches:
             print("Structure valide!")
-            question_num = match.group(1)  # Numéro de la question
-            question_text = match.group(2)  # Texte de la question
-            question_key = f"question {question_num} : {question_text}"  # Clé complète avec numéro et texte
-            
-            reponses = [
-                f'réponse A : {match.group(3)}',
-                f'réponse B : {match.group(4)}',
-                f'réponse C : {match.group(5)}',
-                f'réponse D : {match.group(6)}',
-                f'bonne réponse : {match.group(7)}'
-            ]
-            
-            self.enigmes = {question_key:reponses}
-            return self.enigmes  # Retourne un dictionnaire avec la clé complète
+            self.enigmes = {}
+
+            for match in matches:
+                question_num = match[0]  # Numéro de la question
+                question_text = match[1]  # Texte de la question
+                question_key = f"question {question_num} : {question_text}"  # Clé complète
+
+                reponses = [
+                    f"réponse A : {match[2]}",
+                    f"réponse B : {match[3]}",
+                    f"réponse C : {match[4]}",
+                    f"réponse D : {match[5]}",
+                    f"bonne réponse : {match[6]}"
+                ]
+
+                self.enigmes[question_key] = reponses  # Ajout au dictionnaire
+
+            return self.enigmes  # Retourne un dictionnaire avec toutes les questions
         else:
             print("Structure invalide.")
-            self.enigmes = None
-            return self.enigmes
+            return None
 
     def obtenir_enigmes(self) : return self.enigmes
 
@@ -59,6 +62,9 @@ class enigme(object):
             return True
         else : return False
     
-dico = "{'question 1 : Qui est le singe?' : ['réponse A : Tu es fous','réponse B : Tu es fouuu','réponse C : Tu es picece','réponse D : rhgreg','bonne réponse : Tu es fous']}"
+dico = """{
+    'question 1 : Qui est le singe' : ['réponse A : Tu es fous','réponse B : Tu es fouuu','réponse C : Tu es picece','réponse D : rhgreg','bonne réponse : Tu es fous'],
+    'question 2 : Quelle est la couleur du ciel ?' : ['réponse A : Rouge','réponse B : Bleu','réponse C : Vert','réponse D : Noir','bonne réponse : Bleu']
+}"""
 
-print(enigme(dico).enigmes)
+print(enigme(dico).verification('question 2 : Quelle est la couleur du ciel ?','réponse A : Rouge'))
