@@ -1,22 +1,19 @@
 
 import pygame
-import threading
+import math
 import time
-
 class Player(pygame.sprite.Sprite): 
     def __init__(self,pos_x,pos_y,screen):
         super().__init__()  # Initialisation du sprite
-        self.x = pos_x
-        self.y = pos_y
-        self.speed = 2
-        self.speed_run = 3.5
+        
+        self.speed = 3
+        self.speed_run = 4
         self.screen = screen
         self.health_value = 100
         self.mana_value = 0
         self.endurance_value = 100
         
         
-
         #On stocke ici les mouvement du personnage selon s'il va en haut, en bas, a droite ou a gauche
         self.down  =  [pygame.image.load(f"animation/walk/walk1/down{i}.png") for i in range(1, 6)]
         self.up    =  [pygame.image.load(f"animation/walk/walk2/up{j}.png") for j in range(1, 6)]
@@ -35,10 +32,10 @@ class Player(pygame.sprite.Sprite):
         self.current_endurance = self.endurance[0]
 
         #On stocke ici les mouvements de l'idle 
-        self.idle_down_mouv = [pygame.image.load(f"animation/idle/idle1/down{j}.png") for j in range(1, 4)]
-        self.idle_up_mouv = [pygame.image.load(f"animation/idle/idle2/up{j}.png") for j in range(1, 4)]
-        self.idle_right_mouv = [pygame.image.load(f"animation/idle/idle3/right{j}.png") for j in range(1, 4)]
-        self.idle_left_mouv = [pygame.image.load(f"animation/idle/idle4/left{j}.png") for j in range(1, 4)]
+        self.idle_down_mouv = [pygame.image.load(f"animation/idle/idle1/down{j}.png") for j in range(1, 5)]
+        self.idle_up_mouv = [pygame.image.load(f"animation/idle/idle2/up{j}.png") for j in range(1, 5)]
+        self.idle_right_mouv = [pygame.image.load(f"animation/idle/idle3/right{j}.png") for j in range(1, 5)]
+        self.idle_left_mouv = [pygame.image.load(f"animation/idle/idle4/left{j}.png") for j in range(1, 5)]
 
         self.attack_right_mouv = [pygame.image.load(f"animation/attack/attack1/right{j}.png") for j in range(1, 5)]
 
@@ -48,7 +45,8 @@ class Player(pygame.sprite.Sprite):
         self.image = pygame.image.load("animation/idle/idle1/down1.png")
         #On récupère le rectangle de l'image
         self.rect = self.image.get_rect()
-
+        self.rect.x = pos_x
+        self.rect.y = pos_y
         # Variable qui stocke la dernière direction du personnage, par défaut on la met à down
         self.last_direction = "down"
         print(self.health_value)
@@ -62,49 +60,32 @@ class Player(pygame.sprite.Sprite):
 
     
 
-    def move_left(self):
-        self.rect.x -=self.speed
-        self.animation(self.left,0.15)
-        self.last_direction = "left"
-        
-    
-    def move_right(self):
-        self.rect.x +=self.speed
-        self.animation(self.right,0.15)
-        self.last_direction = "right"
-        
-        
-    
-    def move_up(self):
-        self.rect.y -=self.speed
-        self.animation(self.up,0.15)
-        self.last_direction = "up"
+    def move(self, dx, dy, running=False):
+        speed = self.speed_run if running else self.speed
+        if dx != 0 and dy != 0:
+            speed /= math.sqrt(2)  # Normalisation de la vitesse en diagonale
 
-    def move_down(self):
-        self.rect.y +=self.speed
-        self.animation(self.down,0.15)
-        self.last_direction = "down"
+        self.rect.x += dx * speed
+        self.rect.y += dy * speed
 
-    #Méthodes pour le sprint
-    def run_left(self):
-        self.rect.x -=self.speed_run
-        self.animation(self.left,0.3)
-        self.endurance_value-=0.25
-    
-    def run_right(self):
-        self.rect.x +=self.speed_run
-        self.animation(self.right,0.3)
-        self.endurance_value-=0.25
-    
-    def run_up(self):
-        self.rect.y -=self.speed_run
-        self.animation(self.up,0.3)
-        self.endurance_value-=0.25
+        # Gestion des animations
+        anim_speed = 0.3 if running else 0.15
+        if dx > 0:
+            self.animation(self.right, anim_speed)
+            self.last_direction = "right"
+        elif dx < 0:
+            self.animation(self.left, anim_speed)
+            self.last_direction = "left"
+        elif dy > 0:
+            self.animation(self.down, anim_speed)
+            self.last_direction = "down"
+        elif dy < 0:
+            self.animation(self.up, anim_speed)
+            self.last_direction = "up"
 
-    def run_down(self):
-        self.rect.y +=self.speed_run
-        self.animation(self.down,0.3)
-        self.endurance_value-=0.25
+        # Réduction de l'endurance si le joueur sprinte
+        if running:
+            self.endurance_value -= 0.25
 
     #méthodes pour gérer l'idle
     def idle_up(self):
@@ -163,4 +144,18 @@ class Player(pygame.sprite.Sprite):
         self.screen.blit(self.current_endurance,(10,120))
 
     
+
+
+    
+    
+    def regeneration_endurance(self, keys):
+        if self.endurance_value == 0 and not keys[pygame.K_r]:  # Si endurance à 0 et R non pressé
+            if not hasattr(self, "regen_start_time"):  # Début du chrono
+                self.regen_start_time = time.time()
+
+            elapsed = time.time() - self.regen_start_time  # Temps écoulé
+            if elapsed >= 5:  # Après 5 secondes, régénère complètement
+                self.endurance_value = 100
+                del self.regen_start_time  # Supprime le chrono
+            
     

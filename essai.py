@@ -31,9 +31,10 @@ for i in range(INV_COLS):
 # Objets (formes)
 objects = [
     {"rect": pygame.Rect(INV_X, INV_Y, CELL_SIZE2, CELL_SIZE2), "shape": "square", "color": RED},
+    {"rect": pygame.Rect(INV_X, INV_Y, CELL_SIZE2, CELL_SIZE2), "shape": "square", "color": RED}
     
 ]
-
+inventaire_postion = [0,0,0,0,0,0]
 dragging = None
 original_pos = None
 
@@ -42,7 +43,7 @@ while running:
     screen.fill(WHITE)
 
     screen.blit(inventory,(-75,60))
-   
+
     # Gérer les événements
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
