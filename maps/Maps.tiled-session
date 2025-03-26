@@ -13,11 +13,11 @@
             "scaleInEditor": 1
         },
         "maps.tmx": {
-            "scale": 1.5,
+            "scale": 1,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 283,
-                "y": 262.33333333333326
+                "x": 251.5,
+                "y": 182.5
             }
         },
         "plant.tsx": {

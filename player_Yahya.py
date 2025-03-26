@@ -25,7 +25,7 @@ class Player(pygame.sprite.Sprite):
         self.health = [pygame.image.load(f"UI/vie/health{j}.png") for j in range(1, 8)]
         self.mana = [pygame.image.load(f"UI/mana/mana{j}.png") for j in range(1, 7)]
         self.endurance = [pygame.image.load(f"UI/endurance/endurance{j}.png") for j in range(1, 7)]
-
+        self.inventory_bar = pygame.image.load("UI/Inventories/barre_outils.png")
         #Current 
         self.current_health = self.health[0]
         self.current_mana = self.mana[5]
@@ -142,7 +142,7 @@ class Player(pygame.sprite.Sprite):
         self.screen.blit(self.current_health,(100,15))
         self.screen.blit(self.current_mana,(93,65))
         self.screen.blit(self.current_endurance,(10,120))
-
+        self.screen.blit(self.inventory_bar,(450,660))
     
 
 
