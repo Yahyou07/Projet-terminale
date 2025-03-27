@@ -3,6 +3,7 @@ import pytmx
 from pytmx.util_pygame import load_pygame
 import pytmx.util_pygame
 from player_Yahya import *
+from items import *
 mainClock = pygame.time.Clock()
 from pygame.locals import *
 import pyscroll
@@ -25,6 +26,7 @@ tmx_data = load_pygame("maps/maps.tmx")  # Remplace par ton fichier .tmx
 player_position = tmx_data.get_object_by_name("Player")
 player = Player(player_position.x,player_position.y, screen)  # Positionner le joueur
 
+item = Item(352,353,screen)
 
 map_data = pyscroll.data.TiledMapData(tmx_data)
 
@@ -36,7 +38,7 @@ map_layer.zoom = 2  # Facteur de zoom (1 = taille normale, 2 = zoomé x2)
 group = pyscroll.PyscrollGroup(map_layer=map_layer, default_layer=1)
 
 group.add(player)  # Ajoute le joueur au groupe
-
+group.add(item)
 #Fonction quit
 def quit():
     if event.type == QUIT:
@@ -53,7 +55,7 @@ def quit():
 def input():
     pressed = pygame.key.get_pressed()
     dx, dy = 0, 0
-    sprinting = pressed[pygame.K_r] and player.endurance_value > 0  # Vérifie si le joueur peut sprinter
+    sprinting = pressed[pygame.K_r] and player.endurance_value > 0 and player.Regen ==False  # Vérifie si le joueur peut sprinter
 
     if pressed[pygame.K_UP] or pressed[pygame.K_z]:
         dy = -1
@@ -97,7 +99,7 @@ while True :
 
     keys = pygame.key.get_pressed()
     player.regeneration_endurance(keys)
-
+    item.update()
     group.update()
     group.center(player.rect.center)  # Centre la caméra sur le joueur
     group.draw(screen)

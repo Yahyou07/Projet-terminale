@@ -35,7 +35,13 @@ objects = [
     
     
 ]
-inventaire_postion = [0,0,0,0,0,0]
+inventaire_matrice = [[0,0,0,0,0,0],
+                      [0,0,0,0,0,0],
+                      [0,0,5,0,0,0],
+                      [0,0,0,0,0,0],
+                      [0,0,0,0,0,0]]
+print(inventaire_matrice[2][2])
+
 dragging = None
 original_pos = None
 

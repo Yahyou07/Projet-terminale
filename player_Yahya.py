@@ -7,7 +7,7 @@ class Player(pygame.sprite.Sprite):
         super().__init__()  # Initialisation du sprite
         
         self.speed = 3
-        self.speed_run = 4
+        self.speed_run = 4.5
         self.screen = screen
         self.health_value = 100
         self.mana_value = 0
@@ -139,17 +139,52 @@ class Player(pygame.sprite.Sprite):
 
     
         #Affichage des différents UI de vie, de mana, d'endurance et le profil
-        self.screen.blit(self.profile,(15,30))
-        self.screen.blit(self.current_health,(100,15))
-        self.screen.blit(self.current_mana,(93,65))
-        self.screen.blit(self.current_endurance,(10,120))
-        self.screen.blit(self.inventory_bar,(450,660))
+        self.screen.blit(self.profile,(25,30))
+        self.screen.blit(self.current_health,(110,15))
+        self.screen.blit(self.current_mana,(103,65))
+        self.screen.blit(self.current_endurance,(20,120))
+        self.screen.blit(self.inventory_bar,(450,750))
     
 
 
     
-            
-    
+    def regeneration_endurance(self,keys):
+        if self.endurance_value == 0:
+            self.Regen = True
+        if self.endurance_value == 100:
+            self.Regen = False
+            self.start_time = None
+        
+        if self.Regen and self.endurance_value<100 and not keys[pygame.K_r]:
+            if self.start_time is None:  # On initialise une seule fois
+                self.start_time = time.time()
+            elapsed = time.time() - self.start_time
+            if 0<elapsed<1:
+                self.endurance_value = 20
+                print("on entre dans la première condition")
+                print(self.endurance_value)
+                print(elapsed)
+            if 1<elapsed<2:
+                self.endurance_value = 39
+                print("on entre dans la 2 eme condition")
+                print(self.endurance_value)
+                print(elapsed)
+            if 2<elapsed<3:
+                self.endurance_value = 59
+                print("on entre dans la 3 eme condition")
+                print(self.endurance_value)
+                print(elapsed)
+            if 3<elapsed<4:
+                self.endurance_value = 79
+                print("on entre dans la 4 eme condition")
+                print(self.endurance_value)
+                print(elapsed)
+            if elapsed>=5:
+                self.endurance_value =100
+                print("on entre dans la derniere condition")
+                print(self.endurance_value)
+                print(elapsed)
+    '''
     def regeneration_endurance(self, keys):
         if self.endurance_value == 0:
             self.Regen = True
@@ -172,4 +207,5 @@ class Player(pygame.sprite.Sprite):
                 print(f"Endurance: {self.endurance_value}")
             
             if self.endurance_value == 100:
-                self.regen_start_time = None  # Arrêt de la régénération
+                self.regen_start_time = None  # Arrêt de la régénération'
+        '''
