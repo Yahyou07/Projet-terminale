@@ -13,7 +13,8 @@ class Player(pygame.sprite.Sprite):
         self.mana_value = 0
         self.endurance_value = 100
         
-        
+        self.Regen = False
+
         #On stocke ici les mouvement du personnage selon s'il va en haut, en bas, a droite ou a gauche
         self.down  =  [pygame.image.load(f"animation/walk/walk1/down{i}.png") for i in range(1, 6)]
         self.up    =  [pygame.image.load(f"animation/walk/walk2/up{j}.png") for j in range(1, 6)]
@@ -147,15 +148,28 @@ class Player(pygame.sprite.Sprite):
 
 
     
-    
-    def regeneration_endurance(self, keys):
-        if self.endurance_value == 0 and not keys[pygame.K_r]:  # Si endurance à 0 et R non pressé
-            if not hasattr(self, "regen_start_time"):  # Début du chrono
-                self.regen_start_time = time.time()
-
-            elapsed = time.time() - self.regen_start_time  # Temps écoulé
-            if elapsed >= 5:  # Après 5 secondes, régénère complètement
-                self.endurance_value = 100
-                del self.regen_start_time  # Supprime le chrono
             
     
+    def regeneration_endurance(self, keys):
+        if self.endurance_value == 0:
+            self.Regen = True
+        if self.endurance_value == 100:
+            self.Regen = False
+            self.regen_start_time = None  # Réinitialisation du chrono
+        
+        if self.Regen and self.endurance_value < 100 and not keys[pygame.K_r]:
+            if self.regen_start_time is None:
+                self.regen_start_time = time.time()
+            
+            elapsed = time.time() - self.regen_start_time
+            regen_duration = 70  # Durée totale de la régénération en secondes
+            regen_rate = 100 / regen_duration  # Points d'endurance récupérés par seconde
+            
+            new_value = min(100, self.endurance_value + int(elapsed * regen_rate))
+            
+            if new_value > self.endurance_value:
+                self.endurance_value = new_value
+                print(f"Endurance: {self.endurance_value}")
+            
+            if self.endurance_value == 100:
+                self.regen_start_time = None  # Arrêt de la régénération

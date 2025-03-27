@@ -13,7 +13,7 @@ pygame.display.set_caption("Jeu")
 
 
 #Définition de la fenêtre 
-screen = pygame.display.set_mode((1300,790),pygame.RESIZABLE)
+screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 
 # Chargement de la carte Tiled
 tmx_data = load_pygame("maps/maps.tmx")  # Remplace par ton fichier .tmx
@@ -42,6 +42,11 @@ def quit():
     if event.type == QUIT:
             pygame.quit()
             sys.exit()
+    elif event.type == pygame.KEYDOWN:  # Si une touche est pressée
+            if event.key == pygame.K_ESCAPE:  # Si la touche pressée est "Échap"
+                pygame.quit()
+                sys.exit()
+    
 
 
 #Fonction input pour gerer les entrée clavier
@@ -58,7 +63,7 @@ def input():
         dx = -1
     if pressed[pygame.K_RIGHT] or pressed[pygame.K_d]:
         dx = 1
-
+    
     if dx != 0 or dy != 0:
         player.move(dx, dy, sprinting)  # Passe la variable sprinting
     else:
@@ -86,8 +91,10 @@ while True :
         quit()
         handle_resize(event)  # Gérer le redimensionnement
         
-    input()
+                
         
+    input()
+
     keys = pygame.key.get_pressed()
     player.regeneration_endurance(keys)
 
