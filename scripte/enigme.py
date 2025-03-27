@@ -1,13 +1,17 @@
 import re
-class enigme(object):
+import pygame
+class Enigme(object):
     """
     Attribut :
         questions sous forme de dictionnaire de type: 
             questions = {"question (numéro):  ?" : ["réponseA : ","réponseB : ","réponseC : ","réponseD : ","bonneréponse : "]}
     """
-    def __init__(self,questions : str):
+    def __init__(self,questions : str,screen):
         self.questions = questions #il faut que les questions soient de type string afin de vérifier si le futur dictionnaire souhaité respecte la structure souhaitée
-        self.enigmes = self.verif_dico() #dictionnaire construit à l'aide de la méthode vérification de 
+        self.enigmes = self.verif_dico() #dictionnaire construit à l'aide de la méthode vérification du dictionnaire
+        self.screen = screen
+        self.image = pygame.image.load("enigme.png")    # chargement de l'image où il y a l'énigme
+        self.image = pygame.transform.scale(self.image,(790,790)) # rétrécit l'image
 
     def verif_dico(self):
         """
@@ -62,9 +66,23 @@ class enigme(object):
             return True
         else : return False
     
+    def affiche(self):
+        """
+            Méthode permettant d'afficher l'onglet énigme lorsqu'elle est appelée
+        """
+        #if self.search(question) == None : return "La question d'existe pas"
+
+        self.screen.blit(self.image,(255,0))
+        cle,valeur = self.enigmes
+        fontc = pygame.font.Font(None,60)
+        questionn = fontc.render(cle,1,(0,0,0))
+        self.screen.blit(questionn,(200,330))
+
+
+
 dico = """{
     'question 1 : Qui est le singe' : ['réponse A : Tu es fous','réponse B : Tu es fouuu','réponse C : Tu es picece','réponse D : rhgreg','bonne réponse : Tu es fous'],
     'question 2 : Quelle est la couleur du ciel ?' : ['réponse A : Rouge','réponse B : Bleu','réponse C : Vert','réponse D : Noir','bonne réponse : Bleu']
 }"""
 
-print(enigme(dico).verification('question 2 : Quelle est la couleur du ciel ?','réponse A : Rouge'))
+#print(Enigme(dico).verification('question 2 : Quelle est la couleur du ciel ?','réponse A : Rouge'))
