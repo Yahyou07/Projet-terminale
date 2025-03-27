@@ -87,7 +87,7 @@ while True :
         handle_resize(event)  # Gérer le redimensionnement
         
     input()
-    
+        
     keys = pygame.key.get_pressed()
     player.regeneration_endurance(keys)
 

@@ -28,10 +28,11 @@ for i in range(INV_COLS):
     x = INV_X + i * (CELL_SIZE + CELL_SPACING)
     inventory_slots.append(pygame.Rect(x, INV_Y, CELL_SIZE, CELL_SIZE))
 
+square_img = pygame.image.load("Items/tasse.png")
 # Objets (formes)
 objects = [
-    {"rect": pygame.Rect(INV_X, INV_Y, CELL_SIZE2, CELL_SIZE2), "shape": "square", "color": RED},
-    {"rect": pygame.Rect(INV_X, INV_Y, CELL_SIZE2, CELL_SIZE2), "shape": "square", "color": RED}
+    {"rect": pygame.Rect(INV_X, INV_Y, CELL_SIZE, CELL_SIZE), "image": square_img}
+    
     
 ]
 inventaire_postion = [0,0,0,0,0,0]
@@ -42,7 +43,11 @@ running = True
 while running:
     screen.fill(WHITE)
 
-    screen.blit(inventory,(-75,60))
+    screen.blit(inventory,(23,60))
+
+    # Dessiner les cases d'inventaire
+    for slot in inventory_slots:
+        pygame.draw.rect(screen, GRAY, slot, 2)
 
     # Gérer les événements
     for event in pygame.event.get():
@@ -75,11 +80,8 @@ while running:
     
     # Dessiner les objets
     for obj in objects:
-        if obj["shape"] == "square":
-            pygame.draw.rect(screen, obj["color"], obj["rect"])
-        elif obj["shape"] == "triangle":
-            x, y, w, h = obj["rect"]
-            pygame.draw.polygon(screen, obj["color"], [(x + w//2, y), (x, y + h), (x + w, y + h)])
+        screen.blit(obj["image"], obj["rect"])
+        
     
     pygame.display.flip()
 
