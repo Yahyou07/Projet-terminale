@@ -26,7 +26,11 @@ tmx_data = load_pygame("maps/maps.tmx")  # Remplace par ton fichier .tmx
 player_position = tmx_data.get_object_by_name("Player")
 player = Player(player_position.x,player_position.y, screen)  # Positionner le joueur
 
-item = Item(352,353,screen)
+item = Item("apple",2,10,352,350)
+item2 = Item("plastron",32,10,352,450)
+item3 = Item("apple",2,10,352,290)
+item4 = Item("apple",2,10,352,270)
+item5 = Item("plastron",32,10,352,500)
 
 map_data = pyscroll.data.TiledMapData(tmx_data)
 
@@ -39,6 +43,17 @@ group = pyscroll.PyscrollGroup(map_layer=map_layer, default_layer=1)
 
 group.add(player)  # Ajoute le joueur au groupe
 group.add(item)
+group.add(item2)
+group.add(item3)
+group.add(item4)
+group.add(item5)
+
+if player.rect.colliderect(item.rect):
+    print("Collision détectée !")
+    item.kill()  # Supprime l’item
+else:
+    print("Aucune collision détectée")
+
 #Fonction quit
 def quit():
     if event.type == QUIT:
@@ -79,31 +94,45 @@ def input():
         elif player.last_direction == "left":
             player.idle_left()
 
-     
-
+curent_quantity = 0
+'''     
 def handle_resize(event):
     if event.type == pygame.VIDEORESIZE:
         new_size = (event.w, event.h)  # Nouvelle taille de la fenêtre
         pygame.display.set_mode(new_size, pygame.RESIZABLE)  # Appliquer le resize
     
-
+'''
 while True : 
 
     for event in pygame.event.get():
         quit()
-        handle_resize(event)  # Gérer le redimensionnement
+        
         
                 
         
     input()
 
+
     keys = pygame.key.get_pressed()
     player.regeneration_endurance(keys)
-    item.update()
+    
     group.update()
     group.center(player.rect.center)  # Centre la caméra sur le joueur
     group.draw(screen)
     player.affiche_ui()
+    for sprite in group.sprites():
+        if isinstance(sprite, Item) and player.rect.colliderect(sprite.rect):
+            print("Collision detectee avec",sprite.name)
+            group.remove(sprite)  # Supprime l'objet du groupe
+            player.add_to_inventory(sprite,curent_quantity)
+            
+            
+             
+
+           
+            
+            
+
     
     pygame.display.update()
     mainClock.tick(60)
