@@ -207,16 +207,16 @@ class VieouMort(object):
         return str(self.enigmes)
     
     #def temps(self):
-        self.debut = time.time()
-        self.fin = time.time()
-        self.temp = self.fin -self.debut
-        if self.temp == 10:
-            return self.temp
-        else:
-            while self.temp != 10:
-                self.debut = time.time()
-                self.fin = time.time()
-            return self.temp
+        #self.debut = time.time()
+        #self.fin = time.time()
+        #self.temp = self.fin -self.debut
+        #if self.temp == 10:
+            #return self.temp
+        #else:
+            #while self.temp != 10:
+                #self.debut = time.time()
+                #self.fin = time.time()
+            #return self.temp
         
 
     
@@ -248,6 +248,15 @@ class VieouMort(object):
 
         reponseD = fontreponse.render(self.reponsess[3],1,(0,0,0))
         self.screen.blit(reponseD,(750,600))
+
+        font_time = pygame.font.Font(None,15)
+        while self.time != 0:
+            time.sleep(1)
+            time = font_time.render(self.temps,1,(0,0,0))
+            self.screen.blit(time,(750,0))
+            self.temps -= 1
+
+        
 
     
 
