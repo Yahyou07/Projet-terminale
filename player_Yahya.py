@@ -14,8 +14,21 @@ class Player(pygame.sprite.Sprite):
         self.endurance_value = 100
         
         self.Regen = False
+
+                # Paramètres de l'inventaire
+        self.INV_X = 478  # Position X de l'inventaire
+        self.INV_Y = 790  # Position Y de l'inventaire
+        self.CELL_SIZE = 50
+        self.CELL_SPACING = 10
+        self.INV_COLS = 10
+
+
         self.inventory_bar_list = [{} for i in range(10)]
+        self.inventory_slots = [pygame.Rect(self.INV_X + i * (self.CELL_SIZE + self.CELL_SPACING), self.INV_Y, self.CELL_SIZE, self.CELL_SIZE) for i in range(self.INV_COLS)]
+        
+
         self.inventory_index = 0
+
         #On stocke ici les mouvement du personnage selon s'il marche en haut, en bas, a droite ou a gauche
         self.down  =  [pygame.image.load(f"animation/walk/walk1/down{i}.png") for i in range(1, 6)]
         self.up    =  [pygame.image.load(f"animation/walk/walk2/up{j}.png") for j in range(1, 6)]
@@ -149,6 +162,10 @@ class Player(pygame.sprite.Sprite):
         self.screen.blit(self.current_mana,(103,65))
         self.screen.blit(self.current_endurance,(20,120))
         self.screen.blit(self.inventory_bar,(450,750))
+        # Dessiner les cases d'inventaire
+        for i, slot in enumerate(self.inventory_slots):
+            pygame.draw.rect(self.screen, (125,125,125), slot, 2)
+            
     
     
     def regeneration_endurance(self,keys):
@@ -183,7 +200,7 @@ class Player(pygame.sprite.Sprite):
                 print(self.endurance_value)
                 print(elapsed)
             if elapsed>=5:
-                self.endurance_value =100
+                self.endurance_value = 100
                 print("on entre dans la derniere condition")
                 print(self.endurance_value)
                 print(elapsed)

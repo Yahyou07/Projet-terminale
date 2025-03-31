@@ -106,10 +106,7 @@ while True :
 
     for event in pygame.event.get():
         quit()
-        
-        
-                
-        
+
     input()
 
 
@@ -120,18 +117,14 @@ while True :
     group.center(player.rect.center)  # Centre la caméra sur le joueur
     group.draw(screen)
     player.affiche_ui()
+    
     for sprite in group.sprites():
         if isinstance(sprite, Item) and player.rect.colliderect(sprite.rect):
             print("Collision detectee avec",sprite.name)
             group.remove(sprite)  # Supprime l'objet du groupe
             player.add_to_inventory(sprite,curent_quantity)
             
-            
-             
 
-           
-            
-            
 
     
     pygame.display.update()
