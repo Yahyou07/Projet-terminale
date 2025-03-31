@@ -104,7 +104,7 @@ while True :
     group.center(player.rect.center)  # Centre la caméra sur le joueur
     group.draw(screen)
     player.affiche_ui()
-    dicco.affiche()
+    dicco.affiche(1)
     
     pygame.display.update()
     mainClock.tick(60)
