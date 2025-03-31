@@ -24,3 +24,4 @@ class Item(pygame.sprite.Sprite):
         
         self.time += 1
         self.rect.y = self.base_y + int(self.flottement_amplitude * math.sin(self.time * self.flottement_vitesse))
+        

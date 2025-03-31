@@ -13,7 +13,8 @@ GRAY = (200, 200, 200)
 BLACK = (0, 0, 0)
 YELLOW = (255,255,0)
 # Paramètres de l'inventaire
-INV_X, INV_Y = 50, 100
+INV_X = 50
+INV_Y = 100
 CELL_SIZE = 50
 CELL_SPACING = 10
 INV_COLS = 10
