@@ -114,6 +114,14 @@ class Enigme(object):
         self.screen.blit(reponseC,(350,600))
         reponseD = fontreponse.render(self.reponsess[3],1,(0,0,0))
         self.screen.blit(reponseD,(750,600))
+        
+        self.temps = 10
+        font_time = pygame.font.Font(None,15)
+        while self.temps != 0:
+            time.sleep(1)
+            time = font_time.render(self.temps,1,(0,0,0))
+            self.screen.blit(time,(750,0))
+            self.temps -= 1
 
 class VieouMort(object):
     """
