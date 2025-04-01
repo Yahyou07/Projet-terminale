@@ -258,18 +258,17 @@ class VieouMort(object):
         self.screen.blit(reponseD,(750,600))
 
         font_time = pygame.font.Font(None,15)
-        while self.time != 0:
+        while self.temps != 0:
+            self.temps -= 1
             time.sleep(1)
             time = font_time.render(self.temps,1,(0,0,0))
             self.screen.blit(time,(750,0))
-            self.temps -= 1
 
-        
-
-    
-
-        
-
+        if self.temps == 0:
+            font_perdu = pygame.font.Font(None, 65)
+            perdu = font_perdu.render("Le temps est écoulé",1,(255,0,0))
+            self.screen.blit(perdu,(650,550))
+            print("Temps écoulé")
 
 
 
