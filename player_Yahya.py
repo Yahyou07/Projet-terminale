@@ -17,7 +17,7 @@ class Player(pygame.sprite.Sprite):
 
                 # Paramètres de l'inventaire
         self.INV_X = 478  # Position X de l'inventaire
-        self.INV_Y = 790  # Position Y de l'inventaire
+        self.INV_Y = self.screen.get_height()-0.1*self.screen.get_height()  # Position Y de l'inventaire
         self.CELL_SIZE = 50
         self.CELL_SPACING = 10
         self.INV_COLS = 10
@@ -161,7 +161,7 @@ class Player(pygame.sprite.Sprite):
         self.screen.blit(self.current_health,(110,15))
         self.screen.blit(self.current_mana,(103,65))
         self.screen.blit(self.current_endurance,(20,120))
-        self.screen.blit(self.inventory_bar,(450,750))
+        self.screen.blit(self.inventory_bar,(450,self.screen.get_height()-0.15*self.screen.get_height()))
         # Dessiner les cases d'inventaire
         for i, slot in enumerate(self.inventory_slots):
             pygame.draw.rect(self.screen, (125,125,125), slot, 2)
