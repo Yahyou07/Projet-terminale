@@ -117,7 +117,7 @@ while True :
     group.center(player.rect.center)  # Centre la caméra sur le joueur
     group.draw(screen)
     player.affiche_ui()
-    
+    print((screen.get_width(),screen.get_height()))
     for sprite in group.sprites():
         if isinstance(sprite, Item) and player.rect.colliderect(sprite.rect):
             print("Collision detectee avec",sprite.name)

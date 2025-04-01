@@ -25,8 +25,8 @@ class Player(pygame.sprite.Sprite):
 
         self.inventory_bar_list = [{} for i in range(10)]
         self.inventory_slots = [pygame.Rect(self.INV_X + i * (self.CELL_SIZE + self.CELL_SPACING), self.INV_Y, self.CELL_SIZE, self.CELL_SIZE) for i in range(self.INV_COLS)]
-        
 
+        
         self.inventory_index = 0
 
         #On stocke ici les mouvement du personnage selon s'il marche en haut, en bas, a droite ou a gauche
@@ -165,6 +165,7 @@ class Player(pygame.sprite.Sprite):
         # Dessiner les cases d'inventaire
         for i, slot in enumerate(self.inventory_slots):
             pygame.draw.rect(self.screen, (125,125,125), slot, 2)
+        
             
     
     
@@ -219,6 +220,7 @@ class Player(pygame.sprite.Sprite):
                 
                 if curent_quantity < sprite.stack_max:  # Si la pile n'a pas atteint sa limite
                     self.inventory_bar_list[i] = {sprite.name: curent_quantity + 1}  # Ajouter 1 à la pile
+                    self.screen.blit(sprite.icon,(self.inventory_slots[i].x,self.inventory_slots[i].y)) 
                     found = True  # Indiquer que l'objet a été ajouté
                 break  # Sortir de la boucle car l'objet a été traité
 
@@ -230,14 +232,12 @@ class Player(pygame.sprite.Sprite):
                 
                 if not slot or list(slot.keys())[0] == "rien":  # Si l'emplacement est vide ou inutilisé
                     self.inventory_bar_list[i] = {sprite.name: 1}  # On crée une nouvelle pile avec 1 objet
+                    self.screen.blit(sprite.icon,(self.inventory_slots[i].x,self.inventory_slots[i].y)) 
+                    
                     break  # On sort de la boucle après avoir placé l'objet
 
     
         print(self.inventory_bar_list)
-
-
-
-
 
 
 
@@ -290,4 +290,4 @@ class Player(pygame.sprite.Sprite):
             if self.endurance_value == 100:
                 self.regen_start_time = None  # Arrêt de la régénération'
     
-            '''
+    '''
