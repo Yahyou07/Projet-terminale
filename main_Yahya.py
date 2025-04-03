@@ -26,11 +26,11 @@ tmx_data = load_pygame("maps/maps.tmx")  # Remplace par ton fichier .tmx
 player_position = tmx_data.get_object_by_name("Player")
 player = Player(player_position.x,player_position.y, screen)  # Positionner le joueur
 
-item = Item("apple",2,10,352,350)
+item = Item("apple",32,10,352,350)
 item2 = Item("plastron",32,10,352,450)
-item3 = Item("apple",2,10,352,290)
-item4 = Item("apple",2,10,352,270)
-item5 = Item("plastron",32,10,352,500)
+item3 = Item("apple",32,10,352,290)
+item4 = Item("apple",32,10,352,270)
+item5 = Item("hache",32,10,352,500)
 
 map_data = pyscroll.data.TiledMapData(tmx_data)
 
@@ -122,9 +122,10 @@ while True :
         if isinstance(sprite, Item) and player.rect.colliderect(sprite.rect):
             print("Collision detectee avec",sprite.name)
             group.remove(sprite)  # Supprime l'objet du groupe
-            player.add_to_inventory(sprite,curent_quantity)
+            player.add_to_inventory(sprite)
+            
             print(player.inventory_bar_list)
-
+            
 
     
     pygame.display.update()

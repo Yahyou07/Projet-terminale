@@ -6,8 +6,11 @@ class Item(pygame.sprite.Sprite):
         self.name = name
         self.image = pygame.image.load(f"Items/{name}.png")
         self.icon = pygame.image.load(f"Items/{name}_icon.png")
+        self.font = pygame.font.Font(None, 20)  # Police par défaut, taille 20
         self.stack_max = stack_max
         self.regen = regen
+        self.stack = 0
+        
         
         self.rect = self.image.get_rect()
         self.rect.x = pos_x

@@ -12,10 +12,13 @@ class Player(pygame.sprite.Sprite):
         self.health_value = 100
         self.mana_value = 0
         self.endurance_value = 100
-        
+        self.font = pygame.font.Font("Items\Minecraft.ttf", 14)  # Police par défaut, taille 20
         self.Regen = False
 
-                # Paramètres de l'inventaire
+        self.stack_text = [self.font.render("", True, (255, 255, 255)) for i in range(10)] 
+        #self.stack_text = self.font.render("0", True, (255, 255, 255))  # Texte blanc
+
+        # Paramètres de l'inventaire
         self.INV_X = 478  # Position X de l'inventaire
         self.INV_Y = self.screen.get_height()-0.1*self.screen.get_height()  # Position Y de l'inventaire
         self.CELL_SIZE = 50
@@ -26,6 +29,8 @@ class Player(pygame.sprite.Sprite):
         self.inventory_bar_list = [{} for i in range(10)]
         self.inventory_slots = [pygame.Rect(self.INV_X + i * (self.CELL_SIZE + self.CELL_SPACING), self.INV_Y, self.CELL_SIZE, self.CELL_SIZE) for i in range(self.INV_COLS)]
         self.inventory_icons = [pygame.image.load(f"Items\slot.png")for i in range(10)]
+
+        self.inventory_stack = [pygame.image.load(f"Items\slot1.png")for i in range(10)]
         
         self.inventory_index = 0
 
@@ -120,6 +125,7 @@ class Player(pygame.sprite.Sprite):
         self.animation(self.idle_right_mouv,0.15)
 
     def affiche_ui(self):
+        foundd = 0
         #Gestion affichage de la barre de vie selon la valeur de la vie
         if 0 < self.health_value < 20:
             self.current_health = self.health[5]
@@ -139,7 +145,7 @@ class Player(pygame.sprite.Sprite):
 
         if self.health_value < 1:
             self.health_value = 0
-        elif self.health_value >99:
+        elif self.health_value > 99:
             self.health_value = 100
         #Gestion affichage de la barre d'endurance selon la valeur de l'endurance
         if 0 < self.endurance_value < 20:
@@ -164,10 +170,14 @@ class Player(pygame.sprite.Sprite):
         self.screen.blit(self.current_endurance,(20,120))
         self.screen.blit(self.inventory_bar,(450,self.screen.get_height()-0.15*self.screen.get_height()))
         
-        x = 490
+        x = 485
         for icon in self.inventory_icons:
-            self.screen.blit(icon,(x,820))
+            self.screen.blit(icon,(x,815))
             x += 60
+        x_stack = 520
+        for stack in self.stack_text:
+            self.screen.blit(stack,(x_stack,845))
+            x_stack += 60
       
             
     
@@ -210,7 +220,8 @@ class Player(pygame.sprite.Sprite):
                 print(elapsed)
     
     
-    def add_to_inventory(self, sprite, curent_quantity):
+    def add_to_inventory(self, sprite):
+        
         # Vérifier si l'objet est déjà présent dans l'inventaire
         found = False  
 
@@ -219,11 +230,14 @@ class Player(pygame.sprite.Sprite):
             slot = self.inventory_bar_list[i]  # Récupérer l'emplacement actuel de l'inventaire
             
             if slot and list(slot.keys())[0] == sprite.name:  # Si l'objet est déjà présent
-                curent_quantity = list(slot.values())[0]  # Récupérer la quantité actuelle
+                sprite.stack = list(slot.values())[0]  # Récupérer la quantité actuelle
                 
-                if curent_quantity < sprite.stack_max:  # Si la pile n'a pas atteint sa limite
-                    self.inventory_bar_list[i] = {sprite.name: curent_quantity + 1}  # Ajouter 1 à la pile
+                if sprite.stack < sprite.stack_max:  # Si la pile n'a pas atteint sa limite
+                    stack_total = sprite.stack + 1
+                    self.inventory_bar_list[i] = {sprite.name: stack_total}  # Ajouter 1 à la pile
                     self.inventory_icons[i] = sprite.icon
+                    
+                    self.stack_text[i] = self.font.render(str(stack_total), True, (255, 255, 255))
                     found = True  # Indiquer que l'objet a été ajouté
                 break  # Sortir de la boucle car l'objet a été traité
 
@@ -234,8 +248,11 @@ class Player(pygame.sprite.Sprite):
                 slot = self.inventory_bar_list[i]  # On récupère l'emplacement actuel
                 
                 if not slot or list(slot.keys())[0] == "rien":  # Si l'emplacement est vide ou inutilisé
-                    self.inventory_bar_list[i] = {sprite.name: 1}  # On crée une nouvelle pile avec 1 objet
+                    sprite.stack = 1
+                    self.inventory_bar_list[i] = {sprite.name: sprite.stack}  # On crée une nouvelle pile avec 1 objet
                     self.inventory_icons[i] = sprite.icon
+                 
+                    self.stack_text[i] = self.font.render("1", True, (255, 255, 255))
                     break  # On sort de la boucle après avoir placé l'objet
 
     
