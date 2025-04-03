@@ -17,6 +17,8 @@ class Enigme(object):
         self.screen = screen
         self.image = pygame.image.load("enigme.png")    # chargement de l'image où il y a l'énigme
         self.image = pygame.transform.scale(self.image,(790,790)) # rétrécit l'image
+        self.Loose = False
+        self.running = True
 
     def verif_dico(self):
         """
@@ -92,11 +94,11 @@ class Enigme(object):
     def __str__(self):
         return str(self.enigmes)
     
-    def affiche(self,n : int):
-        """
+    """def affiche(self,n : int):
+        
             Méthode permettant d'afficher l'onglet énigme lorsqu'elle est appelée
             n étant le numéro de la question
-        """
+        
         #if self.search(question) == None : return "La question d'existe pas"
 
         self.screen.blit(self.image,(255,0))
@@ -118,10 +120,70 @@ class Enigme(object):
         self.temps = 10
         font_time = pygame.font.Font(None,15)
         while self.temps != 0:
-            time.sleep(1)
-            time = font_time.render(self.temps,1,(0,0,0))
-            self.screen.blit(time,(750,0))
+            time = font_time.render(str(self.temps),1,(0,0,0))
+            self.screen.blit(time,(0,0))
             self.temps -= 1
+    """
+    def affiche(self, n: int):
+        """
+        Méthode permettant d'afficher l'onglet énigme lorsqu'elle est appelée
+        avec un minuteur de 10 secondes.
+        """
+        self.question = self.questionns[n - 1]
+        self.reponsess = self.reponses[n - 1]
+        
+        fontc = pygame.font.Font(None, 60)
+        fontreponse = pygame.font.Font(None, 30)
+        font_time = pygame.font.Font(None, 40)
+        font_lose = pygame.font.Font(None, 50)
+        
+        questionn = fontc.render(self.question, True, (0, 0, 0))
+        reponseA = fontreponse.render(self.reponsess[0], True, (0, 0, 0))
+        reponseB = fontreponse.render(self.reponsess[1], True, (0, 0, 0))
+        reponseC = fontreponse.render(self.reponsess[2], True, (0, 0, 0))
+        reponseD = fontreponse.render(self.reponsess[3], True, (0, 0, 0))
+        
+        start_time = pygame.time.get_ticks()
+        print(start_time)
+        
+
+        while self.running :
+            elapsed_time = (pygame.time.get_ticks() - start_time) // 1000
+            remaining_time = max(10 - elapsed_time, 0)
+            print(remaining_time)
+            if not self.Loose : 
+                self.screen.blit(self.image, (255, 0))
+                self.screen.blit(questionn, (300, 50))
+                self.screen.blit(reponseA, (350, 500))
+                self.screen.blit(reponseB, (750, 500))
+                self.screen.blit(reponseC, (350, 600))
+                self.screen.blit(reponseD, (750, 600))
+            
+                timer_text = font_time.render(f"Temps restant : {remaining_time}", True, (255, 0, 0))
+                self.screen.blit(timer_text, (50, 50))
+            
+            pygame.display.update()
+            
+            if remaining_time == 0:
+                lose_text = font_lose.render("Temps écoulé ! Vous avez perdu.", True, (255, 0, 0))
+                self.screen.blit(lose_text, (250, 400))
+                pygame.display.update()
+                time.sleep(3)
+                pygame.display.update()
+                self.Loose = True
+                self.running = False
+                
+            
+            if self.Loose: pass
+                
+            
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
+        
+            
+
 
 class VieouMort(object):
     """
