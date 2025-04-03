@@ -19,6 +19,7 @@ class Enigme(object):
         self.image = pygame.transform.scale(self.image,(790,790)) # rétrécit l'image
         self.Loose = False
         self.running = True
+        self.Win = False
 
     def verif_dico(self):
         """
@@ -172,9 +173,8 @@ class Enigme(object):
                 pygame.display.update()
                 self.Loose = True
                 self.running = False
-                
-            
-            if self.Loose: pass
+
+            ## il faudrait concevoir le fait que les questions peuvent être clicables afin de récupérer la réponse du joueur afin de la comparer à la bonne réponse 
                 
             
             for event in pygame.event.get():
