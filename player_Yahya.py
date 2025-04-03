@@ -25,7 +25,7 @@ class Player(pygame.sprite.Sprite):
 
         self.inventory_bar_list = [{} for i in range(10)]
         self.inventory_slots = [pygame.Rect(self.INV_X + i * (self.CELL_SIZE + self.CELL_SPACING), self.INV_Y, self.CELL_SIZE, self.CELL_SIZE) for i in range(self.INV_COLS)]
-
+        self.inventory_icons = [pygame.image.load(f"Items\slot.png")for i in range(10)]
         
         self.inventory_index = 0
 
@@ -155,6 +155,7 @@ class Player(pygame.sprite.Sprite):
         elif self.endurance_value == 0:
             self.current_endurance = self.endurance[5]
 
+      
     
         #Affichage des différents UI de vie, de mana, d'endurance et le profil
         self.screen.blit(self.profile,(25,30))
@@ -162,10 +163,12 @@ class Player(pygame.sprite.Sprite):
         self.screen.blit(self.current_mana,(103,65))
         self.screen.blit(self.current_endurance,(20,120))
         self.screen.blit(self.inventory_bar,(450,self.screen.get_height()-0.15*self.screen.get_height()))
-        # Dessiner les cases d'inventaire
-        for i, slot in enumerate(self.inventory_slots):
-            pygame.draw.rect(self.screen, (125,125,125), slot, 2)
         
+        x = 490
+        for icon in self.inventory_icons:
+            self.screen.blit(icon,(x,820))
+            x += 60
+      
             
     
     
@@ -220,7 +223,7 @@ class Player(pygame.sprite.Sprite):
                 
                 if curent_quantity < sprite.stack_max:  # Si la pile n'a pas atteint sa limite
                     self.inventory_bar_list[i] = {sprite.name: curent_quantity + 1}  # Ajouter 1 à la pile
-                    self.screen.blit(sprite.icon,(self.inventory_slots[i].x,self.inventory_slots[i].y)) 
+                    self.inventory_icons[i] = sprite.icon
                     found = True  # Indiquer que l'objet a été ajouté
                 break  # Sortir de la boucle car l'objet a été traité
 
@@ -232,12 +235,11 @@ class Player(pygame.sprite.Sprite):
                 
                 if not slot or list(slot.keys())[0] == "rien":  # Si l'emplacement est vide ou inutilisé
                     self.inventory_bar_list[i] = {sprite.name: 1}  # On crée une nouvelle pile avec 1 objet
-                    self.screen.blit(sprite.icon,(self.inventory_slots[i].x,self.inventory_slots[i].y)) 
-                    
+                    self.inventory_icons[i] = sprite.icon
                     break  # On sort de la boucle après avoir placé l'objet
 
     
-        print(self.inventory_bar_list)
+
 
 
 
