@@ -29,7 +29,7 @@ class Player(pygame.sprite.Sprite):
         self.inventory_bar_list = [{} for i in range(10)]
         self.inventory_slots = [pygame.Rect(self.INV_X + i * (self.CELL_SIZE + self.CELL_SPACING), self.INV_Y, self.CELL_SIZE, self.CELL_SIZE) for i in range(self.INV_COLS)]
         self.inventory_icons = [pygame.image.load(f"Items\slot.png")for i in range(10)]
-
+        
         self.inventory_stack = [pygame.image.load(f"Items\slot1.png")for i in range(10)]
         
         self.inventory_index = 0
@@ -172,11 +172,11 @@ class Player(pygame.sprite.Sprite):
         
         x = 485
         for icon in self.inventory_icons:
-            self.screen.blit(icon,(x,815))
+            self.screen.blit(icon,(x,self.screen.get_height()-0.09*self.screen.get_height()))
             x += 60
         x_stack = 520
         for stack in self.stack_text:
-            self.screen.blit(stack,(x_stack,845))
+            self.screen.blit(stack,(x_stack,self.screen.get_height()-0.07*self.screen.get_height()))
             x_stack += 60
       
             

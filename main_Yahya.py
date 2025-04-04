@@ -26,11 +26,16 @@ tmx_data = load_pygame("maps/maps.tmx")  # Remplace par ton fichier .tmx
 player_position = tmx_data.get_object_by_name("Player")
 player = Player(player_position.x,player_position.y, screen)  # Positionner le joueur
 
-item = Item("apple",32,10,352,350)
-item2 = Item("plastron",32,10,352,450)
-item3 = Item("apple",32,10,352,290)
-item4 = Item("apple",32,10,352,270)
-item5 = Item("hache",32,10,352,500)
+item = Item("apple",1,10,352,350)
+item2 = Item("plastron",1,10,352,450)
+item3 = Item("apple",1,10,352,290)
+item4 = Item("apple",1,10,352,270)
+item5 = Item("hache",1,10,352,500)
+item6 = Item("apple",1,10,352,530)
+item7 = Item("apple",1,10,352,560)
+item8 = Item("hache",1,10,352,230)
+item9 = Item("pioche",1,10,352,700)
+item10 = Item("hache",1,10,352,350)
 
 map_data = pyscroll.data.TiledMapData(tmx_data)
 
@@ -47,6 +52,11 @@ group.add(item2)
 group.add(item3)
 group.add(item4)
 group.add(item5)
+group.add(item6)
+group.add(item7)
+group.add(item8)
+group.add(item9)
+group.add(item10)
 
 if player.rect.colliderect(item.rect):
     print("Collision détectée !")
