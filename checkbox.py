@@ -20,6 +20,8 @@ while running:
     # Checkbox
     pygame.draw.rect(screen, (0, 0, 0), checkbox_rect, 2)
     if checked:
+        
+        print("ta grand mere")
         pygame.draw.line(screen, (0, 0, 0), (checkbox_rect.left + 4, checkbox_rect.centery),
                          (checkbox_rect.centerx, checkbox_rect.bottom - 4), 2)
         pygame.draw.line(screen, (0, 0, 0), (checkbox_rect.centerx, checkbox_rect.bottom - 4),
