@@ -28,3 +28,9 @@ class Save_game(object):
                     if self.quit.collidepoint(event.pos):
                         print("êtes vous sûr de quitter ?")
 
+    def sauvegarder(self,joueur):
+        pass
+
+
+    
+
