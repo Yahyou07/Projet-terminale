@@ -23,7 +23,7 @@ class Save_game(object):
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    running = False
+                    self.running = False
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     if self.quit.collidepoint(event.pos):
                         print("êtes vous sûr de quitter ?")
