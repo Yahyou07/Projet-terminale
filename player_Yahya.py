@@ -12,25 +12,31 @@ class Player(pygame.sprite.Sprite):
         self.health_value = 100
         self.mana_value = 0
         self.endurance_value = 100
-        self.font = pygame.font.Font("Items\Minecraft.ttf", 14)  # Police par défaut, taille 20
+        self.font = pygame.font.Font("Items/Minecraft.ttf", 14)  # Police par défaut, taille 20
         self.Regen = False
 
-        self.stack_text = [self.font.render("", True, (255, 255, 255)) for i in range(10)] 
+        self.inventory_image = pygame.image.load("UI/Inventories/inventaire_bag.png")
+
+        
         #self.stack_text = self.font.render("0", True, (255, 255, 255))  # Texte blanc
 
         # Paramètres de l'inventaire
         self.INV_X = 478  # Position X de l'inventaire
         self.INV_Y = self.screen.get_height()-0.1*self.screen.get_height()  # Position Y de l'inventaire
         self.CELL_SIZE = 50
-        self.CELL_SPACING = 10
+        self.CELL_SPACING = 25
         self.INV_COLS = 10
 
-
+        #Liste de la barre d'inventaire
         self.inventory_bar_list = [{} for i in range(10)]
-        self.inventory_slots = [pygame.Rect(self.INV_X + i * (self.CELL_SIZE + self.CELL_SPACING), self.INV_Y, self.CELL_SIZE, self.CELL_SIZE) for i in range(self.INV_COLS)]
-        self.inventory_icons = [pygame.image.load(f"Items\slot.png")for i in range(10)]
+        self.inventory_icons = [pygame.image.load(f"Items/slot.png")for i in range(10)]
+        self.stack_text = [self.font.render("", True, (255, 255, 255)) for i in range(10)] 
         
-        self.inventory_stack = [pygame.image.load(f"Items\slot1.png")for i in range(10)]
+        #Tableaux de l'inventaire :
+        # Inventaire étendu (sac) : 6 colonnes × 5 lignes = 30 emplacements
+        self.inventory_list = [[{} for _ in range(6)] for _ in range(5)]
+        self.inventory_bag_icon = [[pygame.image.load("Items/slot.png") for _ in range(6)] for _ in range(5)]
+        self.inventory_bag_stack_text = [[self.font.render("", True, (255, 255, 255)) for _ in range(6)] for _ in range(5)]
         
         self.inventory_index = 0
 
@@ -72,7 +78,10 @@ class Player(pygame.sprite.Sprite):
         self.rect.y = pos_y
         # Variable qui stocke la dernière direction du personnage, par défaut on la met à down
         self.last_direction = "down"
-        print(self.health_value)
+        
+        #Attribut pour le dragging and drop
+        self.dragging_item = None  # Contiendra un dict comme {"name": ..., "icon": ..., "stack": ...}
+        self.dragging_from = None  # ("bar", index) ou ("bag", row, col)
     
     
     def animation(self,liste_mouv,speed):
@@ -178,8 +187,31 @@ class Player(pygame.sprite.Sprite):
         for stack in self.stack_text:
             self.screen.blit(stack,(x_stack,self.screen.get_height()-0.07*self.screen.get_height()))
             x_stack += 60
-      
-            
+        # Contour vert pour slots vides de la barre d'inventaire
+        
+ 
+    def display_inventory(self):     
+                # Affiche l'image de l'inventaire centrée à l'écran
+        x = self.screen.get_width() // 2 - self.inventory_image.get_width() // 2 - 50
+        y = self.screen.get_height() // 2 - self.inventory_image.get_height() // 2
+        self.screen.blit(self.inventory_image, (x, y))  
+
+        # Affichage du contenu de l'inventaire sac (6x5)
+        start_x = 595  # Position X de la première cellule
+        start_y = 290  # Position Y de la première cellule
+        for row in range(5):
+            for col in range(6):
+                slot_x = start_x + col * (self.CELL_SIZE + self.CELL_SPACING)
+                slot_y = start_y + row * (self.CELL_SIZE + self.CELL_SPACING)
+                icon = self.inventory_bag_icon[row][col]
+                stack = self.inventory_bag_stack_text[row][col]
+
+                self.screen.blit(icon, (slot_x, slot_y))
+                self.screen.blit(stack, (slot_x + 25, slot_y + 30))  # Position du texte dans la cellule
+
+
+       
+
     
     
     def regeneration_endurance(self,keys):
@@ -195,65 +227,71 @@ class Player(pygame.sprite.Sprite):
             elapsed = time.time() - self.start_time
             if 0<elapsed<1:
                 self.endurance_value = 20
-                print("on entre dans la première condition")
-                print(self.endurance_value)
-                print(elapsed)
+                
             if 1<elapsed<2:
                 self.endurance_value = 39
-                print("on entre dans la 2 eme condition")
-                print(self.endurance_value)
-                print(elapsed)
+                
             if 2<elapsed<3:
                 self.endurance_value = 59
-                print("on entre dans la 3 eme condition")
-                print(self.endurance_value)
-                print(elapsed)
+                
             if 3<elapsed<4:
                 self.endurance_value = 79
-                print("on entre dans la 4 eme condition")
-                print(self.endurance_value)
-                print(elapsed)
+                
             if elapsed>=5:
                 self.endurance_value = 100
-                print("on entre dans la derniere condition")
-                print(self.endurance_value)
-                print(elapsed)
+                
     
     
     def add_to_inventory(self, sprite):
         
-        # Vérifier si l'objet est déjà présent dans l'inventaire
-        found = False  
+        found = False
 
-        # Parcourir l'inventaire pour voir si l'objet existe déjà
+        # D'abord on tente dans la barre rapide
         for i in range(len(self.inventory_bar_list)):
-            slot = self.inventory_bar_list[i]  # Récupérer l'emplacement actuel de l'inventaire
-            
-            if slot and list(slot.keys())[0] == sprite.name:  # Si l'objet est déjà présent
-                sprite.stack = list(slot.values())[0]  # Récupérer la quantité actuelle
-                
-                if sprite.stack < sprite.stack_max:  # Si la pile n'a pas atteint sa limite
+            slot = self.inventory_bar_list[i]
+            if slot and list(slot.keys())[0] == sprite.name:
+                sprite.stack = list(slot.values())[0]
+                if sprite.stack < sprite.stack_max:
                     stack_total = sprite.stack + 1
-                    self.inventory_bar_list[i] = {sprite.name: stack_total}  # Ajouter 1 à la pile
+                    self.inventory_bar_list[i] = {sprite.name: stack_total}
                     self.inventory_icons[i] = sprite.icon
-                    
                     self.stack_text[i] = self.font.render(str(stack_total), True, (255, 255, 255))
-                    found = True  # Indiquer que l'objet a été ajouté
-                break  # Sortir de la boucle car l'objet a été traité
+                    found = True
+                break
 
-        # Si l'objet n'a pas été trouvé ou toutes les piles sont pleines, on cherche un emplacement vide
         if not found:
-            # Rechercher un slot vide dans l'inventaire
+            # On essaye de trouver un slot vide dans la barre 
             for i in range(len(self.inventory_bar_list)):
-                slot = self.inventory_bar_list[i]  # On récupère l'emplacement actuel
-                
-                if not slot or list(slot.keys())[0] == "rien":  # Si l'emplacement est vide ou inutilisé
+                slot = self.inventory_bar_list[i]
+                if not slot or list(slot.keys())[0] == "rien":
                     sprite.stack = 1
-                    self.inventory_bar_list[i] = {sprite.name: sprite.stack}  # On crée une nouvelle pile avec 1 objet
+                    self.inventory_bar_list[i] = {sprite.name: sprite.stack}
                     self.inventory_icons[i] = sprite.icon
-                 
                     self.stack_text[i] = self.font.render("1", True, (255, 255, 255))
-                    break  # On sort de la boucle après avoir placé l'objet
+                    return
+
+            # Sinon, stocker dans le sac (grille 6x5)
+            for row in range(5):
+                for col in range(6):
+                    slot = self.inventory_list[row][col]
+                    if slot and list(slot.keys())[0] == sprite.name:
+                        sprite.stack = list(slot.values())[0]
+                        if sprite.stack < sprite.stack_max:
+                            stack_total = sprite.stack + 1
+                            self.inventory_list[row][col] = {sprite.name: stack_total}
+                            self.inventory_bag_icon[row][col] = sprite.icon
+                            self.inventory_bag_stack_text[row][col] = self.font.render(str(stack_total), True, (255, 255, 255))
+                            return
+
+            for row in range(5):
+                for col in range(6):
+                    slot = self.inventory_list[row][col]
+                    if not slot or list(slot.keys())[0] == "rien":
+                        sprite.stack = 1
+                        self.inventory_list[row][col] = {sprite.name: sprite.stack}
+                        self.inventory_bag_icon[row][col] = sprite.icon
+                        self.inventory_bag_stack_text[row][col] = self.font.render("1", True, (255, 255, 255))
+                        return
 
     
 
