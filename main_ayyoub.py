@@ -9,6 +9,7 @@ import pyscroll
 import pyscroll.data
 import time
 from  scripte.enigme import *
+from scripte.save_game import*
 pygame.init()
 pygame.display.set_caption("Jeu")
 
