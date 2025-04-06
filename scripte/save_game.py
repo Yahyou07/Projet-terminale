@@ -13,7 +13,7 @@ class Save_game(object):
         self.running = True # Variable pour la boucle principale
 
 
-    def affiche(self,level_joueur,joueur):
+    def affiche(self,joueur,level_joueur):
         """
             Affiche le menu de sauvegarde et du quitter
             level_joueur : le niveau du joueur 
@@ -51,7 +51,33 @@ class Save_game(object):
         curseur.close()
         connexion.commit()
         connexion.close()
+    
+    def parametre(self):
+        """
+            Affiche les paramètres du jeu
+        """
+        parametre = pygame.Rect(0, 800, 100, 30)
+        font_parametre = pygame.font.SysFont(None,50)  
+        text_parametre = "Parametre"
+        pygame.draw.rect(self.screen, (255,255,255), parametre)
+        pygame.draw.rect(self.screen, (0, 0, 0), parametre, 2)
+        text_surf = font_parametre.render(text_parametre, True, (0, 0, 0))
+        self.screen.blit(text_surf, (parametre.x + 5, parametre.y + 5))
+        pygame.display.update()
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if parametre.collidepoint(event.pos):
+                    print("Parametre du jeu")
+                    self.running = False
+                    # Appeler la fonction pour afficher les paramètres du jeu ici
+                    # Vous pouvez créer une nouvelle classe pour gérer les paramètres du jeu
+                    # ou afficher un menu de paramètres
+
+                    # Exemple : self.afficher_parametres()
+                    # self.afficher_parametres()
+                    
         pass
+        
 
 
     
