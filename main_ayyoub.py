@@ -62,7 +62,7 @@ def quit():
 def input():
     pressed = pygame.key.get_pressed()
     dx, dy = 0, 0
-    sprinting = pressed[pygame.K_r] and player.endurance_value > 0  # Vérifie si le joueur peut sprinter
+    sprinting = pressed[pygame.K_LSHIFT] and player.endurance_value > 0  # Vérifie si le joueur peut sprinter
 
     if pressed[pygame.K_UP] or pressed[pygame.K_z]:
         dy = -1
@@ -110,7 +110,6 @@ while True :
     group.draw(screen)
     player.affiche_ui()
     dicco.affiche(1)
-    Save_game(screen).affiche(1)
     
     pygame.display.update()
     mainClock.tick(60)
