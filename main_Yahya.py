@@ -134,7 +134,8 @@ while True :
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_e:
                 show_inventory = not show_inventory  # On inverse l'état de l'inventaire
-        
+        if show_inventory:
+            player.drag_and_drop_inventory(event)
 
     input()
 

@@ -293,7 +293,11 @@ class Player(pygame.sprite.Sprite):
                         self.inventory_bag_stack_text[row][col] = self.font.render("1", True, (255, 255, 255))
                         return
 
-    
+        
+    def drag_and_drop_inventory(self,event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button ==1:
+                print("bonjour")
 
 
 

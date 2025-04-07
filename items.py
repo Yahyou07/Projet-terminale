@@ -15,7 +15,8 @@ class Item(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = pos_x
         self.rect.y = pos_y
-    
+
+        self.rect_icon = self.icon.get_rect()
 
         # Variables pour le flottement
         self.base_y = pos_y  # Position de base
