@@ -19,11 +19,13 @@ dico = """{
 }"""
 
 
+
 #Définition de la fenêtre 
 coordonnee = (1300,790)
 screen = pygame.display.set_mode(coordonnee,pygame.RESIZABLE)
 
 dicco = Enigme(dico,screen)
+save_menu = Save_game(screen)
 
 # Chargement de la carte Tiled
 tmx_data = load_pygame("maps/maps.tmx")  # Remplace par ton fichier .tmx
@@ -99,17 +101,20 @@ while True :
     for event in pygame.event.get():
         quit()
         handle_resize(event)  # Gérer le redimensionnement
+        save_menu.handle_event(event,"rien",1)
+    
+
         
     input()
         
     keys = pygame.key.get_pressed()
     player.regeneration_endurance(keys)
     
+    
     group.update()
     group.center(player.rect.center)  # Centre la caméra sur le joueur
     group.draw(screen)
     player.affiche_ui()
-    dicco.affiche(1)
-    
+    save_menu.update()
     pygame.display.update()
     mainClock.tick(60)
