@@ -2,7 +2,7 @@ import pygame,sys
 import pytmx
 from pytmx.util_pygame import load_pygame
 import pytmx.util_pygame
-from player_Yahya import *
+from player_raph import *
 from items import *
 mainClock = pygame.time.Clock()
 from pygame.locals import *
@@ -36,16 +36,6 @@ item7 = Item("apple",1,10,352,560)
 item8 = Item("hache",1,10,352,230)
 item9 = Item("pioche",1,10,352,700)
 item10 = Item("hache",1,10,352,350)
-item11 = Item("pain",1,10,360,200)
-
-item12 = Item("apple",1,10,352,560)
-item13 = Item("hache",1,10,352,230)
-item14 = Item("pioche",1,10,352,700)
-item15 = Item("hache",1,10,352,350)
-item16 = Item("pain",1,10,360,200)
-
-item17 = Item("apple",1,10,352,180)
-item18 = Item("pain",1,10,360,150)
 
 map_data = pyscroll.data.TiledMapData(tmx_data)
 
@@ -56,8 +46,7 @@ map_layer.zoom = 2  # Facteur de zoom (1 = taille normale, 2 = zoomé x2)
 # Créer un groupe de sprites avec caméra centrée
 group = pyscroll.PyscrollGroup(map_layer=map_layer, default_layer=1)
 
-# Ajoute les objets au groupe
-group.add(player)  
+group.add(player)  # Ajoute le joueur au groupe
 group.add(item)
 group.add(item2)
 group.add(item3)
@@ -68,15 +57,6 @@ group.add(item7)
 group.add(item8)
 group.add(item9)
 group.add(item10)
-group.add(item11)
-
-group.add(item12)
-group.add(item13)
-group.add(item14)
-group.add(item15)
-group.add(item16)
-group.add(item17)
-group.add(item18)
 
 if player.rect.colliderect(item.rect):
     print("Collision détectée !")
@@ -111,7 +91,7 @@ def input():
         dx = -1
     if pressed[pygame.K_RIGHT] or pressed[pygame.K_d]:
         dx = 1
-    
+
     # si le bouton est pressé, le perso attaque
     if pressed[pygame.K_a]:
         attacking = 1
@@ -136,17 +116,17 @@ def input():
             player.idle_left()
 
 curent_quantity = 0
-
-show_inventory = False
+'''     
+def handle_resize(event):
+    if event.type == pygame.VIDEORESIZE:
+        new_size = (event.w, event.h)  # Nouvelle taille de la fenêtre
+        pygame.display.set_mode(new_size, pygame.RESIZABLE)  # Appliquer le resize
+    
+'''
 while True : 
 
     for event in pygame.event.get():
         quit()
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_e:
-                show_inventory = not show_inventory  # On inverse l'état de l'inventaire
-        if show_inventory:
-            player.drag_and_drop_inventory(event)
 
     input()
 
@@ -165,17 +145,9 @@ while True :
             group.remove(sprite)  # Supprime l'objet du groupe
             player.add_to_inventory(sprite)
             
-            print("**barre d'inventaire**")
             print(player.inventory_bar_list)
-            print()
-            print("**Inventaire**")
             
-            for i in player.inventory_list:
-                print(i)
 
-    if show_inventory:
-        player.display_inventory()  # Appelle une méthode pour afficher l'inventaire 
-
+    
     pygame.display.update()
     mainClock.tick(60)
-   
