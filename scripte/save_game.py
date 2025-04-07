@@ -89,3 +89,5 @@ class Save_game(object):
             pygame.draw.rect(self.screen, (0, 0, 0), self.confirm_no, 2)
             no_text = font.render("Non", True, (0, 0, 0))
             self.screen.blit(no_text, (self.confirm_no.x + 50, self.confirm_no.y + 10))
+
+            pygame.display.update()
