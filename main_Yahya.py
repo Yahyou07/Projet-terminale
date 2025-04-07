@@ -35,8 +35,8 @@ item6 = Item("rubis",24,10,352,530)
 item7 = Item("apple",24,10,352,560)
 item8 = Item("hache",1,10,352,230)
 item9 = Item("pioche",1,10,352,700)
-item10 = Item("pain",24,10,352,350)
-item10 = Item("sword",24,10,352,130)
+item10 = Item("fish",24,10,352,710)
+item11 = Item("fish",24,10,352,130)
 
 
 
@@ -61,7 +61,7 @@ group.add(item7)
 group.add(item8)
 group.add(item9)
 group.add(item10)
-
+group.add(item11)
 
 
 #Fonction quit
@@ -80,7 +80,7 @@ def quit():
 def input():
     pressed = pygame.key.get_pressed()
     dx, dy = 0, 0
-    attacking = 0
+    
     sprinting = pressed[pygame.K_r] and player.endurance_value > 0 and player.Regen ==False  # Vérifie si le joueur peut sprinter
 
     if pressed[pygame.K_UP] or pressed[pygame.K_z]:
@@ -99,10 +99,8 @@ def input():
         dy = 0
 
     if dx != 0 or dy != 0:
-        player.move(dx, dy, attacking, sprinting)  # Passe la variable sprinting
+        player.move(dx, dy, sprinting)  # Passe la variable sprinting
 
-    if attacking == 1:
-        player.move(dx, dy, attacking, sprinting)
 
     else:
         # Animation idle quand le joueur ne bouge pas
