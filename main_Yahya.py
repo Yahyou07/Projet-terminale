@@ -26,26 +26,19 @@ tmx_data = load_pygame("maps/maps.tmx")  # Remplace par ton fichier .tmx
 player_position = tmx_data.get_object_by_name("Player")
 player = Player(player_position.x,player_position.y, screen)  # Positionner le joueur
 
-item = Item("apple",1,10,352,350)
+item = Item("apple",24,10,352,350)
 item2 = Item("plastron",1,10,352,450)
-item3 = Item("apple",1,10,352,290)
-item4 = Item("apple",1,10,352,270)
+item3 = Item("apple",24,10,352,290)
+item4 = Item("apple",24,10,352,270)
 item5 = Item("hache",1,10,352,500)
-item6 = Item("apple",1,10,352,530)
-item7 = Item("apple",1,10,352,560)
+item6 = Item("rubis",24,10,352,530)
+item7 = Item("apple",24,10,352,560)
 item8 = Item("hache",1,10,352,230)
 item9 = Item("pioche",1,10,352,700)
-item10 = Item("hache",1,10,352,350)
-item11 = Item("pain",1,10,360,200)
+item10 = Item("pain",24,10,352,350)
+item10 = Item("sword",24,10,352,130)
 
-item12 = Item("apple",1,10,352,560)
-item13 = Item("hache",1,10,352,230)
-item14 = Item("pioche",1,10,352,700)
-item15 = Item("hache",1,10,352,350)
-item16 = Item("pain",1,10,360,200)
 
-item17 = Item("apple",1,10,352,180)
-item18 = Item("pain",1,10,360,150)
 
 map_data = pyscroll.data.TiledMapData(tmx_data)
 
@@ -68,21 +61,8 @@ group.add(item7)
 group.add(item8)
 group.add(item9)
 group.add(item10)
-group.add(item11)
 
-group.add(item12)
-group.add(item13)
-group.add(item14)
-group.add(item15)
-group.add(item16)
-group.add(item17)
-group.add(item18)
 
-if player.rect.colliderect(item.rect):
-    print("Collision détectée !")
-    item.kill()  # Supprime l’item
-else:
-    print("Aucune collision détectée")
 
 #Fonction quit
 def quit():
@@ -135,7 +115,7 @@ while True :
             if event.key == pygame.K_e:
                 show_inventory = not show_inventory  # On inverse l'état de l'inventaire
         if show_inventory:
-            player.drag_and_drop_inventory(event)
+            player.handle_mouse_events(event)
 
     input()
 
@@ -158,12 +138,13 @@ while True :
             print(player.inventory_bar_list)
             print()
             print("**Inventaire**")
-            
             for i in player.inventory_list:
                 print(i)
 
     if show_inventory:
+        
         player.display_inventory()  # Appelle une méthode pour afficher l'inventaire 
+        
 
     pygame.display.update()
     mainClock.tick(60)

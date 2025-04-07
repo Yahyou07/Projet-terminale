@@ -80,9 +80,9 @@ class Player(pygame.sprite.Sprite):
         self.last_direction = "down"
         
         #Attribut pour le dragging and drop
-        self.dragging_item = None  # Contiendra un dict comme {"name": ..., "icon": ..., "stack": ...}
-        self.dragging_from = None  # ("bar", index) ou ("bag", row, col)
-    
+
+        self.dragging_item = None  # L'objet en cours de glisser-déposer
+        self.drag_start_pos = None  # Position de départ de l'objet glissé
     
     def animation(self,liste_mouv,speed):
         self.current_sprite += speed
@@ -189,25 +189,40 @@ class Player(pygame.sprite.Sprite):
             x_stack += 60
         # Contour vert pour slots vides de la barre d'inventaire
         
- 
-    def display_inventory(self):     
-                # Affiche l'image de l'inventaire centrée à l'écran
+    def is_mouse_on_slot(self, x, y, width, height):
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        return x <= mouse_x <= x + width and y <= mouse_y <= y + height
+    
+    def display_inventory(self):
+        # Affichage de l'image de l'inventaire
         x = self.screen.get_width() // 2 - self.inventory_image.get_width() // 2 - 50
         y = self.screen.get_height() // 2 - self.inventory_image.get_height() // 2
-        self.screen.blit(self.inventory_image, (x, y))  
+        self.screen.blit(self.inventory_image, (x, y))
 
-        # Affichage du contenu de l'inventaire sac (6x5)
         start_x = 595  # Position X de la première cellule
         start_y = 290  # Position Y de la première cellule
-        for row in range(5):
-            for col in range(6):
-                slot_x = start_x + col * (self.CELL_SIZE + self.CELL_SPACING)
-                slot_y = start_y + row * (self.CELL_SIZE + self.CELL_SPACING)
+        for row in range(5):  # 5 lignes
+            for col in range(6):  # 6 colonnes
+                slot_x = start_x + col * (self.CELL_SIZE + self.CELL_SPACING)-10
+                slot_y = start_y + row * (self.CELL_SIZE + self.CELL_SPACING)-10
                 icon = self.inventory_bag_icon[row][col]
                 stack = self.inventory_bag_stack_text[row][col]
 
+                # Si l'objet est glissé sur ce slot, afficher un contour
+                if self.is_mouse_on_slot(slot_x, slot_y, self.CELL_SIZE, self.CELL_SIZE):
+                    pygame.draw.rect(self.screen, (0, 255, 0), (slot_x, slot_y, self.CELL_SIZE, self.CELL_SIZE), 3)
+
                 self.screen.blit(icon, (slot_x, slot_y))
                 self.screen.blit(stack, (slot_x + 25, slot_y + 30))  # Position du texte dans la cellule
+
+        # Si un objet est en cours de glisser-déposer, afficher l'icône à la position de la souris
+        if self.dragging_item and 'icon' in self.dragging_item:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            # Afficher l'icône de l'item au-dessus de la souris
+            self.screen.blit(self.dragging_item['icon'], (mouse_x - self.CELL_SIZE // 2, mouse_y - self.CELL_SIZE // 2))
+
+
+
 
 
        
@@ -240,115 +255,207 @@ class Player(pygame.sprite.Sprite):
             if elapsed>=5:
                 self.endurance_value = 100
                 
-    
+
     
     def add_to_inventory(self, sprite):
-        
         found = False
 
-        # D'abord on tente dans la barre rapide
+        # Tenter d'empiler dans la barre d'inventaire
         for i in range(len(self.inventory_bar_list)):
             slot = self.inventory_bar_list[i]
-            if slot and list(slot.keys())[0] == sprite.name:
-                sprite.stack = list(slot.values())[0]
-                if sprite.stack < sprite.stack_max:
-                    stack_total = sprite.stack + 1
-                    self.inventory_bar_list[i] = {sprite.name: stack_total}
+            if slot and slot.get("name") == sprite.name:
+                current_qty = slot["quantity"]
+                if current_qty < sprite.stack_max:
+                    stack_total = min(current_qty + 1, sprite.stack_max)
+                    self.inventory_bar_list[i] = {'name': sprite.name, 'quantity': stack_total}
                     self.inventory_icons[i] = sprite.icon
                     self.stack_text[i] = self.font.render(str(stack_total), True, (255, 255, 255))
                     found = True
                 break
 
         if not found:
-            # On essaye de trouver un slot vide dans la barre 
+            # Chercher un slot vide dans la barre
             for i in range(len(self.inventory_bar_list)):
                 slot = self.inventory_bar_list[i]
-                if not slot or list(slot.keys())[0] == "rien":
-                    sprite.stack = 1
-                    self.inventory_bar_list[i] = {sprite.name: sprite.stack}
+                if not slot or slot.get("name") == "rien":
+                    self.inventory_bar_list[i] = {'name': sprite.name, 'quantity': 1}
                     self.inventory_icons[i] = sprite.icon
                     self.stack_text[i] = self.font.render("1", True, (255, 255, 255))
                     return
 
-            # Sinon, stocker dans le sac (grille 6x5)
+            # Tenter d'empiler dans le sac (6x5)
             for row in range(5):
                 for col in range(6):
                     slot = self.inventory_list[row][col]
-                    if slot and list(slot.keys())[0] == sprite.name:
-                        sprite.stack = list(slot.values())[0]
-                        if sprite.stack < sprite.stack_max:
-                            stack_total = sprite.stack + 1
-                            self.inventory_list[row][col] = {sprite.name: stack_total}
+                    if slot and slot.get("name") == sprite.name:
+                        current_qty = slot["quantity"]
+                        if current_qty < sprite.stack_max:
+                            stack_total = min(current_qty + 1, sprite.stack_max)
+                            self.inventory_list[row][col] = {'name': sprite.name, 'quantity': stack_total}
                             self.inventory_bag_icon[row][col] = sprite.icon
                             self.inventory_bag_stack_text[row][col] = self.font.render(str(stack_total), True, (255, 255, 255))
                             return
 
+            # Sinon, chercher un slot vide dans le sac
             for row in range(5):
                 for col in range(6):
                     slot = self.inventory_list[row][col]
-                    if not slot or list(slot.keys())[0] == "rien":
-                        sprite.stack = 1
-                        self.inventory_list[row][col] = {sprite.name: sprite.stack}
+                    if not slot or slot.get("name") == "rien":
+                        self.inventory_list[row][col] = {'name': sprite.name, 'quantity': 1}
                         self.inventory_bag_icon[row][col] = sprite.icon
                         self.inventory_bag_stack_text[row][col] = self.font.render("1", True, (255, 255, 255))
                         return
 
-        
+
     def drag_and_drop_inventory(self,event):
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button ==1:
-                print("bonjour")
-
-
-
-
-
-##################################################################################
-
-#fonctions données par GPT
-    '''
-    def add_to_inventory(self, item):
-        item_name = item.name  # Nom de l'item (ex: "apple" ou "fish")
-
-        for i in range(len(self.inventory_bar_list)):
-            if isinstance(self.inventory_bar_list[i], dict) and self.inventory_bar_list[i]["name"] == item_name:
-                # Si l'item existe déjà dans l'inventaire et n'a pas atteint sa limite de stack
-                if self.inventory_bar_list[i]["quantity"] < item.items[item_name]["stack_max"]:
-                    self.inventory_bar_list[i]["quantity"] += 1
-                    print(f"Ajout de {item_name} (x{self.inventory_bar_list[i]['quantity']}) à l'emplacement {i}")
-                    return
-
-        # Sinon, trouve un emplacement vide et ajoute l'item
-        for i in range(len(self.inventory_bar_list)):
-            if self.inventory_bar_list[i] == 0:  # Slot vide
-                self.inventory_bar_list[i] = {"name": item_name, "quantity": 1}
-                print(f"Nouveau {item_name} ajouté à l'inventaire (slot {i})")
-                return
-    '''
-
-    '''
-    def regeneration_endurance(self, keys):
-        if self.endurance_value == 0:
-            self.Regen = True
-        if self.endurance_value == 100:
-            self.Regen = False
-            self.regen_start_time = None  # Réinitialisation du chrono
-        
-        if self.Regen and self.endurance_value < 100 and not keys[pygame.K_r]:
-            if self.regen_start_time is None:
-                self.regen_start_time = time.time()
-            
-            elapsed = time.time() - self.regen_start_time
-            regen_duration = 70  # Durée totale de la régénération en secondes
-            regen_rate = 100 / regen_duration  # Points d'endurance récupérés par seconde
-            
-            new_value = min(100, self.endurance_value + int(elapsed * regen_rate))
-            
-            if new_value > self.endurance_value:
-                self.endurance_value = new_value
-                print(f"Endurance: {self.endurance_value}")
-            
-            if self.endurance_value == 100:
-                self.regen_start_time = None  # Arrêt de la régénération'
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            for i in range(10):
+                pass
     
+
+
+    def handle_mouse_events(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+
+            # Vérifier si la souris est sur un slot de la barre d'inventaire
+            for i in range(10):
+                if self.is_mouse_on_slot(485 + i * 60, self.screen.get_height() - 90, 50, 50):
+                    if self.inventory_bar_list[i]:
+                        self.dragging_item = self.inventory_bar_list[i]
+                        self.dragging_item['icon'] = self.inventory_icons[i]
+                        self.drag_start_pos = ("bar", i)
+                        self.inventory_bar_list[i] = {}
+                        self.inventory_icons[i] = pygame.image.load(f"Items/slot.png")
+                        self.stack_text[i] = pygame.image.load(f"Items/slot.png")
+
+            # Vérifier si la souris est sur un slot de l'inventaire 6x5
+            for row in range(5):
+                for col in range(6):
+                    if self.is_mouse_on_slot(595 + col * (self.CELL_SIZE + self.CELL_SPACING), 290 + row * (self.CELL_SIZE + self.CELL_SPACING), self.CELL_SIZE, self.CELL_SIZE):
+                        if self.inventory_list[row][col]:
+                            self.dragging_item = self.inventory_list[row][col]
+                            self.dragging_item['icon'] = self.inventory_bag_icon[row][col]
+                            self.drag_start_pos = ("bag", row, col)
+                            self.inventory_list[row][col] = {}
+                            self.inventory_bag_icon[row][col] = pygame.image.load("Items/slot.png")
+                            self.inventory_bag_stack_text[row][col] = pygame.image.load("Items/slot.png")
+
+        elif event.type == pygame.MOUSEBUTTONUP:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+
+            # Déposer l'objet dans la barre d'outils
+            for i in range(10):
+                if self.is_mouse_on_slot(485 + i * 60, self.screen.get_height() - 90, 50, 50):
+                    if self.dragging_item:
+                        # échange
+                        if self.inventory_bar_list[i]:
+                            temp = self.inventory_bar_list[i]
+                            temp_icon = self.inventory_icons[i]
+                            temp_text = self.stack_text[i]
+                            origin = self.drag_start_pos
+                            if origin[0] == "bar":
+                                self.inventory_bar_list[origin[1]] = temp
+                                self.inventory_icons[origin[1]] = temp_icon
+                                self.stack_text[origin[1]] = temp_text
+                            elif origin[0] == "bag":
+                                self.inventory_list[origin[1]][origin[2]] = temp
+                                self.inventory_bag_icon[origin[1]][origin[2]] = temp_icon
+                                self.inventory_bag_stack_text[origin[1]][origin[2]] = temp_text
+                        self.inventory_bar_list[i] = self.dragging_item
+                        self.inventory_icons[i] = self.dragging_item['icon']
+                        self.stack_text[i] = self.font.render(str(self.dragging_item['quantity']), True, (255, 255, 255))
+                        self.dragging_item = None
+                        self.drag_start_pos = None
+                        break
+
+            # Déposer dans l'inventaire 6x5
+            for row in range(5):
+                for col in range(6):
+                    if self.is_mouse_on_slot(595 + col * (self.CELL_SIZE + self.CELL_SPACING), 290 + row * (self.CELL_SIZE + self.CELL_SPACING), self.CELL_SIZE, self.CELL_SIZE):
+                        if self.dragging_item:
+                            # échange
+                            if self.inventory_list[row][col]:
+                                temp = self.inventory_list[row][col]
+                                temp_icon = self.inventory_bag_icon[row][col]
+                                temp_text = self.inventory_bag_stack_text[row][col]
+                                origin = self.drag_start_pos
+                                if origin[0] == "bar":
+                                    self.inventory_bar_list[origin[1]] = temp
+                                    self.inventory_icons[origin[1]] = temp_icon
+                                    self.stack_text[origin[1]] = temp_text
+                                elif origin[0] == "bag":
+                                    self.inventory_list[origin[1]][origin[2]] = temp
+                                    self.inventory_bag_icon[origin[1]][origin[2]] = temp_icon
+                                    self.inventory_bag_stack_text[origin[1]][origin[2]] = temp_text
+                            self.inventory_list[row][col] = self.dragging_item
+                            self.inventory_bag_icon[row][col] = self.dragging_item['icon']
+                            self.inventory_bag_stack_text[row][col] = self.font.render(str(self.dragging_item['quantity']), True, (255, 255, 255))
+                            self.dragging_item = None
+                            self.drag_start_pos = None
+                            break
+
+
+
     '''
+    def handle_mouse_events(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+
+            # Vérifier si la souris est sur un slot de la barre d'inventaire
+            for i in range(10):  # Barre d'inventaire avec 10 slots
+                if self.is_mouse_on_slot(485 + i * 60, self.screen.get_height() - 90, 50, 50):
+                    if self.inventory_bar_list[i]:
+                        self.dragging_item = self.inventory_bar_list[i]  # Assurez-vous que l'objet est stocké ici
+                        self.dragging_item['icon'] = self.inventory_icons[i]  # Ajoutez l'icône ici
+                        self.drag_start_pos = ("bar", i)
+                        self.inventory_bar_list[i] = {}
+                        self.inventory_icons[i] = pygame.image.load(f"Items/slot.png")
+                        self.stack_text[i] = pygame.image.load(f"Items/slot.png")
+
+            # Vérifier si la souris est sur un slot de l'inventaire 6x5
+            for row in range(5):  # 5 lignes
+                for col in range(6):  # 6 colonnes
+                    if self.is_mouse_on_slot(595 + col * (self.CELL_SIZE + self.CELL_SPACING), 290 + row * (self.CELL_SIZE + self.CELL_SPACING), self.CELL_SIZE, self.CELL_SIZE):
+                        if self.inventory_list[row][col]:
+                            self.dragging_item = self.inventory_list[row][col]  # Assurez-vous que l'objet est stocké ici
+                            self.dragging_item['icon'] = self.inventory_bag_icon[row][col]  # Ajoutez l'icône ici
+                            self.drag_start_pos = ("bag", row, col)
+                            self.inventory_list[row][col] = {}
+
+                            self.inventory_bag_icon[row][col] = pygame.image.load("Items/slot.png")
+                            self.inventory_bag_stack_text[row][col] = pygame.image.load("Items/slot.png")
+
+        elif event.type == pygame.MOUSEBUTTONUP:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+
+            # Déposer l'objet dans la barre d'outils
+            for i in range(10):  # Barre d'inventaire avec 10 slots
+                if self.is_mouse_on_slot(485 + i * 60, self.screen.get_height() - 90, 50, 50):
+                    if self.dragging_item :
+                        self.inventory_bar_list[i] = self.dragging_item
+                        self.inventory_icons[i] = self.inventory_bar_list[i]['icon']
+                        self.stack_text[i]= self.font.render(str(self.inventory_bar_list[i]['quantity']), True, (255, 255, 255))
+                        self.dragging_item = None
+                        self.drag_start_pos = None
+
+                        break
+
+            # Déposer dans l'inventaire 6x5
+            for row in range(5):  # 5 lignes
+                for col in range(6):  # 6 colonnes
+                    if self.is_mouse_on_slot(595 + col * (self.CELL_SIZE + self.CELL_SPACING), 290 + row * (self.CELL_SIZE + self.CELL_SPACING), self.CELL_SIZE, self.CELL_SIZE):
+                        if self.dragging_item:
+                            self.inventory_list[row][col] = self.dragging_item
+                            self.inventory_bag_icon[row][col] = self.inventory_list[row][col]['icon']
+                            self.inventory_bag_stack_text[row][col]= self.font.render(str(self.inventory_list[row][col]['quantity']), True, (255, 255, 255))
+                            self.dragging_item = None
+                            self.drag_start_pos = None
+                            break
+        '''
+
+
+
+
+
