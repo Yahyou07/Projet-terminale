@@ -63,7 +63,7 @@ class Player(pygame.sprite.Sprite):
         self.idle_right_mouv = [pygame.image.load(f"animation/idle/idle3/right{j}.png") for j in range(1, 5)]
         self.idle_left_mouv = [pygame.image.load(f"animation/idle/idle4/left{j}.png") for j in range(1, 5)]
 
-        self.attack_right_mouv = [pygame.image.load(f"animation/attack/attack1/right{j}.png") for j in range(1, 5)]
+        self.attack_right_mouv = [pygame.image.load(f"animation/attack/attack1/right{j}.png") for j in range(1, 6)]
 
         #Index que l'on utlise pour l'animation
         self.current_sprite = 0
@@ -92,7 +92,7 @@ class Player(pygame.sprite.Sprite):
 
     
 
-    def move(self, dx, dy, running=False):
+    def move(self, dx, dy, attacking, running=False):
         pygame.draw.rect(self.screen, (255, 0, 0), self.rect, 2)
         speed = self.speed_run if running else self.speed
         if dx != 0 and dy != 0:
@@ -102,6 +102,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.y += dy * speed
 
         # Gestion des animations
+        attaque_speed = 0.3
         anim_speed = 0.3 if running else 0.15
         if dx > 0:
             self.animation(self.right, anim_speed)
@@ -115,6 +116,10 @@ class Player(pygame.sprite.Sprite):
         elif dy < 0:
             self.animation(self.up, anim_speed)
             self.last_direction = "up"
+
+        elif attacking == 1:
+            self.animation(self.attack_right_mouv, attaque_speed)
+            self.last_direction = "right"
 
         # Réduction de l'endurance si le joueur sprinte
         if running:

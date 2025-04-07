@@ -80,6 +80,7 @@ def quit():
 def input():
     pressed = pygame.key.get_pressed()
     dx, dy = 0, 0
+    attacking = 0
     sprinting = pressed[pygame.K_r] and player.endurance_value > 0 and player.Regen ==False  # Vérifie si le joueur peut sprinter
 
     if pressed[pygame.K_UP] or pressed[pygame.K_z]:
@@ -91,8 +92,18 @@ def input():
     if pressed[pygame.K_RIGHT] or pressed[pygame.K_d]:
         dx = 1
     
+    # si le bouton est pressé, le perso attaque
+    if pressed[pygame.K_a]:
+        attacking = 1
+        dx = 0
+        dy = 0
+
     if dx != 0 or dy != 0:
-        player.move(dx, dy, sprinting)  # Passe la variable sprinting
+        player.move(dx, dy, attacking, sprinting)  # Passe la variable sprinting
+
+    if attacking == 1:
+        player.move(dx, dy, attacking, sprinting)
+
     else:
         # Animation idle quand le joueur ne bouge pas
         if player.last_direction == "down":
