@@ -92,7 +92,7 @@ class Player(pygame.sprite.Sprite):
 
     
 
-    def move(self, dx, dy, attacking, running=False):
+    def move(self, dx, dy, running=False):
         pygame.draw.rect(self.screen, (255, 0, 0), self.rect, 2)
         speed = self.speed_run if running else self.speed
         if dx != 0 and dy != 0:
@@ -102,7 +102,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.y += dy * speed
 
         # Gestion des animations
-        attaque_speed = 0.3
+        
         anim_speed = 0.3 if running else 0.15
         if dx > 0:
             self.animation(self.right, anim_speed)
@@ -117,9 +117,7 @@ class Player(pygame.sprite.Sprite):
             self.animation(self.up, anim_speed)
             self.last_direction = "up"
 
-        elif attacking == 1:
-            self.animation(self.attack_right_mouv, attaque_speed)
-            self.last_direction = "right"
+        
 
         # Réduction de l'endurance si le joueur sprinte
         if running:
@@ -228,11 +226,6 @@ class Player(pygame.sprite.Sprite):
 
 
 
-
-
-       
-
-    
     
     def regeneration_endurance(self,keys):
         if self.endurance_value == 0:
@@ -272,7 +265,7 @@ class Player(pygame.sprite.Sprite):
                 current_qty = slot["quantity"]
                 if current_qty < sprite.stack_max:
                     stack_total = min(current_qty + 1, sprite.stack_max)
-                    self.inventory_bar_list[i] = {'name': sprite.name, 'quantity': stack_total}
+                    self.inventory_bar_list[i] = {'name': sprite.name,'object':sprite ,'quantity': stack_total}
                     self.inventory_icons[i] = sprite.icon
                     self.stack_text[i] = self.font.render(str(stack_total), True, (255, 255, 255))
                     found = True
@@ -283,7 +276,7 @@ class Player(pygame.sprite.Sprite):
             for i in range(len(self.inventory_bar_list)):
                 slot = self.inventory_bar_list[i]
                 if not slot or slot.get("name") == "rien":
-                    self.inventory_bar_list[i] = {'name': sprite.name, 'quantity': 1}
+                    self.inventory_bar_list[i] = {'name': sprite.name,'object':sprite , 'quantity': 1}
                     self.inventory_icons[i] = sprite.icon
                     self.stack_text[i] = self.font.render("1", True, (255, 255, 255))
                     return
@@ -296,7 +289,7 @@ class Player(pygame.sprite.Sprite):
                         current_qty = slot["quantity"]
                         if current_qty < sprite.stack_max:
                             stack_total = min(current_qty + 1, sprite.stack_max)
-                            self.inventory_list[row][col] = {'name': sprite.name, 'quantity': stack_total}
+                            self.inventory_list[row][col] = {'name': sprite.name,'object':sprite , 'quantity': stack_total}
                             self.inventory_bag_icon[row][col] = sprite.icon
                             self.inventory_bag_stack_text[row][col] = self.font.render(str(stack_total), True, (255, 255, 255))
                             return
@@ -306,20 +299,132 @@ class Player(pygame.sprite.Sprite):
                 for col in range(6):
                     slot = self.inventory_list[row][col]
                     if not slot or slot.get("name") == "rien":
-                        self.inventory_list[row][col] = {'name': sprite.name, 'quantity': 1}
+                        self.inventory_list[row][col] = {'name': sprite.name,'object':sprite , 'quantity': 1}
                         self.inventory_bag_icon[row][col] = sprite.icon
                         self.inventory_bag_stack_text[row][col] = self.font.render("1", True, (255, 255, 255))
                         return
 
 
-    def drag_and_drop_inventory(self,event):
+
+
+    def handle_mouse_events(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouse_x, mouse_y = pygame.mouse.get_pos()
+
+            # Clic sur barre d'inventaire
             for i in range(10):
-                pass
-    
+                if self.is_mouse_on_slot(485 + i * 60, self.screen.get_height() - 90, 50, 50):
+                    if self.inventory_bar_list[i]:
+                        self.dragging_item = self.inventory_bar_list[i]
+                        self.dragging_item['icon'] = self.inventory_icons[i]
+                        self.drag_start_pos = ("bar", i)
+                        self.inventory_bar_list[i] = {}
+                        self.inventory_icons[i] = pygame.image.load("Items/slot.png")
+                        self.stack_text[i] = pygame.image.load("Items/slot.png")
+
+            # Clic sur sac
+            for row in range(5):
+                for col in range(6):
+                    if self.is_mouse_on_slot(595 + col * (self.CELL_SIZE + self.CELL_SPACING),
+                                            290 + row * (self.CELL_SIZE + self.CELL_SPACING),
+                                            self.CELL_SIZE, self.CELL_SIZE):
+                        if self.inventory_list[row][col]:
+                            self.dragging_item = self.inventory_list[row][col]
+                            self.dragging_item['icon'] = self.inventory_bag_icon[row][col]
+                            self.drag_start_pos = ("bag", row, col)
+                            self.inventory_list[row][col] = {}
+                            self.inventory_bag_icon[row][col] = pygame.image.load("Items/slot.png")
+                            self.inventory_bag_stack_text[row][col] = pygame.image.load("Items/slot.png")
+
+        elif event.type == pygame.MOUSEBUTTONUP:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+
+            # Déposer dans barre
+            for i in range(10):
+                if self.is_mouse_on_slot(485 + i * 60, self.screen.get_height() - 90, 50, 50):
+                    if self.dragging_item:
+                        slot = self.inventory_bar_list[i]
+                        if slot and slot['name'] == self.dragging_item['name']:
+                            total = slot['quantity'] + self.dragging_item['quantity']
+                            stack_max = slot['object'].stack_max
+                            if total <= stack_max:
+                                slot['quantity'] = total
+                                self.stack_text[i] = self.font.render(str(total), True, (255, 255, 255))
+                                self.dragging_item = None
+                                self.drag_start_pos = None
+                                return
+                        # Sinon échange
+                        if slot:
+                            temp, temp_icon, temp_text = slot, self.inventory_icons[i], self.stack_text[i]
+                            origin = self.drag_start_pos
+                            if origin[0] == "bar":
+                                self.inventory_bar_list[origin[1]] = temp
+                                self.inventory_icons[origin[1]] = temp_icon
+                                self.stack_text[origin[1]] = temp_text
+                            else:
+                                self.inventory_list[origin[1]][origin[2]] = temp
+                                self.inventory_bag_icon[origin[1]][origin[2]] = temp_icon
+                                self.inventory_bag_stack_text[origin[1]][origin[2]] = temp_text
+
+                        self.inventory_bar_list[i] = self.dragging_item
+                        self.inventory_icons[i] = self.dragging_item['icon']
+                        self.stack_text[i] = self.font.render(str(self.dragging_item['quantity']), True, (255, 255, 255))
+                        self.dragging_item = None
+                        self.drag_start_pos = None
+                        break
+
+            # Déposer dans sac
+            for row in range(5):
+                for col in range(6):
+                    if self.is_mouse_on_slot(595 + col * (self.CELL_SIZE + self.CELL_SPACING),
+                                            290 + row * (self.CELL_SIZE + self.CELL_SPACING),
+                                            self.CELL_SIZE, self.CELL_SIZE):
+                        if self.dragging_item:
+                            slot = self.inventory_list[row][col]
+                            if slot and slot['name'] == self.dragging_item['name']:
+                                total = slot['quantity'] + self.dragging_item['quantity']
+                                stack_max = slot['object'].stack_max
+                                if total <= stack_max:
+                                    slot['quantity'] = total
+                                    self.inventory_bag_stack_text[row][col] = self.font.render(str(total), True, (255, 255, 255))
+                                    self.dragging_item = None
+                                    self.drag_start_pos = None
+                                    return
+                            # Sinon échange
+                            if slot:
+                                temp, temp_icon, temp_text = slot, self.inventory_bag_icon[row][col], self.inventory_bag_stack_text[row][col]
+                                origin = self.drag_start_pos
+                                if origin[0] == "bar":
+                                    self.inventory_bar_list[origin[1]] = temp
+                                    self.inventory_icons[origin[1]] = temp_icon
+                                    self.stack_text[origin[1]] = temp_text
+                                else:
+                                    self.inventory_list[origin[1]][origin[2]] = temp
+                                    self.inventory_bag_icon[origin[1]][origin[2]] = temp_icon
+                                    self.inventory_bag_stack_text[origin[1]][origin[2]] = temp_text
+
+                            self.inventory_list[row][col] = self.dragging_item
+                            self.inventory_bag_icon[row][col] = self.dragging_item['icon']
+                            self.inventory_bag_stack_text[row][col] = self.font.render(str(self.dragging_item['quantity']), True, (255, 255, 255))
+                            self.dragging_item = None
+                            self.drag_start_pos = None
+                            break
+            # Si on a relâché en dehors de tout slot, on remet l'objet à sa place d'origine
+            if self.dragging_item and self.drag_start_pos:
+                origin = self.drag_start_pos
+                if origin[0] == "bar":
+                    self.inventory_bar_list[origin[1]] = self.dragging_item
+                    self.inventory_icons[origin[1]] = self.dragging_item['icon']
+                    self.stack_text[origin[1]] = self.font.render(str(self.dragging_item['quantity']), True, (255, 255, 255))
+                elif origin[0] == "bag":
+                    self.inventory_list[origin[1]][origin[2]] = self.dragging_item
+                    self.inventory_bag_icon[origin[1]][origin[2]] = self.dragging_item['icon']
+                    self.inventory_bag_stack_text[origin[1]][origin[2]] = self.font.render(str(self.dragging_item['quantity']), True, (255, 255, 255))
+                self.dragging_item = None
+                self.drag_start_pos = None
 
 
+    '''
     def handle_mouse_events(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -402,7 +507,7 @@ class Player(pygame.sprite.Sprite):
                             break
 
 
-
+    '''                        
     '''
     def handle_mouse_events(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
