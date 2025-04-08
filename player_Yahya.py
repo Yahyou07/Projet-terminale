@@ -38,7 +38,7 @@ class Player(pygame.sprite.Sprite):
         self.INV_X = 478  # Position X de l'inventaire
         self.INV_Y = self.screen.get_height()-0.1*self.screen.get_height()  # Position Y de l'inventaire
         self.CELL_SIZE = 50
-        self.CELL_SPACING = 25
+        self.CELL_SPACING = 23
         self.INV_COLS = 10
 
         #Liste de la barre d'inventaire
@@ -46,6 +46,9 @@ class Player(pygame.sprite.Sprite):
         self.inventory_icons = [pygame.image.load(f"Items/slot.png")for i in range(10)]
         self.stack_text = [self.font.render("", True, (255, 255, 255)) for i in range(10)] 
         
+        #Liste qui stoke les slot de l'inventaire de l'armure
+        self.armour_list = [{} for i in range(10)]
+
         #Tableaux de l'inventaire :
         # Inventaire étendu (sac) : 6 colonnes × 5 lignes = 30 emplacements
         self.inventory_list = [[{} for _ in range(6)] for _ in range(5)]
@@ -223,7 +226,7 @@ class Player(pygame.sprite.Sprite):
             for row in range(5):  # 5 lignes
                 for col in range(6):  # 6 colonnes
                     slot_x = start_x + col * (self.CELL_SIZE + self.CELL_SPACING)-10
-                    slot_y = start_y + row * (self.CELL_SIZE + self.CELL_SPACING)-10
+                    slot_y = start_y + row * (self.CELL_SIZE + self.CELL_SPACING)-5
                     icon = self.inventory_bag_icon[row][col]
                     stack = self.inventory_bag_stack_text[row][col]
 
@@ -415,7 +418,7 @@ class Player(pygame.sprite.Sprite):
                                     self.dragging_item = None
                                     self.drag_start_pos = None
                                     return
-                            # Sinon échange
+                            # Sinon on échange
                             if slot:
                                 temp, temp_icon, temp_text = slot, self.inventory_bag_icon[row][col], self.inventory_bag_stack_text[row][col]
                                 origin = self.drag_start_pos

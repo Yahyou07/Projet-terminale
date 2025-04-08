@@ -140,7 +140,7 @@ while True :
             
 
         if show_inventory:
-            
+            if player.OnBag:
                 player.handle_mouse_events(event)
             
 
@@ -161,7 +161,6 @@ while True :
             group.remove(sprite)  # Supprime l'objet du groupe
             player.add_to_inventory(sprite)
             
-            print("")
             print("**barre d'inventaire**")
             print(player.inventory_bar_list)
             print()
@@ -171,8 +170,8 @@ while True :
             
 
     if show_inventory:
-        
-        player.display_inventory()  # On appelle la méthode display_inventory pour afficher l'inventaire 
+        if player.OnBag : 
+            player.display_inventory()  # On appelle la méthode display_inventory pour afficher l'inventaire 
         
 
     pygame.display.update()
