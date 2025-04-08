@@ -3,12 +3,13 @@ import pytmx
 from pytmx.util_pygame import load_pygame
 import pytmx.util_pygame
 from player_Yahya import *
+from items import *
 mainClock = pygame.time.Clock()
 from pygame.locals import *
 import pyscroll
 import pyscroll.data
 import time
-from  scripte.enigme import *
+from scripte.enigme import*
 from scripte.save_game import*
 pygame.init()
 pygame.display.set_caption("Jeu")
@@ -18,24 +19,32 @@ dico = """{
     'question 2 : Quelle est la couleur du ciel ?' : ['réponse A : Rouge','réponse B : Bleu','réponse C : Vert','réponse D : Noir','bonne réponse : Bleu']
 }"""
 
-
-
 #Définition de la fenêtre 
-coordonnee = (1300,790)
-screen = pygame.display.set_mode(coordonnee,pygame.RESIZABLE)
-
-dicco = Enigme(dico,screen)
-save_menu = Save_game(screen)
+screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 
 # Chargement de la carte Tiled
 tmx_data = load_pygame("maps/maps.tmx")  # Remplace par ton fichier .tmx
 
-
+dicco = Enigme(dico,screen)
+save_menu = Save_game(screen)
 # Récupérer la position du joueur depuis les objets Tiled
 
 
 player_position = tmx_data.get_object_by_name("Player")
 player = Player(player_position.x,player_position.y, screen)  # Positionner le joueur
+
+item = Item("apple",24,10,352,350)
+item2 = Item("plastron",1,10,352,450)
+item3 = Item("apple",24,10,352,290)
+item4 = Item("apple",24,10,352,270)
+item5 = Item("hache",1,10,352,500)
+item6 = Item("rubis",24,10,352,530)
+item7 = Item("apple",24,10,352,560)
+item8 = Item("hache",1,10,352,230)
+item9 = Item("pioche",1,10,352,700)
+item10 = Item("pain",24,10,352,350)
+item10 = Item("sword",24,10,352,130)
+
 
 
 map_data = pyscroll.data.TiledMapData(tmx_data)
@@ -47,7 +56,20 @@ map_layer.zoom = 2  # Facteur de zoom (1 = taille normale, 2 = zoomé x2)
 # Créer un groupe de sprites avec caméra centrée
 group = pyscroll.PyscrollGroup(map_layer=map_layer, default_layer=1)
 
-group.add(player)  # Ajoute le joueur au groupe
+# Ajoute les objets au groupe
+group.add(player)  
+group.add(item)
+group.add(item2)
+group.add(item3)
+group.add(item4)
+group.add(item5)
+group.add(item6)
+group.add(item7)
+group.add(item8)
+group.add(item9)
+group.add(item10)
+
+
 
 #Fonction quit
 def quit():
@@ -58,13 +80,15 @@ def quit():
             if event.key == pygame.K_ESCAPE:  # Si la touche pressée est "Échap"
                 pygame.quit()
                 sys.exit()
+    
 
 
 #Fonction input pour gerer les entrée clavier
 def input():
     pressed = pygame.key.get_pressed()
     dx, dy = 0, 0
-    sprinting = pressed[pygame.K_LSHIFT] and player.endurance_value > 0  # Vérifie si le joueur peut sprinter
+    attacking = 0
+    sprinting = pressed[pygame.K_r] and player.endurance_value > 0 and player.Regen ==False  # Vérifie si le joueur peut sprinter
 
     if pressed[pygame.K_UP] or pressed[pygame.K_z]:
         dy = -1
@@ -74,9 +98,19 @@ def input():
         dx = -1
     if pressed[pygame.K_RIGHT] or pressed[pygame.K_d]:
         dx = 1
+    
+    # si le bouton est pressé, le perso attaque
+    if pressed[pygame.K_a]:
+        attacking = 1
+        dx = 0
+        dy = 0
 
     if dx != 0 or dy != 0:
-        player.move(dx, dy, sprinting)  # Passe la variable sprinting
+        player.move(dx, dy, attacking, sprinting)  # Passe la variable sprinting
+
+    if attacking == 1:
+        player.move(dx, dy, attacking, sprinting)
+
     else:
         # Animation idle quand le joueur ne bouge pas
         if player.last_direction == "down":
@@ -88,33 +122,50 @@ def input():
         elif player.last_direction == "left":
             player.idle_left()
 
-     
+curent_quantity = 0
 
-def handle_resize(event):
-    if event.type == pygame.VIDEORESIZE:
-        new_size = (event.w, event.h)  # Nouvelle taille de la fenêtre
-        pygame.display.set_mode(new_size, pygame.RESIZABLE)  # Appliquer le resize
-    
-
+show_inventory = False
 while True : 
 
     for event in pygame.event.get():
         quit()
-        handle_resize(event)  # Gérer le redimensionnement
-        save_menu.handle_event(event,"rien",1)
-    
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_e:
+                show_inventory = not show_inventory  # On inverse l'état de l'inventaire
+        if show_inventory:
+            player.handle_mouse_events(event)
 
-        
     input()
-        
+
     keys = pygame.key.get_pressed()
     player.regeneration_endurance(keys)
-    
     
     group.update()
     group.center(player.rect.center)  # Centre la caméra sur le joueur
     group.draw(screen)
     player.affiche_ui()
+    
+
+    for sprite in group.sprites():
+        if isinstance(sprite, Item) and player.rect.colliderect(sprite.rect):
+            print("Collision detectee avec",sprite.name)
+            group.remove(sprite)  # Supprime l'objet du groupe
+            player.add_to_inventory(sprite)
+            
+            print("**barre d'inventaire**")
+            print(player.inventory_bar_list)
+            print()
+            print("**Inventaire**")
+            for i in player.inventory_list:
+                print(i)
+    
     save_menu.update()
+    
+    if show_inventory:
+        
+        player.display_inventory()  # Appelle une méthode pour afficher l'inventaire 
+        
+
     pygame.display.update()
     mainClock.tick(60)
+   
