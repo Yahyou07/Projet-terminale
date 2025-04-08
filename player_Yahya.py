@@ -15,9 +15,23 @@ class Player(pygame.sprite.Sprite):
         self.font = pygame.font.Font("Items/Minecraft.ttf", 14)  # Police par défaut, taille 20
         self.Regen = False
 
+        # Chargement des images de l'inventaire
         self.inventory_image = pygame.image.load("UI/Inventories/inventaire_bag.png")
-
+        self.inventory_amour = pygame.image.load("UI/Inventories/inventaire_armure final.png")
         
+        self.button_armour  = pygame.image.load("UI/Inventories/armour.png")
+        self.rect_button_armour = self.button_armour.get_rect()
+        self.rect_button_armour.x = 1045
+        self.rect_button_armour.y = 408
+
+        self.button_bag  = pygame.image.load("UI/Inventories/bag.png")
+        self.rect_button_bag = self.button_bag.get_rect()
+        self.rect_button_bag.x = 1045
+        self.rect_button_bag.y = 315
+        # Booléen pour gérer l'affichage du sac ou de l'inventaire de l'armure
+        self.OnBag = True
+        self.OnArmour = False
+
         #self.stack_text = self.font.render("0", True, (255, 255, 255))  # Texte blanc
 
         # Paramètres de l'inventaire
@@ -190,43 +204,56 @@ class Player(pygame.sprite.Sprite):
         for stack in self.stack_text:
             self.screen.blit(stack,(x_stack,self.screen.get_height()-0.07*self.screen.get_height()))
             x_stack += 60
-        # Contour vert pour slots vides de la barre d'inventaire
+        
         
     def is_mouse_on_slot(self, x, y, width, height):
         mouse_x, mouse_y = pygame.mouse.get_pos()
         return x <= mouse_x <= x + width and y <= mouse_y <= y + height
     
     def display_inventory(self):
-        # Affichage de l'image de l'inventaire
-        x = self.screen.get_width() // 2 - self.inventory_image.get_width() // 2 - 50
-        y = self.screen.get_height() // 2 - self.inventory_image.get_height() // 2
-        self.screen.blit(self.inventory_image, (x, y))
+        
+        if self.OnBag:
+            # Affichage de l'image de l'inventaire
+            x = self.screen.get_width() // 2 - self.inventory_image.get_width() // 2 - 50
+            y = self.screen.get_height() // 2 - self.inventory_image.get_height() // 2
+            self.screen.blit(self.inventory_image, (x, y))
 
-        start_x = 595  # Position X de la première cellule
-        start_y = 290  # Position Y de la première cellule
-        for row in range(5):  # 5 lignes
-            for col in range(6):  # 6 colonnes
-                slot_x = start_x + col * (self.CELL_SIZE + self.CELL_SPACING)-10
-                slot_y = start_y + row * (self.CELL_SIZE + self.CELL_SPACING)-10
-                icon = self.inventory_bag_icon[row][col]
-                stack = self.inventory_bag_stack_text[row][col]
+            start_x = 595  # Position X de la première cellule
+            start_y = 290  # Position Y de la première cellule
+            for row in range(5):  # 5 lignes
+                for col in range(6):  # 6 colonnes
+                    slot_x = start_x + col * (self.CELL_SIZE + self.CELL_SPACING)-10
+                    slot_y = start_y + row * (self.CELL_SIZE + self.CELL_SPACING)-10
+                    icon = self.inventory_bag_icon[row][col]
+                    stack = self.inventory_bag_stack_text[row][col]
 
-                # Si l'objet est glissé sur ce slot, afficher un contour
-                if self.is_mouse_on_slot(slot_x, slot_y, self.CELL_SIZE, self.CELL_SIZE):
-                    pygame.draw.rect(self.screen, (0, 255, 0), (slot_x, slot_y, self.CELL_SIZE, self.CELL_SIZE), 3)
+                    # Si l'objet est glissé sur ce slot, afficher un contour
+                    if self.is_mouse_on_slot(slot_x, slot_y, self.CELL_SIZE, self.CELL_SIZE):
+                        pygame.draw.rect(self.screen, (0, 255, 0), (slot_x, slot_y, self.CELL_SIZE, self.CELL_SIZE), 3)
 
-                self.screen.blit(icon, (slot_x, slot_y))
-                self.screen.blit(stack, (slot_x + 25, slot_y + 30))  # Position du texte dans la cellule
+                    self.screen.blit(icon, (slot_x, slot_y))
+                    self.screen.blit(stack, (slot_x + 25, slot_y + 30))  # Position du texte dans la cellule
 
-        # Si un objet est en cours de glisser-déposer, afficher l'icône à la position de la souris
-        if self.dragging_item and 'icon' in self.dragging_item:
-            mouse_x, mouse_y = pygame.mouse.get_pos()
-            # Afficher l'icône de l'item au-dessus de la souris
-            self.screen.blit(self.dragging_item['icon'], (mouse_x - self.CELL_SIZE // 2, mouse_y - self.CELL_SIZE // 2))
+            # Si un objet est en cours de glisser-déposer, afficher l'icône à la position de la souris
+            if self.dragging_item and 'icon' in self.dragging_item:
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+                # Afficher l'icône de l'item au-dessus de la souris
+                self.screen.blit(self.dragging_item['icon'], (mouse_x - self.CELL_SIZE // 2, mouse_y - self.CELL_SIZE // 2))
+
+        if self.OnArmour:
+            # Affichage de l'image de l'inventaire
+            x_armour = self.screen.get_width() // 2 - self.inventory_amour.get_width() // 2 - 50
+            y_armour = self.screen.get_height() // 2 - self.inventory_amour.get_height() // 2
+            self.screen.blit(self.inventory_amour, (x_armour, y_armour))
 
 
+        self.screen.blit(self.button_armour,(1045,408))
+        
+        self.screen.blit(self.button_bag,(1045,315))
 
     
+
+
     def regeneration_endurance(self,keys):
         if self.endurance_value == 0:
             self.Regen = True
@@ -303,8 +330,6 @@ class Player(pygame.sprite.Sprite):
                         self.inventory_bag_icon[row][col] = sprite.icon
                         self.inventory_bag_stack_text[row][col] = self.font.render("1", True, (255, 255, 255))
                         return
-
-
 
 
     def handle_mouse_events(self, event):
@@ -422,7 +447,7 @@ class Player(pygame.sprite.Sprite):
                     self.inventory_bag_stack_text[origin[1]][origin[2]] = self.font.render(str(self.dragging_item['quantity']), True, (255, 255, 255))
                 self.dragging_item = None
                 self.drag_start_pos = None
-
+    
 
     '''
     def handle_mouse_events(self, event):

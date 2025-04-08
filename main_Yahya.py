@@ -26,7 +26,7 @@ tmx_data = load_pygame("maps/maps.tmx")  # Remplace par ton fichier .tmx
 player_position = tmx_data.get_object_by_name("Player")
 player = Player(player_position.x,player_position.y, screen)  # Positionner le joueur
 
-item = Item("apple",24,10,352,350)
+item = Item("pain",24,10,352,350)
 item2 = Item("plastron",1,10,352,450)
 item3 = Item("apple",24,10,352,290)
 item4 = Item("apple",24,10,352,270)
@@ -34,7 +34,7 @@ item5 = Item("hache",1,10,352,500)
 item6 = Item("rubis",24,10,352,530)
 item7 = Item("apple",24,10,352,560)
 item8 = Item("hache",1,10,352,230)
-item9 = Item("pioche",1,10,352,700)
+item9 = Item("pain",24,10,352,700)
 item10 = Item("fish",24,10,352,710)
 item11 = Item("fish",24,10,352,130)
 
@@ -123,8 +123,26 @@ while True :
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_e:
                 show_inventory = not show_inventory  # On inverse l'état de l'inventaire
+                player.OnBag = True
+                player.OnArmour = False
+           
+        #Lorsqu'on clique sur l'icone de l'armure on passe sur l'armure du joueur
+        elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if player.rect_button_armour.collidepoint(event.pos) :
+                    player.OnArmour = True
+                    player.OnBag = False
+        #Lorsqu'on clique sur l'icone du sac on passe sur l'inventaire
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if player.rect_button_bag.collidepoint(event.pos) :
+                    
+                    player.OnArmour = False
+                    player.OnBag = True
+            
+
         if show_inventory:
-            player.handle_mouse_events(event)
+            
+                player.handle_mouse_events(event)
+            
 
     input()
 
@@ -143,16 +161,18 @@ while True :
             group.remove(sprite)  # Supprime l'objet du groupe
             player.add_to_inventory(sprite)
             
+            print("")
             print("**barre d'inventaire**")
             print(player.inventory_bar_list)
             print()
             print("**Inventaire**")
             for i in player.inventory_list:
                 print(i)
+            
 
     if show_inventory:
         
-        player.display_inventory()  # Appelle une méthode pour afficher l'inventaire 
+        player.display_inventory()  # On appelle la méthode display_inventory pour afficher l'inventaire 
         
 
     pygame.display.update()
