@@ -166,6 +166,7 @@ while True :
             print("")
             print("**Armour list**")
             print(player.armour_list)
+            print(player.HaveBottes)
             print(player.mana_value)
             
 
