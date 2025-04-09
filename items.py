@@ -1,7 +1,7 @@
 import pygame
 import math
 class Item(pygame.sprite.Sprite):
-    def __init__(self, name, stack_max, regen,pos_x,pos_y):
+    def __init__(self, name, stack_max, regen,pos_x,pos_y,type):
         super().__init__()
         self.name = name
         self.image = pygame.image.load(f"Items/{name}.png")
@@ -10,7 +10,7 @@ class Item(pygame.sprite.Sprite):
         self.stack_max = stack_max
         self.regen = regen
         self.stack = 0
-        
+        self.type  = type
         
         self.rect = self.image.get_rect()
         self.rect.x = pos_x
