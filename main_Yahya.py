@@ -13,6 +13,9 @@ pygame.init()
 pygame.display.set_caption("Jeu")
 
 
+
+
+
 #Définition de la fenêtre 
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 
@@ -20,7 +23,6 @@ screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 tmx_data = load_pygame("maps/maps.tmx")  # Remplace par ton fichier .tmx
 
 
-# Récupérer la position du joueur depuis les objets Tiled
 
 
 player_position = tmx_data.get_object_by_name("Player")
@@ -30,13 +32,13 @@ item = Item("pain",24,10,352,350,"Food")
 item2 = Item("plastron",1,10,352,450,"Plastron")
 item3 = Item("apple",24,10,352,290,"Food")
 item4 = Item("bottes",24,10,352,270,"Bottes")
-item5 = Item("hache",1,10,352,500,"Food")
+item5 = Item("fromage",1,10,352,500,"Food")
 item6 = Item("rubis",24,10,352,530,"Food")
 item7 = Item("casque",24,10,352,560,"Casque")
 item8 = Item("jambiere",1,10,352,230,"Jambiere")
 item9 = Item("pain",24,10,352,700,"Food")
 item10 = Item("fish",24,10,352,710,"Food")
-item11 = Item("fish",24,10,352,130,"Food")
+item11 = Item("fromage",24,10,352,130,"Food")
 
 
 
@@ -157,6 +159,7 @@ while True :
             group.remove(sprite)  # Supprime l'objet du groupe
             player.add_to_inventory(sprite)
             
+            '''
             print("**barre d'inventaire**")
             print(player.inventory_bar_list)
             print()
@@ -168,12 +171,14 @@ while True :
             print(player.armour_list)
             print(player.HaveBottes)
             print(player.mana_value)
+            '''
             
 
     if show_inventory:
         
             player.display_inventory()  # On appelle la méthode display_inventory pour afficher l'inventaire 
         
+   
 
     pygame.display.update()
     mainClock.tick(60)

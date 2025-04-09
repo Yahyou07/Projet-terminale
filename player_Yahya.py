@@ -411,7 +411,7 @@ class Player(pygame.sprite.Sprite):
             # Si on ajoute une armure, on augmente la mana
             self.mana_value += armour_mana_values[slot_index]
 
-        # S'assurer que la mana ne devienne pas négative
+        # On s'assure que la mana ne devienne pas négative
         self.mana_value = max(self.mana_value, 0)
         print(f"Mana Value: {self.mana_value}")  # Pour vérifier
 
