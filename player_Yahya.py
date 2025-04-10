@@ -232,11 +232,12 @@ class Player(pygame.sprite.Sprite):
         self.screen.blit(self.current_endurance,(20,120))
         self.screen.blit(self.inventory_bar,(450,self.screen.get_height()-0.15*self.screen.get_height()))
         
-        x = 485
+        x = self.screen.get_width()-0.696875*self.screen.get_width()
         for icon in self.inventory_icons:
             self.screen.blit(icon,(x,self.screen.get_height()-0.09*self.screen.get_height()))
             x += 60
-        x_stack = 520
+        
+        x_stack = self.screen.get_width()-0.675*self.screen.get_width()
         for stack in self.stack_text:
             self.screen.blit(stack,(x_stack,self.screen.get_height()-0.07*self.screen.get_height()))
             x_stack += 60
@@ -254,8 +255,8 @@ class Player(pygame.sprite.Sprite):
             y = self.screen.get_height() // 2 - self.inventory_image.get_height() // 2
             self.screen.blit(self.inventory_image, (x, y))
 
-            start_x = 595  # Position X de la première cellule
-            start_y = 290  # Position Y de la première cellule
+            start_x =  self.screen.get_width()-self.screen.get_width()*0.628125  # Position X de la première cellule
+            start_y = self.screen.get_height()-self.screen.get_height()*0.6777777  # Position Y de la première cellule
             for row in range(5):  # 5 lignes
                 for col in range(6):  # 6 colonnes
                     slot_x = start_x + col * (self.CELL_SIZE + self.CELL_SPACING)-10
@@ -282,8 +283,8 @@ class Player(pygame.sprite.Sprite):
             y_armour = self.screen.get_height() // 2 - self.inventory_amour.get_height() // 2
             self.screen.blit(self.inventory_amour, (x_armour, y_armour))
             
-            x_icon = 810
-            y_icon = 290
+            x_icon = self.screen.get_width()-0.49375*self.screen.get_width()
+            y_icon =  self.screen.get_height()- self.screen.get_height()*0.6777777
             for i in self.armour_icon_list:
                 self.screen.blit(i,(x_icon,y_icon))
                 y_icon +=73

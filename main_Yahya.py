@@ -36,9 +36,10 @@ item5 = Item("fromage",1,10,352,500,"Food")
 item6 = Item("rubis",24,10,352,530,"Food")
 item7 = Item("casque",24,10,352,560,"Casque")
 item8 = Item("jambiere",1,10,352,230,"Jambiere")
-item9 = Item("pain",24,10,352,700,"Food")
+item9 = Item("pain",1,10,352,700,"Food")
 item10 = Item("fish",24,10,352,710,"Food")
 item11 = Item("fromage",24,10,352,130,"Food")
+item12 = Item("fromage",1,10,352,130,"Food")
 
 
 
@@ -64,7 +65,7 @@ group.add(item8)
 group.add(item9)
 group.add(item10)
 group.add(item11)
-
+group.add(item12)
 
 #Fonction quit
 def quit():
@@ -178,7 +179,7 @@ while True :
         
             player.display_inventory()  # On appelle la méthode display_inventory pour afficher l'inventaire 
         
-   
+    print(screen.get_width())
 
     pygame.display.update()
     mainClock.tick(60)
