@@ -22,6 +22,7 @@ dico = """{
 #Définition de la fenêtre 
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 
+
 # Chargement de la carte Tiled
 tmx_data = load_pygame("maps/maps.tmx")  # Remplace par ton fichier .tmx
 
@@ -33,17 +34,18 @@ save_menu = Save_game(screen)
 player_position = tmx_data.get_object_by_name("Player")
 player = Player(player_position.x,player_position.y, screen)  # Positionner le joueur
 
-item = Item("apple",24,10,352,350)
-item2 = Item("plastron",1,10,352,450)
-item3 = Item("apple",24,10,352,290)
-item4 = Item("apple",24,10,352,270)
-item5 = Item("hache",1,10,352,500)
-item6 = Item("rubis",24,10,352,530)
-item7 = Item("apple",24,10,352,560)
-item8 = Item("hache",1,10,352,230)
-item9 = Item("pioche",1,10,352,700)
-item10 = Item("pain",24,10,352,350)
-item10 = Item("sword",24,10,352,130)
+item = Item("pain",24,10,352,350,"Food")
+item2 = Item("plastron",1,10,352,450,"Plastron")
+item3 = Item("apple",24,10,352,290,"Food")
+item4 = Item("bottes",24,10,352,270,"Bottes")
+item5 = Item("fromage",1,10,352,500,"Food")
+item6 = Item("rubis",24,10,352,530,"Food")
+item7 = Item("casque",24,10,352,560,"Casque")
+item8 = Item("jambiere",1,10,352,230,"Jambiere")
+item9 = Item("pain",1,10,352,700,"Food")
+item10 = Item("fish",24,10,352,710,"Food")
+item11 = Item("fromage",24,10,352,130,"Food")
+item12 = Item("fromage",1,10,352,130,"Food")
 
 
 
@@ -106,10 +108,9 @@ def input():
         dy = 0
 
     if dx != 0 or dy != 0:
-        player.move(dx, dy, attacking, sprinting)  # Passe la variable sprinting
+        player.move(dx, dy, sprinting)  # Passe la variable sprinting
 
-    if attacking == 1:
-        player.move(dx, dy, attacking, sprinting)
+    
 
     else:
         # Animation idle quand le joueur ne bouge pas
@@ -134,6 +135,7 @@ while True :
                 show_inventory = not show_inventory  # On inverse l'état de l'inventaire
         if show_inventory:
             player.handle_mouse_events(event)
+        save_menu.handle_event(event,"ruen","eee")
 
     input()
 
@@ -159,13 +161,14 @@ while True :
             for i in player.inventory_list:
                 print(i)
     
-    save_menu.update()
+    
     
     if show_inventory:
         
         player.display_inventory()  # Appelle une méthode pour afficher l'inventaire 
         
-
+    
+    save_menu.update()
     pygame.display.update()
     mainClock.tick(60)
    

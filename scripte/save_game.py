@@ -9,14 +9,19 @@ class Save_game(object):
     """
     def __init__(self, ecran):
         self.screen = ecran
-        self.quit = pygame.Rect(750, 0, 200, 50)
+        self.image = pygame.image.load("pause.png")
+        self.largeur, self.hauteur = self.screen.get_size()
+        self.quit = pygame.Rect(self.largeur//3 + 100, self.hauteur//4 + 100, 275, 50)
+        self.retour = pygame.Rect(self.largeur//3 + 100, self.hauteur//4 + 200, 275, 50)
         self.parametre_btn = pygame.Rect(950, 0, 200, 50)
         self.text_quit = "Quitter la partie"
         self.text_param = "Paramètre"
+        self.text_retour = "Retourner"
         self.connexion = sqlite3.connect('save-game.db')
         self.clock = pygame.time.Clock()
         self.running = True
-
+        self.quitte = False
+        
         self.confirm_box = pygame.Rect(250, 300, 400, 200)
         self.confirm_yes = pygame.Rect(270, 420, 160, 50)
         self.confirm_no = pygame.Rect(470, 420, 160, 50)
@@ -29,10 +34,21 @@ class Save_game(object):
         """
         font = pygame.font.SysFont(None, 50)
 
-        pygame.draw.rect(self.screen, (255, 255, 255), self.quit)
-        pygame.draw.rect(self.screen, (0, 0, 0), self.quit, 2)
-        quit_text = font.render(self.text_quit, True, (0, 0, 0))
-        self.screen.blit(quit_text, (self.quit.x + 10, self.quit.y + 10))
+        if self.quitte:
+            self.screen.blit(self.image,(self.largeur//3,self.hauteur//4))
+
+            pygame.draw.rect(self.screen, (255, 255, 255), self.quit)
+            pygame.draw.rect(self.screen, (0, 0, 0), self.quit, 2)
+
+            pygame.draw.rect(self.screen, (255, 255, 255), self.retour)
+            pygame.draw.rect(self.screen, (0, 0, 0), self.retour, 2)
+
+            quit_text = font.render(self.text_quit, True, (0, 0, 0))
+            self.screen.blit(quit_text, (self.quit.x + 5, self.quit.y + 10))
+
+            
+            retour_text = font.render(self.text_retour, True, (0, 0, 0))
+            self.screen.blit(retour_text, (self.retour.x + 5, self.retour.y + 10))
 
         pygame.draw.rect(self.screen, (255, 255, 255), self.parametre_btn)
         pygame.draw.rect(self.screen, (0, 0, 0), self.parametre_btn, 2)
@@ -41,14 +57,18 @@ class Save_game(object):
 
     def handle_event(self, event, joueur, level_joueur):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            if self.quit.collidepoint(event.pos):
-                print("Êtes-vous sûr de quitter ?")
-                # self.sauvegarder(joueur, level_joueur)
-                self.affichage_quit()
+            if self.parametre_btn.collidepoint(event.pos):
                 
-            elif self.parametre_btn.collidepoint(event.pos):
                 print("Paramètre du jeu")
-                # Affichage des paramètres ici (à développer)
+                self.quitte = True
+            elif self.quitte and self.quit.collidepoint(event.pos):
+                print("tu vas quitter la game chef")
+                pygame.quit()
+                sys.exit()
+            elif self.retour.collidepoint(event.pos):
+                print("retour dans le jeu")
+                self.quitte = False
+                
 
     def sauvegarder(self, joueur, level_joueur):
         """
@@ -62,10 +82,14 @@ class Save_game(object):
         self.connexion.commit()
         self.connexion.close()
 
-    def parametre(self):
-        pass
+    def return_game(self):
+        """"
+        fonction permettant de retourner dans le jeu
+        """
+        self.quitte = False
+
     
-    def affichage_quit(self):
+    """def affichage_quit(self):
         while self.running : 
             
             for event in pygame.event.get():
@@ -91,3 +115,4 @@ class Save_game(object):
             self.screen.blit(no_text, (self.confirm_no.x + 50, self.confirm_no.y + 10))
 
             pygame.display.update()
+            """
