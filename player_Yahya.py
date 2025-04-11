@@ -9,7 +9,7 @@ class Player(pygame.sprite.Sprite):
         self.speed = 3
         self.speed_run = 4.5
         self.screen = screen
-        self.health_value = 100
+        self.health_value = 50
         self.mana_value = 0
         self.endurance_value = 100
         self.font = pygame.font.Font("Items/Minecraft.ttf", 14)  # Police par défaut, taille 20
@@ -57,7 +57,7 @@ class Player(pygame.sprite.Sprite):
         self.inventory_bag_stack_text = [[self.font.render("", True, (255, 255, 255)) for _ in range(6)] for _ in range(5)]
         
         self.inventory_index = 0
-
+        self.current_item = self.inventory_bar_list[self.inventory_index]
         #On stocke ici les mouvement du personnage selon s'il marche en haut, en bas, a droite ou a gauche
         self.down  =  [pygame.image.load(f"animation/walk/walk1/down{i}.png") for i in range(1, 6)]
         self.up    =  [pygame.image.load(f"animation/walk/walk2/up{j}.png") for j in range(1, 6)]
@@ -102,13 +102,12 @@ class Player(pygame.sprite.Sprite):
         self.dragging_item = None  # L'objet en cours de glisser-déposer
         self.drag_start_pos = None  # Position de départ de l'objet glissé
 
-        #Booléen pour gérer l'armure
-        self.HaveCasque = False
-        self.HavePlastron = False
-        self.HaveJambiere = False
-        self.HaveBottes = False
+        
 
-    
+        # Charger l'image du curseur
+        self.cursor_image = pygame.image.load("UI/Inventories/cursor.png")
+
+        
     def animation(self,liste_mouv,speed):
         self.current_sprite += speed
         if self.current_sprite >=len(liste_mouv):
@@ -164,16 +163,16 @@ class Player(pygame.sprite.Sprite):
     def affiche_ui(self):
         foundd = 0
         #Gestion affichage de la barre de vie selon la valeur de la vie
-        if 0 < self.health_value < 20:
+        if 0 < self.health_value <= 20:
             self.current_health = self.health[5]
-        elif 20 < self.health_value < 40:
+        elif 20 < self.health_value <= 40:
             self.current_health = self.health[4]
-        elif 40 < self.health_value < 60:
+        elif 40 < self.health_value <= 60:
             self.current_health = self.health[3]
-        elif 60 < self.health_value < 80:
+        elif 60 < self.health_value <= 80:
             self.current_health = self.health[2]
     
-        elif 80 < self.health_value < 99:
+        elif 80 < self.health_value <= 99:
             self.current_health = self.health[1]
         elif self.health_value == 100:
             self.current_health = self.health[0]
@@ -242,7 +241,13 @@ class Player(pygame.sprite.Sprite):
             self.screen.blit(stack,(x_stack,self.screen.get_height()-0.07*self.screen.get_height()))
             x_stack += 60
         
+        # Afficher le curseur
+        cursor_x = self.INV_X + self.inventory_index * (self.CELL_SIZE + 10)
+        cursor_y = self.INV_Y
+        self.screen.blit(self.cursor_image, (cursor_x, cursor_y))
         
+        self.current_item = self.inventory_bar_list[self.inventory_index]
+
     def is_mouse_on_slot(self, x, y, width, height):
         mouse_x, mouse_y = pygame.mouse.get_pos()
         return x <= mouse_x <= x + width and y <= mouse_y <= y + height
@@ -300,8 +305,6 @@ class Player(pygame.sprite.Sprite):
         
         self.screen.blit(self.button_bag,(1045,315))
 
-    
-
 
     def regeneration_endurance(self,keys):
         if self.endurance_value == 0:
@@ -330,7 +333,7 @@ class Player(pygame.sprite.Sprite):
                 self.endurance_value = 100
                 
 
-    
+
     def add_to_inventory(self, sprite):
         found = False
 
@@ -552,8 +555,86 @@ class Player(pygame.sprite.Sprite):
                 self.drag_start_pos = None
 
 
+    def handle_key_events(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_1:
+                self.inventory_index = 0
+                print(self.current_item)
+            elif event.key == pygame.K_2:
+                self.inventory_index = 1
+                print(self.current_item)
+            elif event.key == pygame.K_3:
+                self.inventory_index = 2
+                print(self.current_item)
+            elif event.key == pygame.K_4:
+                self.inventory_index = 3
+                print(self.current_item)
+            elif event.key == pygame.K_5:
+                self.inventory_index = 4
+                print(self.current_item)
+            elif event.key == pygame.K_6:
+                self.inventory_index = 5
+                print(self.current_item)
+            elif event.key == pygame.K_7:
+                self.inventory_index = 6
+                print(self.current_item)
+            elif event.key == pygame.K_8:
+                self.inventory_index = 7
+                print(self.current_item)
+            elif event.key == pygame.K_9:
+                self.inventory_index = 8
+                print(self.current_item)
+            elif event.key == pygame.K_0:
+                self.inventory_index = 9
+                print(self.current_item)
+
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 4:  # Molette vers le haut
+                self.inventory_index = (self.inventory_index + 1) % 10
+                print(self.current_item)
+            elif event.button == 5:  # Molette vers le bas
+                self.inventory_index = (self.inventory_index - 1) % 10
+                print(self.current_item)
+    def eat(self, index):
+        # Vérifiez si l'index est dans la barre d'inventaire et que la vie est inferieure a 100
+        if 0 <= index < len(self.inventory_bar_list) and self.health_value < 100:
+            item = self.inventory_bar_list[index]
+            if item and item['object'].type == "Food":
+                # Décrémentez la quantité de l'item
+                item["quantity"] -= 1
+                self.health_value += item["object"].regen
+                if item["quantity"] <= 0:
+                    # Si la quantité est 0, supprimez l'item de l'inventaire
+                    self.inventory_bar_list[index] = {}
+                    self.inventory_icons[index] = pygame.image.load("Items/slot.png")
+                    self.stack_text[index] = self.font.render("", True, (255, 255, 255))
+                else:
+                    # Mettez à jour l'affichage de la quantité
+                    self.stack_text[index] = self.font.render(str(item["quantity"]), True, (255, 255, 255))
+                print(f"Mange {item['object'].name}. Quantité restante: {item['quantity']}")
+            else:
+                print("L'item sélectionné n'est pas de type 'food'.")
+        else:
+            print("Index d'inventaire invalide.")
 
 
+    '''
+    def eat(self,event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 3:  # Molette vers le haut
+                if self.inventory_bar_list[self.inventory_index] != {}:
+                    if self.inventory_bar_list[self.inventory_index]['object'].type == "Food":
+                        self.inventory_bar_list[self.inventory_index]['quantity'] -=1
+                        self.stack_text[self.inventory_index] = self.font.render(str(self.inventory_bar_list[self.inventory_index]['quantity']), True, (255, 255, 255))
+                        print(self.inventory_bar_list[self.inventory_index]['quantity'])
+                        print(self.inventory_bar_list[self.inventory_index])
+                
+                if self.inventory_bar_list[self.inventory_index] != {}:
+                    if self.inventory_bar_list[self.inventory_index]['quantity'] == 0 :
+                        self.inventory_bar_list[self.inventory_index] = {}
+                        self.inventory_icons = pygame.image.load(f"Items/slot.png")
+                        self.stack_text = self.font.render("", True, (255, 255, 255))
+    '''
     '''
     def handle_mouse_events(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:

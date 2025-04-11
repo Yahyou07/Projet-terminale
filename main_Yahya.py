@@ -31,15 +31,15 @@ player = Player(player_position.x,player_position.y, screen)  # Positionner le j
 item = Item("pain",24,10,352,350,"Food")
 item2 = Item("plastron",1,10,352,450,"Plastron")
 item3 = Item("apple",24,10,352,290,"Food")
-item4 = Item("bottes",24,10,352,270,"Bottes")
-item5 = Item("fromage",1,10,352,500,"Food")
+item4 = Item("bottes",1,10,352,270,"Bottes")
+item5 = Item("fromage",24,10,352,500,"Food")
 item6 = Item("rubis",24,10,352,530,"Food")
-item7 = Item("casque",24,10,352,560,"Casque")
+item7 = Item("casque",1,10,352,560,"Casque")
 item8 = Item("jambiere",1,10,352,230,"Jambiere")
-item9 = Item("pain",1,10,352,700,"Food")
+item9 = Item("pain",24,10,352,700,"Food")
 item10 = Item("fish",24,10,352,710,"Food")
 item11 = Item("fromage",24,10,352,130,"Food")
-item12 = Item("fromage",1,10,352,130,"Food")
+item12 = Item("fromage",24,10,352,130,"Food")
 
 
 
@@ -115,6 +115,7 @@ def input():
 curent_quantity = 0
 
 show_inventory = False
+moving = True
 while True : 
 
     for event in pygame.event.get():
@@ -124,7 +125,7 @@ while True :
                 show_inventory = not show_inventory  # On inverse l'état de l'inventaire
                 player.OnBag = True
                 player.OnArmour = False
-           
+                moving = not moving
         #Lorsqu'on clique sur l'icone de l'armure on passe sur l'armure du joueur
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if player.rect_button_armour.collidepoint(event.pos) :
@@ -136,14 +137,20 @@ while True :
                     
                     player.OnArmour = False
                     player.OnBag = True
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 3:  # Molette vers le haut
+                 player.eat(player.inventory_index)
             
 
         if show_inventory:
             
                 player.handle_mouse_events(event)
+        player.handle_key_events(event)
             
-
-    input()
+    if moving:
+        input()
+    
+    
 
     keys = pygame.key.get_pressed()
     player.regeneration_endurance(keys)
@@ -156,7 +163,7 @@ while True :
 
     for sprite in group.sprites():
         if isinstance(sprite, Item) and player.rect.colliderect(sprite.rect):
-            print("Collision detectee avec",sprite.name)
+            #print("Collision detectee avec",sprite.name)
             group.remove(sprite)  # Supprime l'objet du groupe
             player.add_to_inventory(sprite)
             
@@ -169,17 +176,14 @@ while True :
                 print(i)
             print("")
             print("**Armour list**")
-            print(player.armour_list)
-            print(player.HaveBottes)
-            print(player.mana_value)
             '''
+            
             
 
     if show_inventory:
-        
             player.display_inventory()  # On appelle la méthode display_inventory pour afficher l'inventaire 
         
-    print(screen.get_width())
+    
 
     pygame.display.update()
     mainClock.tick(60)
