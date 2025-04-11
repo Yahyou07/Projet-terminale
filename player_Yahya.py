@@ -87,7 +87,8 @@ class Player(pygame.sprite.Sprite):
         self.current_sprite = 0
         #On prend comme image de base idle1
         self.image = pygame.image.load("animation/idle/idle1/down1.png")
-        #On récupère le rectangle de l'image
+
+        #Paramètres du joueur rect, position ...
         self.rect = self.image.get_rect()
         self.rect.width = 40  # Ajuste la largeur
         self.rect.height = 40  # Ajuste la hauteur
@@ -595,6 +596,8 @@ class Player(pygame.sprite.Sprite):
             elif event.button == 5:  # Molette vers le bas
                 self.inventory_index = (self.inventory_index - 1) % 10
                 print(self.current_item)
+
+    #Méthode eat pour consommer des items de type Food
     def eat(self, index):
         # Vérifiez si l'index est dans la barre d'inventaire et que la vie est inferieure a 100
         if 0 <= index < len(self.inventory_bar_list) and self.health_value < 100:
@@ -611,11 +614,9 @@ class Player(pygame.sprite.Sprite):
                 else:
                     # Mettez à jour l'affichage de la quantité
                     self.stack_text[index] = self.font.render(str(item["quantity"]), True, (255, 255, 255))
-                print(f"Mange {item['object'].name}. Quantité restante: {item['quantity']}")
-            else:
-                print("L'item sélectionné n'est pas de type 'food'.")
-        else:
-            print("Index d'inventaire invalide.")
+                print(f"Mange {item['object'].name}. Quantite restante: {item['quantity']}")
+            
+        
 
 
     '''

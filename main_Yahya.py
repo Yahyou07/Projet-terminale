@@ -29,17 +29,17 @@ player_position = tmx_data.get_object_by_name("Player")
 player = Player(player_position.x,player_position.y, screen)  # Positionner le joueur
 
 item = Item("pain",24,10,352,350,"Food")
-item2 = Item("plastron",1,10,352,450,"Plastron")
+item2 = Item("plastron",1,10,300,450,"Plastron")
 item3 = Item("apple",24,10,352,290,"Food")
-item4 = Item("bottes",1,10,352,270,"Bottes")
-item5 = Item("fromage",24,10,352,500,"Food")
+item4 = Item("bottes",1,10,500,270,"Bottes")
+item5 = Item("fromage",24,10,330,500,"Food")
 item6 = Item("rubis",24,10,352,530,"Food")
-item7 = Item("casque",1,10,352,560,"Casque")
+item7 = Item("casque",1,10,180,560,"Casque")
 item8 = Item("jambiere",1,10,352,230,"Jambiere")
 item9 = Item("pain",24,10,352,700,"Food")
 item10 = Item("fish",24,10,352,710,"Food")
 item11 = Item("fromage",24,10,352,130,"Food")
-item12 = Item("fromage",24,10,352,130,"Food")
+item12 = Item("fromage",24,10,400,130,"Food")
 
 
 
@@ -114,9 +114,20 @@ def input():
 
 curent_quantity = 0
 
-show_inventory = False
-moving = True
+#parametres la progression du cercle pour le "manger"
+fill_time = 3.0 # Durée du remplissage
+progress = 0.0
+progressing = False
+finished_time = 0
+show_message = False
+
+
+#Booléens : 
+show_inventory = False #booléen pour gérer l'affichage de l'inventaire
+moving = True #booléen pour gérer le droit de mouvment du personnage
+
 while True : 
+    dt = mainClock.tick(60) / 1000  # Temps écoulé en secondes
 
     for event in pygame.event.get():
         quit()
@@ -137,21 +148,44 @@ while True :
                     
                     player.OnArmour = False
                     player.OnBag = True
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 3:  # Molette vers le haut
-                 player.eat(player.inventory_index)
+        
             
 
         if show_inventory:
             
                 player.handle_mouse_events(event)
         player.handle_key_events(event)
-            
+
+    #verifier si l'on peut marcher
     if moving:
         input()
     
+    # Clic droit maintenu pour gréer l'affichage du "progress circle"
+    if player.inventory_bar_list[player.inventory_index] != {}:
+        if player.inventory_bar_list[player.inventory_index]['object'].type == "Food" : 
+            if player.health_value < 100:
+                if pygame.mouse.get_pressed()[2]:
+                    if not progressing:
+                        progressing = True
+                        progress = 0.0
+                    else:
+                        progress += dt / fill_time
+                        if progress >= 1.0:
+                            progressing = False
+                            show_message = True
+                            print("Nourriture consommé")
+                            player.eat(player.inventory_index) #On active la méthode eat lorsque "la progress circle" se termine
+                            finished_time = pygame.time.get_ticks()
+                else:
+                    if progress < 1.0:
+                        progressing = False
+                        progress = 0.0
     
 
+
+    
+
+    
     keys = pygame.key.get_pressed()
     player.regeneration_endurance(keys)
     
@@ -160,6 +194,21 @@ while True :
     group.draw(screen)
     player.affiche_ui()
     
+
+
+    if progressing:
+        world_pos = (player.rect.centerx + 25, player.rect.top - 10)
+        screen_pos = map_layer.translate_point(world_pos)
+
+        radius = 30
+        end_angle = -math.pi / 2 + progress * 2 * math.pi
+        pygame.draw.circle(screen, (100, 100, 100), screen_pos, radius, 3)
+        pygame.draw.arc(screen, (0, 200, 0),
+                        (screen_pos[0] - radius, screen_pos[1] - radius, radius * 2, radius * 2),
+                        -math.pi / 2, end_angle, 4)
+
+    
+         
 
     for sprite in group.sprites():
         if isinstance(sprite, Item) and player.rect.colliderect(sprite.rect):
@@ -186,5 +235,5 @@ while True :
     
 
     pygame.display.update()
-    mainClock.tick(60)
+    
    
