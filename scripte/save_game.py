@@ -55,7 +55,15 @@ class Save_game(object):
         param_text = font.render(self.text_param, True, (0, 0, 0))
         self.screen.blit(param_text, (self.parametre_btn.x + 10, self.parametre_btn.y + 10))
 
-    def handle_event(self, event, joueur, level_joueur):
+    def handle_event(self, event, joueur : str , level_joueur : int , pos_x : int = None, pos_y : int = None):
+        """
+            Gère les événements de la fenêtre de jeu
+            event : l'événement à gérer
+            joueur : le joueur à sauvegarder
+            level_joueur : le niveau du joueur à sauvegarder
+            pos_x : position x du joueur (optionnel)
+            pos_y : position y du joueur (optionnel)  
+        """
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             if self.parametre_btn.collidepoint(event.pos):
                 
@@ -63,6 +71,7 @@ class Save_game(object):
                 self.quitte = True
             elif self.quitte and self.quit.collidepoint(event.pos):
                 print("tu vas quitter la game chef")
+                #self.sauvegarder(joueur, level_joueur, pos_x, pos_y)
                 pygame.quit()
                 sys.exit()
             elif self.retour.collidepoint(event.pos):
@@ -70,7 +79,7 @@ class Save_game(object):
                 self.quitte = False
                 
 
-    def sauvegarder(self, joueur, level_joueur):
+    def sauvegarder(self, event, joueur : str , level_joueur : int , pos_x : int = None, pos_y : int = None):
         """
             Sauvegarde le joueur dans un fichier
             joueur : le joueur à sauvegarder

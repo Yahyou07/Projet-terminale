@@ -135,7 +135,7 @@ while True :
                 show_inventory = not show_inventory  # On inverse l'état de l'inventaire
         if show_inventory:
             player.handle_mouse_events(event)
-        save_menu.handle_event(event,"ruen","eee")
+        save_menu.handle_event(event,"ruen",1,player.rect.x,player.rect.y)
 
     input()
 
@@ -160,7 +160,7 @@ while True :
             print("**Inventaire**")
             for i in player.inventory_list:
                 print(i)
-    
+
     
     
     if show_inventory:
