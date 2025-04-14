@@ -46,9 +46,7 @@ while running:
         radius = 50
         end_angle = -math.pi / 2 + progress * 2 * math.pi
         pygame.draw.circle(screen, (100, 100, 100), center, radius, 5)
-        pygame.draw.arc(screen, (0, 200, 0),
-                        (center[0] - radius, center[1] - radius, radius * 2, radius * 2),
-                        -math.pi / 2, end_angle, 5)
+        pygame.draw.arc(screen, (0, 200, 0),(center[0] - radius, center[1] - radius, radius * 2, radius * 2),-math.pi / 2, end_angle, 5)
 
     # Afficher "Processus terminé" pendant 1 seconde
     if show_message:
