@@ -133,11 +133,15 @@ show_message = False
 show_inventory = False #booléen pour gérer l'affichage de l'inventaire
 moving = True #booléen pour gérer le droit de mouvment du personnage
 eat_image = pygame.image.load("UI/soin.png")
-player.current_hache = 0
+
+curseur = pygame.image.load("UI/curseur1.png")
+curseur_rect = curseur.get_rect()
 
 while True : 
     dt = mainClock.tick(60) / 1000  # Temps écoulé en secondes
-    
+    pygame.mouse.set_visible(False)
+    curseur_rect.topleft = pygame.mouse.get_pos()
+
     for event in pygame.event.get():
         quit()
         if event.type == pygame.KEYDOWN:
@@ -255,7 +259,7 @@ while True :
         radius = 58
 
         on ajoutera ça dans le else en haut : 
-        
+
         player.animation_hache(player.hache_anim,1.5)
 
         '''
@@ -283,7 +287,7 @@ while True :
     if show_inventory:
             player.display_inventory()  # On appelle la méthode display_inventory pour afficher l'inventaire 
         
-    
+    screen.blit(curseur,curseur_rect)
 
     pygame.display.update()
     
