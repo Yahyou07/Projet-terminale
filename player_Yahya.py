@@ -83,6 +83,7 @@ class Player(pygame.sprite.Sprite):
         self.idle_left_mouv = [pygame.image.load(f"animation/idle/idle4/left{j}.png") for j in range(1, 5)]
 
         self.attack_right_mouv = [pygame.image.load(f"animation/attack/attack1/right{j}.png") for j in range(1, 6)]
+        self.attack_left_mouv = [pygame.image.load(f"animation/attack/attack2/left{j}.png") for j in range(1, 6)]
 
         #Index que l'on utlise pour l'animation
         self.current_sprite = 0
@@ -152,22 +153,44 @@ class Player(pygame.sprite.Sprite):
         self.rect_button_left_book.x = 660
         self.rect_button_left_book.y = 740
         self.page = 0
+        self.page_a_cote = self.page + 1
         self.max_page = 20
-        self.pages_text = self.font_fantasy.render(f"{str(self.page)}",True, (255, 174, 111))
+        self.pages_text = self.font_fantasy.render(f"{str(self.page)} - {self.page_a_cote}",True, (255, 174, 111))
 
         self.book_animation_list = []
         self.book_anim_speed = 0
         self.book_anim_index = 0
         self.book_animating = False
         
-        
-    def startBookAnimation(self, liste_mouv, speed, callback=None):
+        self.anim_move_player = []
+        self.player_speed_anim = 0
+        self.player_index_anim = 0
+        self.player_attack_anim = False
+        self.decalement = 5
+
+        self.hache_anim = [pygame.image.load(f"UI/hache/frame_{j}.png") for j in range(0, 40)]
+        self.current_hache = 0
+        self.hache = pygame.image.load("UI/hache/frame_0.png")
+        self.hache = pygame.transform.scale(self.hache,(140,140))
+
+    def start_anim_attack(self,list_mouv,speed,decal):
+        '''
+        Dans cette méthode on va remplacer certaine les variables utilisées dans anim_player_full_animation (list_mouv et speed)
+        par les paramètre présents dans la méthode que l'on pourra changer dynamiquement selon le mouvement
+        On remet également player_attack_anim à True pour relancer la méthode à chaque fois qu'on le souhaite.
+
+        '''
+        self.anim_move_player = list_mouv
+        self.player_speed_anim = speed
+        self.player_index_anim = 0
+        self.player_attack_anim = True
+        self.decalment = decal
+    def startBookAnimation(self, liste_mouv, speed):
         
         self.book_animation_list = liste_mouv
         self.book_anim_speed = speed
         self.book_anim_index = 0
         self.book_animating = True
-        self.book_anim_done_callback = callback
         self.IsOpen = False
 
     def animation(self,liste_mouv,speed):
@@ -176,6 +199,14 @@ class Player(pygame.sprite.Sprite):
             self.current_sprite = 0
         self.image = liste_mouv[int(self.current_sprite)]
 
+
+    def animation_hache(self,liste_mouv,speed):
+        self.current_hache += speed
+        if self.current_hache >=len(liste_mouv):
+            self.current_hache = 0
+        self.hache = liste_mouv[int(self.current_hache)]
+        self.hache = pygame.transform.scale(self.hache,(140,140))
+    
     def animBook(self):
         if self.book_animating:
             self.book_anim_index += self.book_anim_speed
@@ -190,22 +221,23 @@ class Player(pygame.sprite.Sprite):
             print(self.current_book)
             self.current_book = pygame.transform.scale(self.current_book, (800, 750))  # Appliquez l'échelle ici
 
-    '''
-    def updateBookAnimation(self):
-        if self.book_animating:
-            print("on anime")
-            self.book_anim_index += self.book_anim_speed
-            print(self.book_anim_index)
-            if self.book_anim_index >= len(self.book_animation_list):
-                self.book_anim_index = len(self.book_animation_list) - 1
-                self.book_animating = False
-                self.IsOpen = True
-                if self.book_anim_done_callback:
-                    self.book_anim_done_callback()
+    def anim_player_full_animation(self):
+        if self.player_attack_anim:
+            self.player_index_anim += self.player_speed_anim
+            self.rect.x += self.decalment
+            # Si l'index est supérieur a la taille de la liste de mouvement :
+            if self.player_index_anim >= len(self.anim_move_player):
+                
+                self.player_attack_anim = False # Alors on arrete le processus en mettant le booleen a False
+                self.player_index_anim = len(self.anim_move_player) - 1  #Et on desincrémente l'index pour ne pas être out of range
 
-            self.current_book = self.book_animation_list[int(self.book_anim_index)]
-            self.current_book = pygame.transform.scale(self.current_book, (800, 750))
-    '''
+            # Si l'index est négatif     
+            elif self.player_index_anim < 0: 
+                self.player_index_anim = 0  # Alors on le remet a zero
+            self.image = self.anim_move_player[int(self.player_index_anim)] # On change l'image de base par l'image de la liste de mouvment du current_index
+            
+
+
     
     
 
@@ -357,9 +389,10 @@ class Player(pygame.sprite.Sprite):
             if self.IsOpen:
                 self.screen.blit(self.button_right_book, (900, 740))
                 self.screen.blit(self.button_left_book, (660, 740))
-                self.pages_text = self.font_fantasy.render(f"{str(self.page)}",True, (255, 174, 111))
+                self.pages_text = self.font_fantasy.render(f"{str(self.page)} - {self.page_a_cote}",True, (255, 174, 111))
                 self.screen.blit(self.pages_text,(760,750))
 
+        
 
     def is_mouse_on_slot(self, x, y, width, height):
         mouse_x, mouse_y = pygame.mouse.get_pos()

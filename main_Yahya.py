@@ -95,8 +95,14 @@ def input():
         dx = -1
     if pressed[pygame.K_RIGHT] or pressed[pygame.K_d]:
         dx = 1
+    '''
+    if pygame.mouse.get_pressed()[2]:
+        player.animation_hache(player.hache_anim,1.6)
+        print("heyyyy")
     
-    
+    else:
+        player.current_hache = 0
+    '''
 
     if dx != 0 or dy != 0:
         player.move(dx, dy, sprinting)  # Passe la variable sprinting
@@ -127,7 +133,7 @@ show_message = False
 show_inventory = False #booléen pour gérer l'affichage de l'inventaire
 moving = True #booléen pour gérer le droit de mouvment du personnage
 eat_image = pygame.image.load("UI/soin.png")
-
+player.current_hache = 0
 
 while True : 
     dt = mainClock.tick(60) / 1000  # Temps écoulé en secondes
@@ -141,6 +147,14 @@ while True :
                 player.OnArmour = False
                 moving = not moving
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            if player.last_direction == "right" or player.last_direction == "down" :
+                player.start_anim_attack(player.attack_right_mouv,0.3,0)
+                
+
+            if player.last_direction == "left" or player.last_direction =="up":
+                player.start_anim_attack(player.attack_left_mouv,0.3,-0)
+                
+                
             if player.rect_button_armour.collidepoint(event.pos):
                 player.OnArmour = True
                 player.OnBag = False
@@ -163,13 +177,16 @@ while True :
                 player.startBookAnimation(player.turn_left,0.25)
                 print("bouton clique")
                 player.IsOpen = True
-                player.page -=1
+                player.page_a_cote = player.page - 1
+                player.page -=2
+                
 
-            if player.rect_button_right_book.collidepoint(event.pos) and player.page<=20:
+            if player.rect_button_right_book.collidepoint(event.pos) and player.page < 20:
                 player.startBookAnimation(player.turn_right,0.25)
                 player.IsOpen = True
                 print("bouton clique")
-                player.page+=1
+                player.page += 2
+                player.page_a_cote = player.page + 1
 
         if show_inventory:
                 player.handle_mouse_events(event)
@@ -179,6 +196,7 @@ while True :
     #verifier si l'on peut marcher
     if moving:
         input()
+    player.anim_player_full_animation()
     
     # Clic droit maintenu pour gréer l'affichage du "progress circle"
     if player.inventory_bar_list[player.inventory_index] != {}:
@@ -190,6 +208,7 @@ while True :
                         progress = 0.0
                     else:
                         progress += dt / fill_time
+                        
                         if progress >= 1.0:
                             progressing = False
                             show_message = True
@@ -215,7 +234,7 @@ while True :
     player.affiche_ui()
     
     if player.OnBook:
-        player.animBook()  # Assurez-vous que cette méthode est appelée
+        player.animBook()  
 
     if progressing:
         world_pos = (player.rect.centerx + 25, player.rect.top - 10)
@@ -226,14 +245,25 @@ while True :
         pygame.draw.circle(screen, (100, 100, 100), screen_pos, radius, 3)
         pygame.draw.arc(screen, (0, 200, 0),(screen_pos[0] - radius, screen_pos[1] - radius, radius * 2, radius * 2),
         -math.pi / 2, end_angle, 4)
+        
         screen.blit(eat_image,(screen_pos[0]-30,screen_pos[1]-27))
         
-    
+        '''
+        on utilisera ces proportions lorsqu'on ajoutera la capacité de couper des arbres :
+
+        screen.blit(player.hache,(screen_pos[0]-80,screen_pos[1]-75))
+        radius = 58
+
+        on ajoutera ça dans le else en haut : 
+        
+        player.animation_hache(player.hache_anim,1.5)
+
+        '''
          
 
     for sprite in group.sprites():
         if isinstance(sprite, Item) and player.rect.colliderect(sprite.rect):
-            #print("Collision detectee avec",sprite.name)
+            
             group.remove(sprite)  # Supprime l'objet du groupe
             player.add_to_inventory(sprite)
             
