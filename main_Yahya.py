@@ -9,6 +9,7 @@ from pygame.locals import *
 import pyscroll
 import pyscroll.data
 import time
+from arbre_Yahya import *
 pygame.init()
 pygame.display.set_caption("Jeu")
 
@@ -39,9 +40,11 @@ item8 = Item("jambiere",1,10,352,230,"Jambiere")
 item9 = Item("pain",24,10,352,700,"Food")
 item10 = Item("fish",24,10,352,710,"Food")
 item11 = Item("fromage",24,10,352,130,"Food")
-item12 = Item("fromage",24,10,400,130,"Food")
+item12 = Item("hache",24,10,400,130,"Hache")
 item13 = Item("emeraude",24,10,408,110,"Artefact")
 
+
+arbre1 = Arbre("arbre",50,50)
 
 
 map_data = pyscroll.data.TiledMapData(tmx_data)
@@ -68,6 +71,8 @@ group.add(item10)
 group.add(item11)
 group.add(item12)
 group.add(item13)
+
+group.add(arbre1)
 #Fonction quit
 def quit():
     if event.type == QUIT:
@@ -123,11 +128,14 @@ curent_quantity = 0
 
 #parametres la progression du cercle pour le "manger"
 fill_time = 3.0 # Durée du remplissage
+fill_time_cut = 5.0
 progress = 0.0
 progressing = False
 finished_time = 0
 show_message = False
 
+
+cut_progressing =  False
 
 #Booléens : 
 show_inventory = False #booléen pour gérer l'affichage de l'inventaire
@@ -138,6 +146,8 @@ curseur = pygame.image.load("UI/curseur1.png")
 curseur_rect = curseur.get_rect()
 
 IsCursorOn = True
+
+Arbre_touche = False
 while True : 
     dt = mainClock.tick(60) / 1000  # Temps écoulé en secondes
     pygame.mouse.set_visible(False)
@@ -230,8 +240,8 @@ while True :
                         progress = 0.0
     
 
-
-    
+  
+        
 
     
     keys = pygame.key.get_pressed()
@@ -268,24 +278,51 @@ while True :
         player.animation_hache(player.hache_anim,1.5)
 
         '''
-         
+    
 
+
+    
+
+
+    for sprite in group.sprites():
+        if isinstance(sprite, Arbre) and player.rect.colliderect(sprite.rect):
+            if pygame.mouse.get_pressed()[2]:
+                if not cut_progressing:
+                    cut_progressing = True
+                    progress = 0.0
+                else:
+                    progress += dt / fill_time_cut
+                    player.animation_hache(player.hache_anim,1.5)
+                    if progress >= 1.0:
+                        cut_progressing = False
+                        group.add(Item("apple",24,10,sprite.rect.x+20 ,sprite.rect.y,"Food"))
+                        group.remove(sprite)
+                        finished_time = pygame.time.get_ticks()
+            else:
+                if progress < 1.0:
+                    cut_progressing = False
+                    progress = 0.0
+            
+          
+    
+    if cut_progressing:
+        world_pos = (player.rect.centerx + 25, player.rect.top - 10)
+        screen_pos = map_layer.translate_point(world_pos)
+
+        radius = 60
+        end_angle = -math.pi / 2 + progress * 2 * math.pi
+        pygame.draw.circle(screen, (100, 100, 100), screen_pos, radius, 3)
+        pygame.draw.arc(screen, (0, 200, 0),(screen_pos[0] - radius, screen_pos[1] - radius, radius * 2, radius * 2),
+        -math.pi / 2, end_angle, 4)
+        
+        screen.blit(player.hache,(screen_pos[0]-80,screen_pos[1]-75))
+            
     for sprite in group.sprites():
         if isinstance(sprite, Item) and player.rect.colliderect(sprite.rect):
             
             group.remove(sprite)  # Supprime l'objet du groupe
             player.add_to_inventory(sprite)
-            
-            '''
-            print("**barre d'inventaire**")
-            print(player.inventory_bar_list)
-            print()
-            print("**Inventaire**")
-            for i in player.inventory_list:
-                print(i)
-            print("")
-            print("**Armour list**")
-            '''
+        
             
             
 
@@ -293,7 +330,7 @@ while True :
             player.display_inventory()  # On appelle la méthode display_inventory pour afficher l'inventaire 
         
     screen.blit(curseur,curseur_rect)
-
+    print(Arbre_touche)
     pygame.display.update()
     
    
