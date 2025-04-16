@@ -127,7 +127,6 @@ curent_quantity = 0
 
 show_inventory = False
 while True : 
-    print(player.inventory_bar_list)
     for event in pygame.event.get():
         quit()
         if event.type == pygame.KEYDOWN:

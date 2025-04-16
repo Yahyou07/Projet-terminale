@@ -55,7 +55,7 @@ class Save_game(object):
         param_text = font.render(self.text_param, True, (0, 0, 0))
         self.screen.blit(param_text, (self.parametre_btn.x + 10, self.parametre_btn.y + 10))
 
-    def handle_event(self, event, joueur : str , level_joueur : int , pos_x : int = None, pos_y : int = None,inventory : list = None):
+    def handle_event(self, event, joueur : str , level_joueur : int , pos_x : int = None, pos_y : int = None,inventory_barlist : list = None,invetory_list : list = None):
         """
             Gère les événements de la fenêtre de jeu
             event : l'événement à gérer
@@ -80,7 +80,7 @@ class Save_game(object):
                 self.quitte = False
                 
 
-    def sauvegarder(self, event, joueur : str , level_joueur : int , pos_x : int = None, pos_y : int = None,inventory : list = None):
+    def sauvegarder(self, event, joueur : str , level_joueur : int , pos_x : int = None, pos_y : int = None,inventory_barlist : list = None,invetory_list : list = None):
         """
             Sauvegarde le joueur dans un fichier
             joueur : le joueur à sauvegarder
