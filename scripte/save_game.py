@@ -55,14 +55,15 @@ class Save_game(object):
         param_text = font.render(self.text_param, True, (0, 0, 0))
         self.screen.blit(param_text, (self.parametre_btn.x + 10, self.parametre_btn.y + 10))
 
-    def handle_event(self, event, joueur : str , level_joueur : int , pos_x : int = None, pos_y : int = None):
+    def handle_event(self, event, joueur : str , level_joueur : int , pos_x : int = None, pos_y : int = None,inventory : list = None):
         """
             Gère les événements de la fenêtre de jeu
             event : l'événement à gérer
             joueur : le joueur à sauvegarder
             level_joueur : le niveau du joueur à sauvegarder
-            pos_x : position x du joueur (optionnel)
-            pos_y : position y du joueur (optionnel)  
+            pos_x : position x du joueur 
+            pos_y : position y du joueur
+            inventory : l'inventaire du joueur à sauvegarder   
         """
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             if self.parametre_btn.collidepoint(event.pos):
@@ -79,13 +80,13 @@ class Save_game(object):
                 self.quitte = False
                 
 
-    def sauvegarder(self, event, joueur : str , level_joueur : int , pos_x : int = None, pos_y : int = None):
+    def sauvegarder(self, event, joueur : str , level_joueur : int , pos_x : int = None, pos_y : int = None,inventory : list = None):
         """
             Sauvegarde le joueur dans un fichier
             joueur : le joueur à sauvegarder
         """
         curseur = self.connexion.cursor()
-        requeteSQL = "UPDATE Save SET save_level = {} WHERE pseudo = '{}';".format(level_joueur, joueur)
+        requeteSQL = "UPDATE Save SET save_level = {} WHERE pseudo = '{}';".format(level_joueur, joueur) # rerquête à modifier afin d'enregistrer l'emplacement du joueur et le contenu de son inventaire
         curseur.execute(requeteSQL)
         curseur.close()
         self.connexion.commit()
