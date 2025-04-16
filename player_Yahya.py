@@ -172,6 +172,7 @@ class Player(pygame.sprite.Sprite):
         self.book_anim_speed = 0
         self.book_anim_index = 0
         self.book_animating = False
+        self.Affiche_texte_page = True
         
         self.anim_move_player = []
         self.player_speed_anim = 0
@@ -203,6 +204,7 @@ class Player(pygame.sprite.Sprite):
         self.book_anim_index = 0
         self.book_animating = True
         self.IsOpen = False
+        self.Affiche_texte_page = False
 
     def animation(self,liste_mouv,speed):
         self.current_sprite += speed
@@ -226,6 +228,7 @@ class Player(pygame.sprite.Sprite):
                 self.IsOpen = True
                 self.book_anim_index = len(self.book_animation_list) - 1  # Assurez-vous que l'index est dans les limites
                 print('en train d animer')
+                self.Affiche_texte_page = True
             elif self.book_anim_index < 0:
                 self.book_anim_index = 0  # Assurez-vous que l'index n'est pas négatif
             self.current_book = self.book_animation_list[int(self.book_anim_index)]
@@ -402,8 +405,10 @@ class Player(pygame.sprite.Sprite):
                 self.screen.blit(self.button_left_book, (660, 740))
                 self.pages_text = self.font_fantasy.render(f"{str(self.page)} - {self.page_a_cote}",True, (255, 174, 111))
                 self.screen.blit(self.pages_text,(760,750))
-                self.screen.blit(self.pages[self.page],(513,300))
-                self.screen.blit(self.pages[self.page_a_cote],(840,300))
+
+                if self.Affiche_texte_page:
+                    self.screen.blit(self.pages[self.page],(513,300))
+                    self.screen.blit(self.pages[self.page_a_cote],(840,300))
 
         
 
