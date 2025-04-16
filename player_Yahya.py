@@ -13,6 +13,7 @@ class Player(pygame.sprite.Sprite):
         self.mana_value = 0
         self.endurance_value = 100
         self.font = pygame.font.Font("Items/Minecraft.ttf", 14)  # Police par défaut, taille 14
+        self.font_book = pygame.font.Font("Items/Minecraft.ttf", 20)  # Police par défaut, taille 20
         self.font_fantasy = pygame.font.Font("Items/Minecraft.ttf", 45)  # Police par défaut, taille 20
         self.Regen = False
 
@@ -156,6 +157,16 @@ class Player(pygame.sprite.Sprite):
         self.page_a_cote = self.page + 1
         self.max_page = 20
         self.pages_text = self.font_fantasy.render(f"{str(self.page)} - {self.page_a_cote}",True, (255, 174, 111))
+
+        self.pages = [self.font_book .render("Salut chef",True, (255, 255, 111)),
+                      self.font_book .render("Salut le singe",True, (255, 255, 111)), 
+                      self.font_book .render("Salut l'arabe",True, (255, 255, 111)),
+                      self.font_book .render("Salut Michel",True, (255, 255, 111)),
+                      self.font_book .render("Salut Roger",True, (255, 255, 111)),
+                      self.font_book .render("Salut Renoisanseaux",True, (255, 255, 111)),
+                      self.font_book .render("Salut Janny",True, (255, 255, 111)),
+                      self.font_book .render("Salut Gros",True, (255, 255, 111))
+                      ]
 
         self.book_animation_list = []
         self.book_anim_speed = 0
@@ -391,6 +402,8 @@ class Player(pygame.sprite.Sprite):
                 self.screen.blit(self.button_left_book, (660, 740))
                 self.pages_text = self.font_fantasy.render(f"{str(self.page)} - {self.page_a_cote}",True, (255, 174, 111))
                 self.screen.blit(self.pages_text,(760,750))
+                self.screen.blit(self.pages[self.page],(513,300))
+                self.screen.blit(self.pages[self.page_a_cote],(840,300))
 
         
 

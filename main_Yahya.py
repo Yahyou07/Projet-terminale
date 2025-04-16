@@ -132,15 +132,18 @@ show_message = False
 #Booléens : 
 show_inventory = False #booléen pour gérer l'affichage de l'inventaire
 moving = True #booléen pour gérer le droit de mouvment du personnage
-eat_image = pygame.image.load("UI/soin.png")
+eat_image = pygame.image.load("UI/soin1.png")
 
 curseur = pygame.image.load("UI/curseur1.png")
 curseur_rect = curseur.get_rect()
 
+IsCursorOn = True
 while True : 
     dt = mainClock.tick(60) / 1000  # Temps écoulé en secondes
     pygame.mouse.set_visible(False)
     curseur_rect.topleft = pygame.mouse.get_pos()
+
+    
 
     for event in pygame.event.get():
         quit()
@@ -185,13 +188,14 @@ while True :
                 player.page -=2
                 
 
-            if player.rect_button_right_book.collidepoint(event.pos) and player.page < 20:
+            if player.rect_button_right_book.collidepoint(event.pos) and player.page < 6:
                 player.startBookAnimation(player.turn_right,0.25)
                 player.IsOpen = True
                 print("bouton clique")
                 player.page += 2
                 player.page_a_cote = player.page + 1
-
+        
+       
         if show_inventory:
                 player.handle_mouse_events(event)
 
@@ -200,6 +204,7 @@ while True :
     #verifier si l'on peut marcher
     if moving:
         input()
+    
     player.anim_player_full_animation()
     
     # Clic droit maintenu pour gréer l'affichage du "progress circle"
@@ -258,7 +263,7 @@ while True :
         screen.blit(player.hache,(screen_pos[0]-80,screen_pos[1]-75))
         radius = 58
 
-        on ajoutera ça dans le else en haut : 
+        on ajoutera ça dans le else en haut, qui animera uen hache pour montrer l'action de couper un arbre : 
 
         player.animation_hache(player.hache_anim,1.5)
 
