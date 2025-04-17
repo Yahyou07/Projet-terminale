@@ -6,14 +6,24 @@ from pygame.locals import *
 class Save_game(object):
     """
         Permet de sauvegarder la partie d'un joueur en particulier
+        Attributs:
+            ecran : l'écran de jeu
     """
     def __init__(self, ecran):
         self.screen = ecran
         self.image = pygame.image.load("pause.png")
-        self.largeur, self.hauteur = self.screen.get_size()
-        self.quit = pygame.Rect(self.largeur//3 + 100, self.hauteur//4 + 100, 275, 50)
-        self.retour = pygame.Rect(self.largeur//3 + 100, self.hauteur//4 + 200, 275, 50)
-        self.parametre_btn = pygame.Rect(950, 0, 200, 50)
+        self.largeur, self.hauteur = self.screen.get_size() #récuparation de la taille de l'écran
+        #self.quit = pygame.Rect(self.largeur//3 + 100, self.hauteur//4 + 100, 275, 50)
+
+        self.quit = pygame.image.load("quit.png")
+
+        self.retour = pygame.image.load("return_game.png")
+
+        #self.retour = pygame.Rect(self.largeur//3 + 100, self.hauteur//4 + 200, 275, 50)
+
+        self.parametre_btn = pygame.image.load("parametre.png")
+        self.parametre_btn = pygame.transform.scale(self.parametre_btn, (75,75))
+
         self.text_quit = "Quitter la partie"
         self.text_param = "Paramètre"
         self.text_retour = "Retourner"
@@ -35,10 +45,10 @@ class Save_game(object):
         font = pygame.font.SysFont(None, 50)
 
         if self.quitte:
-            self.screen.blit(self.image,(self.largeur//3,self.hauteur//4))
-
-            pygame.draw.rect(self.screen, (255, 255, 255), self.quit)
+            self.screen.blit(self.image,((self.largeur-768)//2,(self.hauteur-512)//2))
+            """pygame.draw.rect(self.screen, (255, 255, 255), self.quit)
             pygame.draw.rect(self.screen, (0, 0, 0), self.quit, 2)
+            
 
             pygame.draw.rect(self.screen, (255, 255, 255), self.retour)
             pygame.draw.rect(self.screen, (0, 0, 0), self.retour, 2)
@@ -49,11 +59,14 @@ class Save_game(object):
             
             retour_text = font.render(self.text_retour, True, (0, 0, 0))
             self.screen.blit(retour_text, (self.retour.x + 5, self.retour.y + 10))
-
-        pygame.draw.rect(self.screen, (255, 255, 255), self.parametre_btn)
-        pygame.draw.rect(self.screen, (0, 0, 0), self.parametre_btn, 2)
+            """
+            self.screen.blit(self.quit,((self.largeur-768)//2+390,(self.hauteur-512)//2+337))
+            self.screen.blit(self.retour,((self.largeur-768)//2+125,(self.hauteur-512)//2+337))
+        #pygame.draw.rect(self.screen, (255, 255, 255), self.parametre_btn)
+        #pygame.draw.rect(self.screen, (0, 0, 0), self.parametre_btn, 2)
         param_text = font.render(self.text_param, True, (0, 0, 0))
-        self.screen.blit(param_text, (self.parametre_btn.x + 10, self.parametre_btn.y + 10))
+        self.screen.blit(self.parametre_btn,(self.largeur-75, 0))
+        #self.screen.blit(param_text, (self.parametre_btn.x + 10, self.parametre_btn.y + 10))
 
     def handle_event(self, event, joueur : str , level_joueur : int , pos_x : int = None, pos_y : int = None,inventory_barlist : list = None,invetory_list : list = None):
         """
@@ -63,27 +76,39 @@ class Save_game(object):
             level_joueur : le niveau du joueur à sauvegarder
             pos_x : position x du joueur 
             pos_y : position y du joueur
-            inventory : l'inventaire du joueur à sauvegarder   
+            barre d'action du joueur : la barre d'action du joueur à sauvegarder
+            inventaire : l'inventaire du joueur à sauvegarder   
         """
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            if self.parametre_btn.collidepoint(event.pos):
+
+            self.parametre_btn_rect = self.parametre_btn.get_rect(topleft=(self.largeur-75, 0))  # Met à jour la position du bouton paramètre
+            self.quit_rect = self.quit.get_rect(topleft=((self.largeur-768)//2+390,(self.hauteur-512)//2+337))  # Met à jour la position du bouton quitter
+            self.retour_rect = self.retour.get_rect(topleft=((self.largeur-768)//2+125,(self.hauteur-512)//2+337))  # Met à jour la position du bouton retour   
+
+            if self.parametre_btn_rect.collidepoint(event.pos):
                 
                 print("Paramètre du jeu")
                 self.quitte = True
-            elif self.quitte and self.quit.collidepoint(event.pos):
+            elif self.quitte and self.quit_rect.collidepoint(event.pos):
                 print("tu vas quitter la game chef")
                 #self.sauvegarder(joueur, level_joueur, pos_x, pos_y)
                 pygame.quit()
                 sys.exit()
-            elif self.retour.collidepoint(event.pos):
+
+            elif self.retour_rect.collidepoint(event.pos):
                 print("retour dans le jeu")
-                self.quitte = False
+                self.return_game()
                 
 
     def sauvegarder(self, event, joueur : str , level_joueur : int , pos_x : int = None, pos_y : int = None,inventory_barlist : list = None,invetory_list : list = None):
         """
             Sauvegarde le joueur dans un fichier
             joueur : le joueur à sauvegarder
+            level_joueur : le niveau du joueur à sauvegarder
+            pos_x : position x du joueur
+            pos_y : position y du joueur
+            barre d'action du joueur : la barre d'action du joueur à sauvegarder
+            inventaire : l'inventaire du joueur à sauvegarder
         """
         curseur = self.connexion.cursor()
         requeteSQL = "UPDATE Save SET save_level = {} WHERE pseudo = '{}';".format(level_joueur, joueur) # rerquête à modifier afin d'enregistrer l'emplacement du joueur et le contenu de son inventaire
