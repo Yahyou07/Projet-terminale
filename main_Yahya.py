@@ -1,3 +1,27 @@
+
+import random
+
+
+
+
+def generate_tree_positions(max_x, max_y, num_trees, min_distance, max_attempts=1000):
+    positions = []
+    for i in range(num_trees):
+        attempt = 0
+        while attempt < max_attempts:
+            pos = (random.randint(0, max_x), random.randint(0, max_y))
+            if all(abs(pos[0] - x) > min_distance and abs(pos[1] - y) > min_distance for x, y in positions):
+                positions.append(pos)
+                break
+            attempt += 1
+        else:
+            print(f"Could not place tree {len(positions) + 1} after {max_attempts} attempts.")
+    return positions
+
+# Generate positions for 30 trees with a minimum distance of 100 pixels
+#tree_positions = [(216, 860), (1430, 1322), (1026, 1471), (20, 537), (899, 706), (1332, 1150), (1124, 395), (698, 252), (816, 18), (1513, 1237), (327, 119), (479, 1026), (613, 619),(114,1460),(298,1460)]
+tree_positions = generate_tree_positions(1560, 1530, 30, 40)
+
 import pygame,sys
 import pytmx
 from pytmx.util_pygame import load_pygame
@@ -15,8 +39,6 @@ pygame.display.set_caption("Jeu")
 
 
 
-
-
 #Définition de la fenêtre 
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 
@@ -28,6 +50,11 @@ tmx_data = load_pygame("maps/maps.tmx")  # Remplace par ton fichier .tmx
 
 player_position = tmx_data.get_object_by_name("Player")
 player = Player(player_position.x,player_position.y, screen)  # Positionner le joueur
+
+
+# Création des arbres et ajout au groupe
+trees = [Arbre("arbre", x, y) for x, y in tree_positions]
+
 
 item = Item("pain",24,10,352,350,"Food")
 item2 = Item("plastron",1,10,300,450,"Plastron")
@@ -44,9 +71,7 @@ item12 = Item("hache",24,10,400,130,"Hache")
 item13 = Item("emeraude",24,10,408,110,"Artefact")
 
 
-arbre1 = Arbre("arbre",50,50)
 
-arbre2 = Arbre("arbre",200,100)
 
 
 map_data = pyscroll.data.TiledMapData(tmx_data)
@@ -74,8 +99,12 @@ group.add(item11)
 group.add(item12)
 group.add(item13)
 
-group.add(arbre1)
-group.add(arbre2)
+
+
+# Ajoute les arbres au groupe
+for tree in trees:
+    group.add(tree)
+
 #Fonction quit
 def quit():
     if event.type == QUIT:
@@ -321,20 +350,19 @@ while True :
             
 
     
-    if cut_progressing:
-        world_pos = (player.rect.centerx + 25, player.rect.top - 10)
-        screen_pos = map_layer.translate_point(world_pos)
+                if cut_progressing:
+                    world_pos = (player.rect.centerx + 25, player.rect.top - 10)
+                    screen_pos = map_layer.translate_point(world_pos)
 
-        radius = 60
-        end_angle = -math.pi / 2 + progress_cut * 2 * math.pi
-        pygame.draw.circle(screen, (100, 100, 100), screen_pos, radius, 3)
-        pygame.draw.arc(screen, (0, 200, 0),(screen_pos[0] - radius, screen_pos[1] - radius, radius * 2, radius * 2),
-        -math.pi / 2, end_angle, 4)
+                    radius = 60
+                    end_angle = -math.pi / 2 + progress_cut * 2 * math.pi
+                    pygame.draw.circle(screen, (100, 100, 100), screen_pos, radius, 3)
+                    pygame.draw.arc(screen, (0, 200, 0),(screen_pos[0] - radius, screen_pos[1] - radius, radius * 2, radius * 2),
+                    -math.pi / 2, end_angle, 4)
 
-
-        if player.inventory_bar_list[player.inventory_index] != {}:
-            if player.inventory_bar_list[player.inventory_index]['object'].type == "Hache":
-                screen.blit(player.hache,(screen_pos[0]-80,screen_pos[1]-75))
+                    if player.inventory_bar_list[player.inventory_index] != {}:
+                        if player.inventory_bar_list[player.inventory_index]['object'].type == "Hache":
+                            screen.blit(player.hache,(screen_pos[0]-80,screen_pos[1]-75))
             
     for sprite in group.sprites():
         if isinstance(sprite, Item) and player.rect.colliderect(sprite.rect):
