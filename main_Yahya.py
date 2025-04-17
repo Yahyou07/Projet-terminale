@@ -46,6 +46,8 @@ item13 = Item("emeraude",24,10,408,110,"Artefact")
 
 arbre1 = Arbre("arbre",50,50)
 
+arbre2 = Arbre("arbre",200,100)
+
 
 map_data = pyscroll.data.TiledMapData(tmx_data)
 
@@ -73,6 +75,7 @@ group.add(item12)
 group.add(item13)
 
 group.add(arbre1)
+group.add(arbre2)
 #Fonction quit
 def quit():
     if event.type == QUIT:
@@ -128,14 +131,15 @@ curent_quantity = 0
 
 #parametres la progression du cercle pour le "manger"
 fill_time = 3.0 # Durée du remplissage
-fill_time_cut = 5.0
+fill_time_cut = 11
 progress = 0.0
 progressing = False
 finished_time = 0
 show_message = False
 
-
+progress_cut = 0.0
 cut_progressing =  False
+finished_time_cut = 0
 
 #Booléens : 
 show_inventory = False #booléen pour gérer l'affichage de l'inventaire
@@ -164,12 +168,13 @@ while True :
                 player.OnArmour = False
                 moving = not moving
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            if player.last_direction == "right" or player.last_direction == "down" :
-                player.start_anim_attack(player.attack_right_mouv,0.3,0)
-                
+            if show_inventory == False :
+                if player.last_direction == "right" or player.last_direction == "down" :
+                    player.start_anim_attack(player.attack_right_mouv,0.3,0)
+                    
 
-            if player.last_direction == "left" or player.last_direction =="up":
-                player.start_anim_attack(player.attack_left_mouv,0.3,-0)
+                if player.last_direction == "left" or player.last_direction =="up":
+                    player.start_anim_attack(player.attack_left_mouv,0.3,-0)
                 
                 
             if player.rect_button_armour.collidepoint(event.pos):
@@ -217,27 +222,28 @@ while True :
     
     player.anim_player_full_animation()
     
-    # Clic droit maintenu pour gréer l'affichage du "progress circle"
-    if player.inventory_bar_list[player.inventory_index] != {}:
-        if player.inventory_bar_list[player.inventory_index]['object'].type == "Food" : 
-            if player.health_value < 100:
-                if pygame.mouse.get_pressed()[2]:
-                    if not progressing:
-                        progressing = True
-                        progress = 0.0
+    if show_inventory == False :
+        # Clic droit maintenu pour gréer l'affichage du "progress circle"
+        if player.inventory_bar_list[player.inventory_index] != {}:
+            if player.inventory_bar_list[player.inventory_index]['object'].type == "Food" : 
+                if player.health_value < 100:
+                    if pygame.mouse.get_pressed()[2]:
+                        if not progressing:
+                            progressing = True
+                            progress = 0.0
+                        else:
+                            progress += dt / fill_time
+                            
+                            if progress >= 1.0:
+                                progressing = False
+                                show_message = True
+                                print("Nourriture consommee")
+                                player.eat(player.inventory_index) #On active la méthode eat lorsque "la progress circle" se termine
+                                finished_time = pygame.time.get_ticks()
                     else:
-                        progress += dt / fill_time
-                        
-                        if progress >= 1.0:
+                        if progress < 1.0:
                             progressing = False
-                            show_message = True
-                            print("Nourriture consommee")
-                            player.eat(player.inventory_index) #On active la méthode eat lorsque "la progress circle" se termine
-                            finished_time = pygame.time.get_ticks()
-                else:
-                    if progress < 1.0:
-                        progressing = False
-                        progress = 0.0
+                            progress = 0.0
     
 
   
@@ -281,41 +287,54 @@ while True :
     
 
 
-    
-
+    if player.inventory_bar_list[player.inventory_index] != {}:
+        if player.inventory_bar_list[player.inventory_index]['object'].type == "Hache":
+            fill_time_cut = 4
+        else:
+            fill_time_cut = 8
 
     for sprite in group.sprites():
-        if isinstance(sprite, Arbre) and player.rect.colliderect(sprite.rect):
-            if pygame.mouse.get_pressed()[2]:
-                if not cut_progressing:
-                    cut_progressing = True
-                    progress = 0.0
+        if show_inventory == False : 
+            if isinstance(sprite, Arbre) and player.rect.colliderect(sprite.rect):
+                if pygame.mouse.get_pressed()[0]:
+                    if not cut_progressing:
+                        cut_progressing = True
+                        progress_cut = 0.0
+                    else:
+                        progress_cut += dt / fill_time_cut
+
+                        if player.inventory_bar_list[player.inventory_index] != {}:
+                            if player.inventory_bar_list[player.inventory_index]['object'].type == "Hache":
+                                player.animation_hache(player.hache_anim,1.5)
+
+                        if progress_cut >= 1.0:
+                            cut_progressing = False
+                            group.add(Item("buche1",24,10,sprite.rect.x+50 ,sprite.rect.y+50,"Food"))
+                            group.add(Item("buche1",24,10,sprite.rect.x+30 ,sprite.rect.y+30,"Food"))
+                            group.add(Item("buche1",24,10,sprite.rect.x+20 ,sprite.rect.y+50,"Food"))
+                            group.remove(sprite)
+                            finished_time_cut = pygame.time.get_ticks()
                 else:
-                    progress += dt / fill_time_cut
-                    player.animation_hache(player.hache_anim,1.5)
-                    if progress >= 1.0:
+                    if progress_cut < 1.0:
                         cut_progressing = False
-                        group.add(Item("apple",24,10,sprite.rect.x+20 ,sprite.rect.y,"Food"))
-                        group.remove(sprite)
-                        finished_time = pygame.time.get_ticks()
-            else:
-                if progress < 1.0:
-                    cut_progressing = False
-                    progress = 0.0
+                        progress_cut = 0.0
             
-          
+
     
     if cut_progressing:
         world_pos = (player.rect.centerx + 25, player.rect.top - 10)
         screen_pos = map_layer.translate_point(world_pos)
 
         radius = 60
-        end_angle = -math.pi / 2 + progress * 2 * math.pi
+        end_angle = -math.pi / 2 + progress_cut * 2 * math.pi
         pygame.draw.circle(screen, (100, 100, 100), screen_pos, radius, 3)
         pygame.draw.arc(screen, (0, 200, 0),(screen_pos[0] - radius, screen_pos[1] - radius, radius * 2, radius * 2),
         -math.pi / 2, end_angle, 4)
-        
-        screen.blit(player.hache,(screen_pos[0]-80,screen_pos[1]-75))
+
+
+        if player.inventory_bar_list[player.inventory_index] != {}:
+            if player.inventory_bar_list[player.inventory_index]['object'].type == "Hache":
+                screen.blit(player.hache,(screen_pos[0]-80,screen_pos[1]-75))
             
     for sprite in group.sprites():
         if isinstance(sprite, Item) and player.rect.colliderect(sprite.rect):
@@ -330,7 +349,7 @@ while True :
             player.display_inventory()  # On appelle la méthode display_inventory pour afficher l'inventaire 
         
     screen.blit(curseur,curseur_rect)
-    print(Arbre_touche)
+    
     pygame.display.update()
     
    
