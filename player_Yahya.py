@@ -508,7 +508,7 @@ class Player(pygame.sprite.Sprite):
                 current_qty = slot["quantity"]
                 if current_qty < sprite.stack_max:
                     stack_total = min(current_qty + 1, sprite.stack_max)
-                    self.inventory_bar_list[i] = {'name': sprite.name,'object':sprite ,'quantity': stack_total}
+                    self.inventory_bar_list[i] = {'name': sprite.name,'object':sprite ,'quantity': stack_total,'icon':sprite.icon}
                     self.inventory_icons[i] = sprite.icon
                     self.stack_text[i] = self.font.render(str(stack_total), True, (255, 255, 255))
                     found = True
@@ -519,7 +519,7 @@ class Player(pygame.sprite.Sprite):
             for i in range(len(self.inventory_bar_list)):
                 slot = self.inventory_bar_list[i]
                 if not slot or slot.get("name") == "rien":
-                    self.inventory_bar_list[i] = {'name': sprite.name,'object':sprite , 'quantity': 1}
+                    self.inventory_bar_list[i] = {'name': sprite.name,'object':sprite , 'quantity': 1,'icon':sprite.icon}
                     self.inventory_icons[i] = sprite.icon
                     self.stack_text[i] = self.font.render("1", True, (255, 255, 255))
                     return
@@ -532,7 +532,7 @@ class Player(pygame.sprite.Sprite):
                         current_qty = slot["quantity"]
                         if current_qty < sprite.stack_max:
                             stack_total = min(current_qty + 1, sprite.stack_max)
-                            self.inventory_list[row][col] = {'name': sprite.name,'object':sprite , 'quantity': stack_total}
+                            self.inventory_list[row][col] = {'name': sprite.name,'object':sprite , 'quantity': stack_total,'icon':sprite.icon}
                             self.inventory_bag_icon[row][col] = sprite.icon
                             self.inventory_bag_stack_text[row][col] = self.font.render(str(stack_total), True, (255, 255, 255))
                             return
@@ -542,7 +542,7 @@ class Player(pygame.sprite.Sprite):
                 for col in range(6):
                     slot = self.inventory_list[row][col]
                     if not slot or slot.get("name") == "rien":
-                        self.inventory_list[row][col] = {'name': sprite.name,'object':sprite , 'quantity': 1}
+                        self.inventory_list[row][col] = {'name': sprite.name,'object':sprite , 'quantity': 1,'icon':sprite.icon}
                         self.inventory_bag_icon[row][col] = sprite.icon
                         self.inventory_bag_stack_text[row][col] = self.font.render("1", True, (255, 255, 255))
                         return

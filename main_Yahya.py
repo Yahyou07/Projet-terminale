@@ -15,7 +15,7 @@ def generate_tree_positions(max_x, max_y, num_trees, min_distance, max_attempts=
             print(f"Could not place tree {len(positions) + 1} after {max_attempts} attempts.")
     return positions
 
-# Generate positions for 30 trees with a minimum distance of 100 pixels
+
 #tree_positions = [(216, 860), (1430, 1322), (1026, 1471), (20, 537), (899, 706), (1332, 1150), (1124, 395), (698, 252), (816, 18), (1513, 1237), (327, 119), (479, 1026), (613, 619),(114,1460),(298,1460)]
 tree_positions = generate_tree_positions(1560, 1530, 30, 40)
 
@@ -54,7 +54,7 @@ item7 = Item("casque", 1, 10, 180, 560, "Casque")
 item8 = Item("jambiere", 1, 10, 352, 230, "Jambiere")
 item9 = Item("pain", 24, 10, 352, 700, "Food")
 item10 = Item("fish", 24, 10, 352, 710, "Food")
-item11 = Item("fromage", 24, 10, 352, 130, "Food")
+item11 = Item("pioche1", 24, 10, 352, 130, "Pioche")
 item12 = Item("hache", 24, 10, 400, 130, "Hache")
 item13 = Item("emeraude", 24, 10, 408, 110, "Artefact")
 
