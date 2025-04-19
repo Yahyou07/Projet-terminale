@@ -91,13 +91,14 @@ class Player(pygame.sprite.Sprite):
         #On prend comme image de base idle1
         self.image = pygame.image.load("animation/idle/idle1/down1.png")
 
+
         #Paramètres du joueur rect, position ...
         self.rect = self.image.get_rect()
-        self.rect.width = 40  # Ajuste la largeur
-        self.rect.height = 40  # Ajuste la hauteur
         self.rect.center = (pos_x, pos_y)  # Centre le rectangle
         self.rect.x = pos_x
         self.rect.y = pos_y
+        self.hit_box = self.rect.copy().inflate(-63, -63)
+        
         # Variable qui stocke la dernière direction du personnage, par défaut on la met à down
         self.last_direction = "down"
         
@@ -260,7 +261,9 @@ class Player(pygame.sprite.Sprite):
             speed /= math.sqrt(2)  # Normalisation de la vitesse en diagonale
 
         self.rect.x += dx * speed
+        self.hit_box.x += dx * speed
         self.rect.y += dy * speed
+        self.hit_box.y += dy * speed
 
         # Gestion des animations
         

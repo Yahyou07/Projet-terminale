@@ -151,8 +151,7 @@ show_inventory = False  # booléen pour gérer l'affichage de l'inventaire
 moving = True  # booléen pour gérer le droit de mouvement du personnage
 eat_image = pygame.image.load("UI/soin1.png")
 
-curseur = pygame.image.load("UI/curseur1.png")
-curseur_rect = curseur.get_rect()
+
 
 IsCursorOn = True
 
@@ -161,8 +160,8 @@ Arbre_touche = False
 running = True
 while running:
     dt = mainClock.tick(60) / 1000  # Temps écoulé en secondes
-    pygame.mouse.set_visible(False)
-    curseur_rect.topleft = pygame.mouse.get_pos()
+    
+    
 
     for event in pygame.event.get():
         quit()
@@ -280,48 +279,50 @@ while running:
     for sprite in group.sprites():
         if show_inventory == False:
             if isinstance(sprite, Arbre) and player.rect.colliderect(sprite.rect):
-                if pygame.mouse.get_pressed()[0]:
-                    if not cut_progressing:
-                        cut_progressing = True
-                        progress_cut = 0.0
+                if sprite.Can_cut:
+                    if pygame.mouse.get_pressed()[0]:
+                        if not cut_progressing:
+                            cut_progressing = True
+                            progress_cut = 0.0
+                        else:
+                            progress_cut += dt / fill_time_cut
+
+                            if player.inventory_bar_list[player.inventory_index] != {}:
+                                if player.inventory_bar_list[player.inventory_index]['object'].type == "Hache":
+                                    player.animation_hache(player.hache_anim, 1.5)
+
+                            if progress_cut >= 1.0:
+                                cut_progressing = False
+                                group.add(Item("buche1", 24, 10, sprite.rect.x + 50, sprite.rect.y + 50, "Food"))
+                                group.add(Item("buche1", 24, 10, sprite.rect.x + 30, sprite.rect.y + 30, "Food"))
+                                group.add(Item("buche1", 24, 10, sprite.rect.x + 20, sprite.rect.y + 50, "Food"))
+                                if choice([1,2,3,4,5,6,7,8,9,10]) == 1:
+                                    group.add(Item("apple", 24, 10, sprite.rect.x + 20, sprite.rect.y + 10, "Food"))
+                                    
+                                sprite.image = pygame.image.load("Objects/souche.png")
+                                sprite.Can_cut = False
+                                finished_time_cut = pygame.time.get_ticks()
                     else:
-                        progress_cut += dt / fill_time_cut
+                        if progress_cut < 1.0:
+                            cut_progressing = False
+                            progress_cut = 0.0
+
+                    if cut_progressing:
+                        world_pos = (player.rect.centerx + 25, player.rect.top - 10)
+                        screen_pos = map_layer.translate_point(world_pos)
+
+                        radius = 60
+                        end_angle = -math.pi / 2 + progress_cut * 2 * math.pi
+                        pygame.draw.circle(screen, (100, 100, 100), screen_pos, radius, 3)
+                        pygame.draw.arc(screen, (0, 200, 0), (screen_pos[0] - radius, screen_pos[1] - radius, radius * 2, radius * 2),
+                                        -math.pi / 2, end_angle, 4)
 
                         if player.inventory_bar_list[player.inventory_index] != {}:
                             if player.inventory_bar_list[player.inventory_index]['object'].type == "Hache":
-                                player.animation_hache(player.hache_anim, 1.5)
-
-                        if progress_cut >= 1.0:
-                            cut_progressing = False
-                            group.add(Item("buche1", 24, 10, sprite.rect.x + 50, sprite.rect.y + 50, "Food"))
-                            group.add(Item("buche1", 24, 10, sprite.rect.x + 30, sprite.rect.y + 30, "Food"))
-                            group.add(Item("buche1", 24, 10, sprite.rect.x + 20, sprite.rect.y + 50, "Food"))
-                            if choice([1,2,3,4,5,6,7,8,9,10]) == 1:
-                                group.add(Item("apple", 24, 10, sprite.rect.x + 20, sprite.rect.y + 10, "Food"))
-                                
-                            group.remove(sprite)
-                            finished_time_cut = pygame.time.get_ticks()
-                else:
-                    if progress_cut < 1.0:
-                        cut_progressing = False
-                        progress_cut = 0.0
-
-                if cut_progressing:
-                    world_pos = (player.rect.centerx + 25, player.rect.top - 10)
-                    screen_pos = map_layer.translate_point(world_pos)
-
-                    radius = 60
-                    end_angle = -math.pi / 2 + progress_cut * 2 * math.pi
-                    pygame.draw.circle(screen, (100, 100, 100), screen_pos, radius, 3)
-                    pygame.draw.arc(screen, (0, 200, 0), (screen_pos[0] - radius, screen_pos[1] - radius, radius * 2, radius * 2),
-                                    -math.pi / 2, end_angle, 4)
-
-                    if player.inventory_bar_list[player.inventory_index] != {}:
-                        if player.inventory_bar_list[player.inventory_index]['object'].type == "Hache":
-                            screen.blit(player.hache, (screen_pos[0] - 80, screen_pos[1] - 75))
+                                screen.blit(player.hache, (screen_pos[0] - 80, screen_pos[1] - 75))
 
     for sprite in group.sprites():
-        if isinstance(sprite, Item) and player.rect.colliderect(sprite.rect):
+        if isinstance(sprite, Item) and player.hit_box.colliderect(sprite.rect):
             group.remove(sprite)  # Supprime l'objet du groupe
             player.add_to_inventory(sprite)
 
@@ -333,6 +334,11 @@ while running:
     else: 
         moving = True
     save_menu.update()
-    screen.blit(curseur, curseur_rect)
     
+    
+    print("le rect",player.rect.x, player.rect.y)
+
+    print("la hit box",player.hit_box.x,player.hit_box.y)
+
+
     pygame.display.update()

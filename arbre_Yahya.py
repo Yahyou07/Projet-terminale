@@ -13,4 +13,5 @@ class Arbre(pygame.sprite.Sprite):
         self.rect.y = pos_y
         self.liste_image_fumee = []
         self.image_fumee = None
+        self.Can_cut = True
         
