@@ -19,10 +19,14 @@ class Save_game(object):
 
         self.retour = pygame.image.load("return_game.png")
 
+        self.quit_rect = self.quit.get_rect(topleft=((self.largeur-768)//2+390,(self.hauteur-512)//2+337))  # Met à jour la position du bouton quitter
+        self.retour_rect = self.retour.get_rect(topleft=((self.largeur-768)//2+125,(self.hauteur-512)//2+337))  # Met à jour la position du bouton retour   
+
+
         #self.retour = pygame.Rect(self.largeur//3 + 100, self.hauteur//4 + 200, 275, 50)
 
-        self.parametre_btn = pygame.image.load("parametre.png")
-        self.parametre_btn = pygame.transform.scale(self.parametre_btn, (75,75))
+        #self.parametre_btn = pygame.image.load("parametre.png")
+        #self.parametre_btn = pygame.transform.scale(self.parametre_btn, (75,75))
 
         self.text_quit = "Quitter la partie"
         self.text_param = "Paramètre"
@@ -65,7 +69,7 @@ class Save_game(object):
         #pygame.draw.rect(self.screen, (255, 255, 255), self.parametre_btn)
         #pygame.draw.rect(self.screen, (0, 0, 0), self.parametre_btn, 2)
         param_text = font.render(self.text_param, True, (0, 0, 0))
-        self.screen.blit(self.parametre_btn,(self.largeur-75, 0))
+        #self.screen.blit(self.parametre_btn,(self.largeur-75, 0))
         #self.screen.blit(param_text, (self.parametre_btn.x + 10, self.parametre_btn.y + 10))
 
     def handle_event(self, event, joueur : str , level_joueur : int , pos_x : int = None, pos_y : int = None,inventory_barlist : list = None,invetory_list : list = None):
@@ -79,25 +83,22 @@ class Save_game(object):
             barre d'action du joueur : la barre d'action du joueur à sauvegarder
             inventaire : l'inventaire du joueur à sauvegarder   
         """
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+        if event.type == pygame.KEYDOWN :
+                if event.key == pygame.K_ESCAPE:
+                    self.quitte = True
+                    #self.parametre_btn_rect = self.parametre_btn.get_rect(topleft=(self.largeur-75, 0))  # Met à jour la position du bouton paramètre
+                    
+        if event.type == pygame.MOUSEBUTTONDOWN and self.quitte:
+            if event.button == 1:  # Si le bouton gauche de la souris est cliqué  
+                if self.quit_rect.collidepoint(event.pos):
+                        print("tu vas quitter la game chef")
+                        #self.sauvegarder(joueur, level_joueur, pos_x, pos_y)
+                        pygame.quit()
+                        sys.exit()
 
-            self.parametre_btn_rect = self.parametre_btn.get_rect(topleft=(self.largeur-75, 0))  # Met à jour la position du bouton paramètre
-            self.quit_rect = self.quit.get_rect(topleft=((self.largeur-768)//2+390,(self.hauteur-512)//2+337))  # Met à jour la position du bouton quitter
-            self.retour_rect = self.retour.get_rect(topleft=((self.largeur-768)//2+125,(self.hauteur-512)//2+337))  # Met à jour la position du bouton retour   
-
-            if self.parametre_btn_rect.collidepoint(event.pos):
-                
-                print("Paramètre du jeu")
-                self.quitte = True
-            elif self.quitte and self.quit_rect.collidepoint(event.pos):
-                print("tu vas quitter la game chef")
-                #self.sauvegarder(joueur, level_joueur, pos_x, pos_y)
-                pygame.quit()
-                sys.exit()
-
-            elif self.retour_rect.collidepoint(event.pos):
-                print("retour dans le jeu")
-                self.return_game()
+                elif self.retour_rect.collidepoint(event.pos):
+                        print("retour dans le jeu")
+                        self.return_game()
                 
 
     def sauvegarder(self, event, joueur : str , level_joueur : int , pos_x : int = None, pos_y : int = None,inventory_barlist : list = None,invetory_list : list = None):
@@ -118,8 +119,8 @@ class Save_game(object):
         self.connexion.close()
 
     def return_game(self):
-        """"
-        fonction permettant de retourner dans le jeu
+        """
+            fonction permettant de retourner dans le jeu
         """
         self.quitte = False
 

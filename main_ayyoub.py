@@ -78,10 +78,10 @@ def quit():
     if event.type == QUIT:
             pygame.quit()
             sys.exit()
-    elif event.type == pygame.KEYDOWN:  # Si une touche est pressée
-            if event.key == pygame.K_ESCAPE:  # Si la touche pressée est "Échap"
-                pygame.quit()
-                sys.exit()
+    #elif event.type == pygame.KEYDOWN:  # Si une touche est pressée
+            #if event.key == pygame.K_ESCAPE:  # Si la touche pressée est "Échap"
+                #pygame.quit()
+                #sys.exit()
     
 
 
