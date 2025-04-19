@@ -35,6 +35,7 @@ from arbre_Yahya import *
 from random import *
 pygame.init()
 pygame.display.set_caption("Jeu")
+from scripte.save_game import*
 
 # Définition de la fenêtre
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
@@ -44,6 +45,8 @@ tmx_data = load_pygame("maps/maps.tmx")  # Remplace par ton fichier .tmx
 
 player_position = tmx_data.get_object_by_name("Player")
 player = Player(player_position.x, player_position.y, screen)  # Positionner le joueur
+
+save_menu = Save_game(screen)
 
 item = Item("pain", 24, 10, 352, 350, "Food")
 item2 = Item("plastron", 1, 10, 300, 450, "Plastron")
@@ -98,10 +101,7 @@ def quit():
     if event.type == QUIT:
         pygame.quit()
         sys.exit()
-    elif event.type == pygame.KEYDOWN:  # Si une touche est pressée
-        if event.key == pygame.K_ESCAPE:  # Si la touche pressée est "Échap"
-            pygame.quit()
-            sys.exit()
+    
 
 # Fonction input pour gérer les entrées clavier
 def input():
@@ -172,8 +172,9 @@ while running:
                 player.OnBag = True
                 player.OnArmour = False
                 moving = not moving
+        
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            if show_inventory == False:
+            if show_inventory == False :
                 if player.last_direction == "right" or player.last_direction == "down":
                     player.start_anim_attack(player.attack_right_mouv, 0.3, 0)
 
@@ -189,7 +190,7 @@ while running:
             if player.rect_button_book.collidepoint(event.pos):
                 show_inventory = False
                 player.OnBook = True
-                player.startBookAnimation(player.open_book, 0.3)  # Assurez-vous que cette ligne est présente
+                player.startBookAnimation(player.open_book, 0.3)  
 
             if player.rect_button_back_book.collidepoint(event.pos):
                 player.OnBook = False
@@ -217,6 +218,7 @@ while running:
 
         player.handle_key_events(event)
 
+        save_menu.handle_event(event,"ruen",1,player.rect.x,player.rect.y)
     # vérifier si l'on peut marcher
     if moving:
         input()
@@ -326,6 +328,11 @@ while running:
     if show_inventory:
         player.display_inventory()  # On appelle la méthode display_inventory pour afficher l'inventaire
 
+    if save_menu.quitte:
+        moving = False
+    else: 
+        moving = True
+    save_menu.update()
     screen.blit(curseur, curseur_rect)
-
+    
     pygame.display.update()

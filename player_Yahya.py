@@ -251,10 +251,6 @@ class Player(pygame.sprite.Sprite):
             self.image = self.anim_move_player[int(self.player_index_anim)] # On change l'image de base par l'image de la liste de mouvment du current_index
             
 
-
-    
-    
-
     
 
     def move(self, dx, dy, running=False):
