@@ -17,7 +17,8 @@ def generate_tree_positions(max_x, max_y, num_trees, min_distance, max_attempts=
 
 
 #tree_positions = [(216, 860), (1430, 1322), (1026, 1471), (20, 537), (899, 706), (1332, 1150), (1124, 395), (698, 252), (816, 18), (1513, 1237), (327, 119), (479, 1026), (613, 619),(114,1460),(298,1460)]
-tree_positions = generate_tree_positions(1560, 1530, 30, 40)
+tree_positions = [(931, 1390), (383, 1226), (450, 199), (1048, 241), (9, 341), (83, 49), (1331, 1053), (1522, 1112), (137, 941), (192, 757), (1182, 897), (1264, 1498), (297, 705), (585, 1300), (723, 532), (658, 635), (774, 1344), (1098, 477), (1405, 1440), (239, 840), (1466, 1159), (820, 93), (995, 424), (862, 1007), (522, 291)]
+print(len(tree_positions))
 
 import pygame, sys
 import pytmx
@@ -31,7 +32,7 @@ import pyscroll
 import pyscroll.data
 import time
 from arbre_Yahya import *
-
+from random import *
 pygame.init()
 pygame.display.set_caption("Jeu")
 
@@ -156,7 +157,9 @@ curseur_rect = curseur.get_rect()
 IsCursorOn = True
 
 Arbre_touche = False
-while True:
+
+running = True
+while running:
     dt = mainClock.tick(60) / 1000  # Temps écoulé en secondes
     pygame.mouse.set_visible(False)
     curseur_rect.topleft = pygame.mouse.get_pos()
@@ -291,6 +294,9 @@ while True:
                             group.add(Item("buche1", 24, 10, sprite.rect.x + 50, sprite.rect.y + 50, "Food"))
                             group.add(Item("buche1", 24, 10, sprite.rect.x + 30, sprite.rect.y + 30, "Food"))
                             group.add(Item("buche1", 24, 10, sprite.rect.x + 20, sprite.rect.y + 50, "Food"))
+                            if choice([1,2,3,4,5,6,7,8,9,10]) == 1:
+                                group.add(Item("apple", 24, 10, sprite.rect.x + 20, sprite.rect.y + 10, "Food"))
+                                
                             group.remove(sprite)
                             finished_time_cut = pygame.time.get_ticks()
                 else:
