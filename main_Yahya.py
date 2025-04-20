@@ -42,9 +42,9 @@ screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 
 # Chargement de la carte Tiled
 tmx_data = load_pygame("maps/maps.tmx")  # Remplace par ton fichier .tmx
-
+troncs = []
 player_position = tmx_data.get_object_by_name("Player")
-player = Player(player_position.x, player_position.y, screen)  # Positionner le joueur
+player = Player(player_position.x-40, player_position.y, screen)  # Positionner le joueur
 
 save_menu = Save_game(screen)
 
@@ -67,6 +67,7 @@ item13 = Item("emeraude", 24, 10, 408, 110, "Artefact")
 # Création des arbres et ajout au groupe
 trees = [Arbre("arbre", x, y) for x, y in tree_positions]
 
+
 map_data = pyscroll.data.TiledMapData(tmx_data)
 
 # Créer un groupe de rendu pour pyscroll
@@ -77,7 +78,7 @@ map_layer.zoom = 2  # Facteur de zoom (1 = taille normale, 2 = zoomé x2)
 group = pyscroll.PyscrollGroup(map_layer=map_layer, default_layer=1)
 
 # Ajoute les objets au groupe
-group.add(player)
+group.add(player, layer=2)
 group.add(item)
 group.add(item2)
 group.add(item3)
@@ -92,9 +93,15 @@ group.add(item11)
 group.add(item12)
 group.add(item13)
 
-# Ajoute les arbres au groupe
-for tree in trees:
-    group.add(tree)
+
+
+for x, y in tree_positions:
+    feuillage = Feuillage(x, y)
+    tronc = Tronc(x, y)
+    tronc.feuillage = feuillage  # ← On associe le feuillage au tronc
+    group.add(tronc, layer=1)
+    group.add(feuillage, layer=3)
+    troncs.append(tronc)  # ← On garde une liste de tous les troncs si besoin
 
 # Fonction quit
 def quit():
@@ -252,6 +259,7 @@ while running:
 
     group.update()
     group.center(player.rect.center)  # Centre la caméra sur le joueur
+    
     group.draw(screen)
     player.affiche_ui()
 
@@ -269,7 +277,7 @@ while running:
                         -math.pi / 2, end_angle, 4)
 
         screen.blit(eat_image, (screen_pos[0] - 30, screen_pos[1] - 27))
-
+        
     if player.inventory_bar_list[player.inventory_index] != {}:
         if player.inventory_bar_list[player.inventory_index]['object'].type == "Hache":
             fill_time_cut = 4
@@ -278,7 +286,7 @@ while running:
 
     for sprite in group.sprites():
         if show_inventory == False:
-            if isinstance(sprite, Arbre) and player.rect.colliderect(sprite.rect):
+            if isinstance(sprite, Tronc) and player.hit_box.colliderect(sprite.hitbox):
                 if sprite.Can_cut:
                     if pygame.mouse.get_pressed()[0]:
                         if not cut_progressing:
@@ -293,6 +301,8 @@ while running:
 
                             if progress_cut >= 1.0:
                                 cut_progressing = False
+                                if hasattr(sprite, 'feuillage'):
+                                    group.remove(sprite.feuillage)  # ← On supprime le feuillage lié
                                 group.add(Item("buche1", 24, 10, sprite.rect.x + 50, sprite.rect.y + 50, "Food"))
                                 group.add(Item("buche1", 24, 10, sprite.rect.x + 30, sprite.rect.y + 30, "Food"))
                                 group.add(Item("buche1", 24, 10, sprite.rect.x + 20, sprite.rect.y + 50, "Food"))
@@ -321,6 +331,11 @@ while running:
                             if player.inventory_bar_list[player.inventory_index]['object'].type == "Hache":
                                 screen.blit(player.hache, (screen_pos[0] - 80, screen_pos[1] - 75))
 
+
+    for sprite in group.sprites():
+        if isinstance(sprite, Tronc) and player.feet.colliderect(sprite.hitbox):
+            player.move_back()
+    
     for sprite in group.sprites():
         if isinstance(sprite, Item) and player.hit_box.colliderect(sprite.rect):
             group.remove(sprite)  # Supprime l'objet du groupe
@@ -333,12 +348,21 @@ while running:
         moving = False
     else: 
         moving = True
+
+    
+    # Affichage optionnel des hitbox bour le debbugage
+    pygame.draw.rect(screen, (255, 0, 0), map_layer.translate_rect(player.hit_box), 2)
+
+    pygame.draw.rect(screen, (255, 255, 0), map_layer.translate_rect(player.feet), 2)
+    for i in troncs:
+        pygame.draw.rect(screen, (255, 0, 255), map_layer.translate_rect(i.hitbox), 2)
+
+    pygame.draw.rect(screen, (255, 255, 0), map_layer.translate_rect(player.rect), 2)
+    
     save_menu.update()
     
     
-    print("le rect",player.rect.x, player.rect.y)
-
-    print("la hit box",player.hit_box.x,player.hit_box.y)
+    
 
 
     pygame.display.update()
