@@ -16,7 +16,7 @@ class Player(pygame.sprite.Sprite):
         self.font_book = pygame.font.Font("Items/Minecraft.ttf", 20)  # Police par défaut, taille 20
         self.font_fantasy = pygame.font.Font("Items/Minecraft.ttf", 45)  # Police par défaut, taille 20
         self.Regen = False
-
+        
         # Chargement des images de l'inventaire
         self.inventory_image = pygame.image.load("UI/Inventories/inventaire_bag.png")
         self.inventory_amour = pygame.image.load("UI/Inventories/inventaire_armure final.png")
@@ -91,14 +91,15 @@ class Player(pygame.sprite.Sprite):
         #On prend comme image de base idle1
         self.image = pygame.image.load("animation/idle/idle1/down1.png")
 
+        self.feet = pygame.Rect(0, 0, 20, 10)  # largeur = 30, hauteur = 10 (ajuste selon le sprite)
 
         #Paramètres du joueur rect, position ...
         self.rect = self.image.get_rect()
         self.rect.center = (pos_x, pos_y)  # Centre le rectangle
         self.rect.x = pos_x
         self.rect.y = pos_y
-        self.hit_box = self.rect.copy().inflate(-63, -63)
-        
+        self.hit_box = self.rect.copy().inflate(-53, -53)
+        self.old_position = self.rect.copy()
         # Variable qui stocke la dernière direction du personnage, par défaut on la met à down
         self.last_direction = "down"
         
@@ -213,6 +214,10 @@ class Player(pygame.sprite.Sprite):
             self.current_sprite = 0
         self.image = liste_mouv[int(self.current_sprite)]
 
+    def move_back(self):
+        self.rect = self.old_position
+        self.hit_box = self.rect.copy().inflate(-53, -53)
+        self.feet.midbottom = self.hit_box.midbottom
 
     def animation_hache(self,liste_mouv,speed):
         self.current_hache += speed
@@ -255,18 +260,23 @@ class Player(pygame.sprite.Sprite):
     
 
     def move(self, dx, dy, running=False):
-        pygame.draw.rect(self.screen, (255, 0, 0), self.rect, 2)
         speed = self.speed_run if running else self.speed
         if dx != 0 and dy != 0:
-            speed /= math.sqrt(2)  # Normalisation de la vitesse en diagonale
+            speed /= math.sqrt(2)
 
+        
+        self.old_position = self.rect.copy()
+
+        # 🔸 2. Appliquer le déplacement
         self.rect.x += dx * speed
         self.hit_box.x += dx * speed
         self.rect.y += dy * speed
         self.hit_box.y += dy * speed
 
-        # Gestion des animations
-        
+        # 🔸 3. Mettre à jour les pieds (pour détection collision)
+        self.feet.midbottom = self.rect.midbottom
+
+        # 🔸 4. Gérer les animations
         anim_speed = 0.3 if running else 0.15
         if dx > 0:
             self.animation(self.right, anim_speed)
@@ -281,11 +291,10 @@ class Player(pygame.sprite.Sprite):
             self.animation(self.up, anim_speed)
             self.last_direction = "up"
 
-        
-
-        # Réduction de l'endurance si le joueur sprinte
+        # 🔸 5. Endurance
         if running:
             self.endurance_value -= 0.25
+
 
     #méthodes pour gérer l'idle
     def idle_up(self):
@@ -410,6 +419,7 @@ class Player(pygame.sprite.Sprite):
                     self.screen.blit(self.pages[self.page_a_cote],(840,300))
 
         
+        self.feet.midbottom = self.hit_box.midbottom
 
     def is_mouse_on_slot(self, x, y, width, height):
         mouse_x, mouse_y = pygame.mouse.get_pos()
