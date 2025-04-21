@@ -187,6 +187,9 @@ class Player(pygame.sprite.Sprite):
         self.hache = pygame.image.load("UI/hache/frame_0.png")
         self.hache = pygame.transform.scale(self.hache,(140,140))
 
+        self.key_board_I = pygame.image.load("UI/Keyboard icons/I.png")
+
+        
     def start_anim_attack(self,list_mouv,speed,decal):
         '''
         Dans cette méthode on va remplacer certaine les variables utilisées dans anim_player_full_animation (list_mouv et speed)

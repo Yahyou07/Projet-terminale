@@ -17,7 +17,7 @@ def generate_tree_positions(max_x, max_y, num_trees, min_distance, max_attempts=
 
 
 #tree_positions = [(216, 860), (1430, 1322), (1026, 1471), (20, 537), (899, 706), (1332, 1150), (1124, 395), (698, 252), (816, 18), (1513, 1237), (327, 119), (479, 1026), (613, 619),(114,1460),(298,1460)]
-tree_positions = [(931, 1390), (383, 1226), (450, 199), (1048, 241), (9, 341), (83, 49), (1331, 1053), (1522, 1112), (137, 941), (192, 757), (1182, 897), (1264, 1498), (297, 705), (585, 1300), (723, 532), (658, 635), (774, 1344), (1098, 477), (1405, 1440), (239, 840), (1466, 1159), (820, 93), (995, 424), (862, 1007), (522, 291)]
+tree_positions = [(931, 1390), (383, 1226), (450, 199), (1030, 190), (9, 341), (83, 49), (1331, 1053), (1522, 1112), (137, 941), (192, 757), (1182, 897), (1264, 1498), (297, 705), (585, 1300), (723, 532), (658, 635), (774, 1344), (1098, 500), (1405, 1440), (239, 840), (1466, 1159), (820, 93), (995, 600), (862, 1007), (522, 291)]
 print(len(tree_positions))
 
 import pygame, sys
@@ -31,23 +31,38 @@ from pygame.locals import *
 import pyscroll
 import pyscroll.data
 import time
-from arbre_Yahya import *
+from objects_Yahya import *
 from random import *
 pygame.init()
 pygame.display.set_caption("Jeu")
 from scripte.save_game import*
+from classe_enemy_Yahya import *
+
+import pygame
+
 
 # Définition de la fenêtre
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 
 # Chargement de la carte Tiled
 tmx_data = load_pygame("maps/maps.tmx")  # Remplace par ton fichier .tmx
-troncs = []
+
+
+collision_rects = []
+
+for obj in tmx_data.objects:
+    if obj.name == "collision" or obj.type == "collision":
+        rect = pygame.Rect(obj.x, obj.y, obj.width, obj.height)
+        collision_rects.append(rect)
+print(len(collision_rects))
+
 player_position = tmx_data.get_object_by_name("Player")
 player = Player(player_position.x-40, player_position.y, screen)  # Positionner le joueur
 
 save_menu = Save_game(screen)
+chest_position = tmx_data.get_object_by_name("coffre1")
 
+chest1 = Coffre("chest2",chest_position.x,chest_position.y)
 item = Item("pain", 24, 10, 352, 350, "Food")
 item2 = Item("plastron", 1, 10, 300, 450, "Plastron")
 item3 = Item("apple", 24, 10, 352, 290, "Food")
@@ -78,7 +93,7 @@ map_layer.zoom = 2  # Facteur de zoom (1 = taille normale, 2 = zoomé x2)
 group = pyscroll.PyscrollGroup(map_layer=map_layer, default_layer=1)
 
 # Ajoute les objets au groupe
-group.add(player, layer=2)
+group.add(player, layer=5)
 group.add(item)
 group.add(item2)
 group.add(item3)
@@ -93,14 +108,14 @@ group.add(item11)
 group.add(item12)
 group.add(item13)
 
-
-
+group.add(chest1,layer = 2)
+troncs = []
 for x, y in tree_positions:
     feuillage = Feuillage(x, y)
     tronc = Tronc(x, y)
     tronc.feuillage = feuillage  # ← On associe le feuillage au tronc
-    group.add(tronc, layer=1)
-    group.add(feuillage, layer=3)
+    group.add(tronc, layer=2)
+    group.add(feuillage, layer=6)
     troncs.append(tronc)  # ← On garde une liste de tous les troncs si besoin
 
 # Fonction quit
@@ -165,6 +180,7 @@ IsCursorOn = True
 Arbre_touche = False
 
 running = True
+near_chest = None  # coffre à proximité par défaut à None
 while running:
     dt = mainClock.tick(60) / 1000  # Temps écoulé en secondes
     
@@ -180,6 +196,7 @@ while running:
                 moving = not moving
         
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            
             if show_inventory == False :
                 if player.last_direction == "right" or player.last_direction == "down":
                     player.start_anim_attack(player.attack_right_mouv, 0.3, 0)
@@ -225,6 +242,13 @@ while running:
         player.handle_key_events(event)
 
         save_menu.handle_event(event,"ruen",1,player.rect.x,player.rect.y)
+        #On gère ici la capacité d'ouvrir un coffre lors de l'appuie sur la touche i
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_i:
+                if near_chest and near_chest.Can_open:
+                    near_chest.start_animation_coffre(near_chest.coffre_open_list, 0.3)
+
+       
     # vérifier si l'on peut marcher
     if moving:
         input()
@@ -267,7 +291,7 @@ while running:
         player.animBook()
 
     if progressing:
-        world_pos = (player.rect.centerx + 25, player.rect.top - 10)
+        world_pos = (player.rect.centerx , player.rect.top - 10)
         screen_pos = map_layer.translate_point(world_pos)
 
         radius = 30
@@ -287,6 +311,7 @@ while running:
     for sprite in group.sprites():
         if show_inventory == False:
             if isinstance(sprite, Tronc) and player.hit_box.colliderect(sprite.hitbox):
+                print(sprite.rect.x,sprite.rect.y)
                 if sprite.Can_cut:
                     if pygame.mouse.get_pressed()[0]:
                         if not cut_progressing:
@@ -310,6 +335,8 @@ while running:
                                     group.add(Item("apple", 24, 10, sprite.rect.x + 20, sprite.rect.y + 10, "Food"))
                                     
                                 sprite.image = pygame.image.load("Objects/souche.png")
+                                sprite.hitbox = sprite.rect.copy().inflate(-63, -130)
+                                sprite.hitbox.y +=55
                                 sprite.Can_cut = False
                                 finished_time_cut = pygame.time.get_ticks()
                     else:
@@ -318,13 +345,13 @@ while running:
                             progress_cut = 0.0
 
                     if cut_progressing:
-                        world_pos = (player.rect.centerx + 25, player.rect.top - 10)
+                        world_pos = (player.rect.centerx, player.rect.top - 10)
                         screen_pos = map_layer.translate_point(world_pos)
 
                         radius = 60
                         end_angle = -math.pi / 2 + progress_cut * 2 * math.pi
                         pygame.draw.circle(screen, (100, 100, 100), screen_pos, radius, 3)
-                        pygame.draw.arc(screen, (0, 200, 0), (screen_pos[0] - radius, screen_pos[1] - radius, radius * 2, radius * 2),
+                        pygame.draw.arc(screen, (255, 140, 0), (screen_pos[0] - radius, screen_pos[1] - radius, radius * 2, radius * 2),
                                         -math.pi / 2, end_angle, 4)
 
                         if player.inventory_bar_list[player.inventory_index] != {}:
@@ -334,8 +361,30 @@ while running:
 
     for sprite in group.sprites():
         if isinstance(sprite, Tronc) and player.feet.colliderect(sprite.hitbox):
+            
             player.move_back()
-    
+
+    near_chest = None  # Reset à chaque frame
+
+    #On gere ici les collision aves les objets de type "Coffre"
+    for sprite in group.sprites():
+        if isinstance(sprite, Coffre) and player.feet.colliderect(sprite.rect):
+            player.move_back()
+
+    for sprite in group.sprites():
+        if isinstance(sprite, Coffre) and player.hit_box.colliderect(sprite.rect):
+            near_chest = sprite  # On garde en mémoire le coffre à proximité
+            if sprite.Can_open:
+                world_pos = (player.rect.centerx , player.rect.top - 10)
+                screen_pos = map_layer.translate_point(world_pos)
+                screen.blit(player.key_board_I, (screen_pos[0]-23, screen_pos[1]+10))
+
+                 
+    # Collision avec la map (rectangles Tiled)
+    for rect in collision_rects:
+        if player.feet.colliderect(rect):
+            player.move_back()
+
     for sprite in group.sprites():
         if isinstance(sprite, Item) and player.hit_box.colliderect(sprite.rect):
             group.remove(sprite)  # Supprime l'objet du groupe
@@ -349,7 +398,7 @@ while running:
     else: 
         moving = True
 
-    
+    '''
     # Affichage optionnel des hitbox bour le debbugage
     pygame.draw.rect(screen, (255, 0, 0), map_layer.translate_rect(player.hit_box), 2)
 
@@ -359,8 +408,15 @@ while running:
 
     pygame.draw.rect(screen, (255, 255, 0), map_layer.translate_rect(player.rect), 2)
     
-    save_menu.update()
+    for i in collision_rects:
+        pygame.draw.rect(screen, (255, 255, 0), map_layer.translate_rect(i), 2)
     
+
+    pygame.draw.rect(screen, (255, 255, 0), map_layer.translate_rect(chest1.rect), 2)
+    pygame.draw.rect(screen, (255, 255, 0), map_layer.translate_rect(player.feet), 2)
+    '''
+    save_menu.update()
+    chest1.anim_chest()
     
     
 
