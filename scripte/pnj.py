@@ -60,12 +60,7 @@ class PNJ(pygame.sprite.Sprite):
             yield self.rect.x, self.rect.y
             self.screen.blit(self.image, self.rect)
             pygame.display.flip()
-    def afficher(self):
-        """
-            Affiche le PNJ sur l'écran
-        """
-        self.screen.blit(self.image, self.rect)
-        pygame.display.flip()
+
         
     
         
