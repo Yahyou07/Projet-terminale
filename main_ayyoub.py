@@ -11,6 +11,8 @@ import pyscroll.data
 import time
 from scripte.enigme import*
 from scripte.save_game import*
+from scripte.pnj import *
+from scripte.mob import *
 pygame.init()
 pygame.display.set_caption("Jeu")
 
@@ -70,7 +72,6 @@ group.add(item7)
 group.add(item8)
 group.add(item9)
 group.add(item10)
-
 
 
 #Fonction quit
