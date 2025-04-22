@@ -48,7 +48,7 @@ item9 = Item("pain",1,10,352,700,"Food")
 item10 = Item("fish",24,10,352,710,"Food")
 item11 = Item("fromage",24,10,352,130,"Food")
 item12 = Item("fromage",1,10,352,130,"Food")
-
+pnj = PNJ(150, 150, screen, "pnj/wizard.png")
 
 
 map_data = pyscroll.data.TiledMapData(tmx_data)
@@ -72,6 +72,10 @@ group.add(item7)
 group.add(item8)
 group.add(item9)
 group.add(item10)
+group.add(item11)
+group.add(item12)
+group.add(pnj)
+
 
 
 #Fonction quit
