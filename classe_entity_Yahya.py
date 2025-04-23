@@ -13,6 +13,7 @@ class Entity(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
         self.sprite_index = 0
+        
     def move_right(self,list_mouv,speed):
         self.rect.x +=1
         self.sprite_index +=speed

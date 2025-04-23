@@ -56,7 +56,7 @@ for obj in tmx_data.objects:
 
 
 player_position = tmx_data.get_object_by_name("Player")
-player = Player(player_position.x-40, player_position.y, screen)  # Positionner le joueur
+player = Player(250, 250, screen)  # Positionner le joueur
 
 save_menu = Save_game(screen)
 chest_position = tmx_data.get_object_by_name("coffre1")
