@@ -48,7 +48,8 @@ item9 = Item("pain",1,10,352,700,"Food")
 item10 = Item("fish",24,10,352,710,"Food")
 item11 = Item("fromage",24,10,352,130,"Food")
 item12 = Item("fromage",1,10,352,130,"Food")
-pnj = PNJ(150, 150, screen, "pnj/wizard.png")
+pnj = PNJ(150, 150, screen, "pnj/wizard.png",player.rect.height)
+
 
 
 map_data = pyscroll.data.TiledMapData(tmx_data)
@@ -151,6 +152,7 @@ while True :
     group.draw(screen)
     player.affiche_ui()
     
+    pnj.pattern(150,150,450,450)
 
     for sprite in group.sprites():
         if isinstance(sprite, Item) and player.rect.colliderect(sprite.rect):

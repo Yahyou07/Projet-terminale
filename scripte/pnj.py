@@ -1,4 +1,5 @@
 import pygame
+import time
 
 class PNJ(pygame.sprite.Sprite):
     """
@@ -10,62 +11,133 @@ class PNJ(pygame.sprite.Sprite):
             screen : écran sur lequel le PNJ sera affiché
             image_path : chemin de l'image du PNJ
     """
-    def __init__(self, x, y, screen, image_path):
+    def __init__(self, x, y, screen, image_path,player_height = None):
         """
             Initialise le PNJ avec une image, une position et un écran
         """
         super().__init__()
         self.image = pygame.image.load(image_path).convert_alpha()
-        self.crop_rect = pygame.Rect(0, self.image.get_height() // 54 * 2, self.image.get_width() // 13, self.image.get_height() // 54 )
+        self.crop_rect = pygame.Rect(0, self.image.get_height() // 54 * 6, self.image.get_width() // 13, self.image.get_height() // 54 )
         self.cropped_image = self.image.subsurface(self.crop_rect).copy()
-        self.image = self.cropped_image
+        self.pourcent = self.crop_rect.height / player_height
+        self.image = pygame.transform.scale(self.image, (int(self.crop_rect.width * self.pourcent), int(self.crop_rect.height * self.pourcent)))
+        self.image_color = self.image.get_at((self.image.get_width()-1,self.image.get_height()-1))  # Example: top-left pixel
         self.rect = self.image.get_rect(topleft=(x, y))
         self.screen = screen
         self.font = pygame.font.Font("Items/Minecraft.ttf", 14)
         self.collide = False
+
+    def animation(self):
+        """
+            Fonction qui gère l'animation du PNJ.
+            Elle utilise une boucle infinie pour mettre à jour l'image du PNJ en fonction de la direction.
+        """
+        if self.crop_rect.x >= self.image.get_width() // 13 :
+            self.crop_rect.x = 0 # soit self.crop_rect.x -= self.image.get_width() // 13 
     
+        
+
     def static(self):
         """
             Fonction qui affiche le PNJ sans le déplacer.
         """
-        self.crop_rect = pygame.Rect(self.image.x, self.image.y, self.image.get_width()//13, self.image.get_height()//54 * 3)
-        self.cropped_image = pygame.Surface((self.crop_rect.width, self.crop_rect.height), pygame.SRCALPHA)
-        self.image = self.cropped_image
-        self.screen.blit(self.image, self.rect)
-        pygame.display.flip()
+        self.static = True
+        self.crop_rect = pygame.Rect(0, self.image.get_height() // 54 * 6, self.image.get_width() // 13, self.image.get_height() // 54 )
+        while self.static:
+            time.sleep(0.01)
+            self.animation()
+            if self.crop_rect.x < self.image.get_width() // 13 :
+                self.crop_rect.x += self.image.get_width() // 13
+            elif self.crop_rect.x == self.image.get_width() // 13 :
+                self.crop_rect.x = 0
+            self.cropped_image = self.image.subsurface(self.crop_rect).copy()
+            self.image = self.cropped_image
+            self.image = pygame.transform.scale(self.image, (int(self.crop_rect.width * self.pourcent), int(self.crop_rect.height * self.pourcent)))
+            self.screen.blit(self.image, self.rect) # on affiche le PNJ à sa nouvelle position
+            pygame.display.flip()   # on met à jour l'affichage
 
     def haut(self):
         """
             Fonction qui déplace le PNJ vers le haut.
         """
-        self.rect.y -= 1
-        self.screen.blit(self.image, self.rect)
-        pygame.display.flip()
+        self.top = True
+        self.crop_rect = pygame.Rect(0, self.image.get_height() // 54 * 4, self.image.get_width() // 13, self.image.get_height() // 54 )
+        self.cropped_image = self.image.subsurface(self.crop_rect).copy()
+        self.image = pygame.transform.scale(self.image, (int(self.crop_rect.width * self.pourcent), int(self.crop_rect.height * self.pourcent)))
+        while self.top:
+            time.sleep(0.01)  # Pause de 0.01 seconde pour ralentir le mouvement
+            self.animation()
+            self.crop_rect.x += self.image.get_width() // 13 
+            self.cropped_image = self.image.subsurface(self.crop_rect).copy()
+            self.image = self.cropped_image
+            self.image = pygame.transform.scale(self.image, (int(self.crop_rect.width * self.pourcent), int(self.crop_rect.height * self.pourcent)))
+            self.rect.y -= 1
+            self.screen.blit(self.image, self.rect) # on affiche le PNJ à sa nouvelle position
+            pygame.display.update() # on met à jour l'affichage
+        
+        
     
     def bas(self):
         """
             Fonction qui déplace le PNJ vers le bas.
         """
-        self.rect.y += 1
-        self.screen.blit(self.image, self.rect)
-        pygame.display.flip()
+        self.bottom = True
+        self.crop_rect = pygame.Rect(0, self.image.get_height() // 54 * 6, self.image.get_width() // 13, self.image.get_height() // 54 )
+        self.cropped_image = self.image.subsurface(self.crop_rect).copy()
+        self.image = pygame.transform.scale(self.image, (int(self.crop_rect.width * self.pourcent), int(self.crop_rect.height * self.pourcent)))
+        while self.bottom:
+            time.sleep(0.01)  # Pause de 0.01 seconde pour ralentir le mouvement
+            self.animation()
+            self.crop_rect.x += self.image.get_width() // 13
+            self.cropped_image = self.image.subsurface(self.crop_rect).copy()
+            self.image = self.cropped_image
+            self.image = pygame.transform.scale(self.image, (int(self.crop_rect.width * self.pourcent), int(self.crop_rect.height * self.pourcent)))
+            self.rect.y += 1
+            self.screen.blit(self.image, self.rect) # on affiche le PNJ à sa nouvelle position
+            pygame.display.update()    
     
     def gauche(self):
         """
             Fonction qui déplace le PNJ vers la gauche.
         """
-        self.rect.x -= 1
-        self.screen.blit(self.image, self.rect)
-        pygame.display.flip()
+        self.left = True
+        self.crop_rect = pygame.Rect(0, self.image.get_height() // 54 * 5, self.image.get_width() // 13, self.image.get_height() // 54 )
+        self.cropped_image = self.image.subsurface(self.crop_rect).copy()
+        self.image = pygame.transform.scale(self.image, (int(self.crop_rect.width * self.pourcent), int(self.crop_rect.height * self.pourcent)))
+        while self.left:
+            time.sleep(0.01)
+            self.animation()
+            self.crop_rect.x += self.image.get_width() // 13
+            self.cropped_image = self.image.subsurface(self.crop_rect).copy()
+            self.image = self.cropped_image
+            self.image = pygame.transform.scale(self.image, (int(self.crop_rect.width * self.pourcent), int(self.crop_rect.height * self.pourcent)))
+            self.rect.x -= 1
+            self.screen.blit(self.image, self.rect)
+            pygame.display.update()
 
     def droite(self):
         """
             Fonction qui déplace le PNJ vers la droite.
         """
-        self.rect.x += 1
-        self.screen.blit(self.image, self.rect)
-        pygame.display.flip()
+        self.right = True
+        self.crop_rect = pygame.Rect(0, self.image.get_height() // 54 * 7, self.image.get_width() // 13, self.image.get_height() // 54 )
+        self.cropped_image = self.image.subsurface(self.crop_rect).copy()
+        self.image = self.cropped_image
+        self.image = pygame.transform.scale(self.image, (int(self.crop_rect.width * self.pourcent), int(self.crop_rect.height * self.pourcent)))
+        while self.right:
+            time.sleep(0.01)
+            self.rect.x += 1
+            if self.crop_rect.x < self.image.get_width() // 13 :
+                self.crop_rect.x += self.image.get_width() // 13
+            elif self.crop_rect.x == self.image.get_width() // 13 :
+                self.crop_rect.x = 0
+            self.cropped_image = self.image.subsurface(self.crop_rect).copy()
+            self.image = self.cropped_image
+            self.image = pygame.transform.scale(self.image, (int(self.crop_rect.width * self.pourcent), int(self.crop_rect.height * self.pourcent)))
 
+            self.screen.blit(self.image, self.rect)
+            pygame.display.update()
+            
     def pattern(self,lim_x1,lim_y1,lim_x2,lim_y2):
         """
             Fonction génératrice qui gère le mouvement du PNJ dans un motif spécifique.
@@ -88,20 +160,24 @@ class PNJ(pygame.sprite.Sprite):
 
         while not self.collide: # on lui fait faire suivre un patern
             if self.rect.x >= lim_x1 and self.rect.x < lim_x2:
+                self.top = False
                 self.droite()
             elif self.rect.x == lim_x2 and self.rect.x > lim_x1:
                 continue
             elif self.rect.y >= lim_y1 and self.rect.y < lim_y2:
+                self.right = False
                 self.bas()
             elif self.rect.y == lim_y2 and self.rect.y > lim_y1:
                 continue
             elif self.rect.x == lim_x2 and self.rect.y == lim_y2:
+                self.bottom = False
                 self.gauche()
             elif self.rect.x == lim_x1 and self.rect.y == lim_y2:
+                self.left = False
                 self.haut()
             elif self.rect.x == lim_x1 and self.rect.y == lim_y1:
+                self.top = False
                 self.droite()
-            yield self.rect.x, self.rect.y
             self.screen.blit(self.image, self.rect)
             pygame.display.flip()
     
