@@ -20,7 +20,7 @@ class PNJ(pygame.sprite.Sprite):
         self.crop_rect = pygame.Rect(0, self.image.get_height() // 54 * 6, self.image.get_width() // 13, self.image.get_height() // 54 )
         self.cropped_image = self.image.subsurface(self.crop_rect).copy()
         self.pourcent = self.crop_rect.height / player_height
-        self.image = pygame.transform.scale(self.image, (int(self.crop_rect.width * self.pourcent), int(self.crop_rect.height * self.pourcent)))
+        self.image = pygame.transform.scale(self.cropped_image, (int(self.crop_rect.width * self.pourcent), int(self.crop_rect.height * self.pourcent)))
         self.image_color = self.image.get_at((self.image.get_width()-1,self.image.get_height()-1))  # Example: top-left pixel
         self.rect = self.image.get_rect(topleft=(x, y))
         self.screen = screen
@@ -131,6 +131,7 @@ class PNJ(pygame.sprite.Sprite):
                 self.crop_rect.x += self.image.get_width() // 13
             elif self.crop_rect.x == self.image.get_width() // 13 :
                 self.crop_rect.x = 0
+            self.animation()
             self.cropped_image = self.image.subsurface(self.crop_rect).copy()
             self.image = self.cropped_image
             self.image = pygame.transform.scale(self.image, (int(self.crop_rect.width * self.pourcent), int(self.crop_rect.height * self.pourcent)))
