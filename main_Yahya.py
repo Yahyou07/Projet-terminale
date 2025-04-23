@@ -11,14 +11,13 @@ def generate_tree_positions(max_x, max_y, num_trees, min_distance, max_attempts=
                 positions.append(pos)
                 break
             attempt += 1
-        else:
-            print(f"Could not place tree {len(positions) + 1} after {max_attempts} attempts.")
+        
     return positions
 
 
 #tree_positions = [(216, 860), (1430, 1322), (1026, 1471), (20, 537), (899, 706), (1332, 1150), (1124, 395), (698, 252), (816, 18), (1513, 1237), (327, 119), (479, 1026), (613, 619),(114,1460),(298,1460)]
 tree_positions = [(931, 1390), (383, 1226), (450, 199), (1030, 190), (9, 341), (83, 49), (1331, 1053), (1522, 1112), (137, 941), (192, 757), (1182, 897), (1264, 1498), (297, 705), (550, 705), (585, 1300), (723, 532), (774, 1344), (1098, 500), (1405, 1440), (239, 840), (1466, 1159), (820, 93), (995, 600), (862, 1007), (522, 291)]
-print(len(tree_positions))
+
 
 import pygame, sys
 import pytmx
@@ -37,9 +36,9 @@ pygame.init()
 pygame.display.set_caption("Jeu")
 from scripte.save_game import*
 from classe_enemy_Yahya import *
-
+from scripte.pnj import *
 import pygame
-
+from classe_entity_Yahya import *
 
 # Définition de la fenêtre
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
@@ -54,7 +53,7 @@ for obj in tmx_data.objects:
     if obj.name == "collision" or obj.type == "collision":
         rect = pygame.Rect(obj.x, obj.y, obj.width, obj.height)
         collision_rects.append(rect)
-print(len(collision_rects))
+
 
 player_position = tmx_data.get_object_by_name("Player")
 player = Player(player_position.x-40, player_position.y, screen)  # Positionner le joueur
@@ -62,7 +61,10 @@ player = Player(player_position.x-40, player_position.y, screen)  # Positionner 
 save_menu = Save_game(screen)
 chest_position = tmx_data.get_object_by_name("coffre1")
 
-chest1 = Coffre("chest2",chest_position.x,chest_position.y)
+pnj1 = Entity("chasseur",200,200)
+
+chest1 = Coffre("chest1",chest_position.x,chest_position.y)
+
 item = Item("pain", 24, 10, 352, 350, "Food")
 item2 = Item("plastron", 1, 10, 300, 450, "Plastron")
 item3 = Item("apple", 24, 10, 352, 290, "Food")
@@ -109,6 +111,7 @@ group.add(item12)
 group.add(item13)
 
 group.add(chest1,layer = 2)
+group.add(pnj1 , layer = 2  )
 troncs = []
 for x, y in tree_positions:
     feuillage = Feuillage(x, y)
@@ -224,7 +227,7 @@ while running:
 
             if player.rect_button_left_book.collidepoint(event.pos) and player.page > 0:
                 player.startBookAnimation(player.turn_left, 0.25)
-                print("bouton clique")
+                
                 player.IsOpen = True
                 player.page_a_cote = player.page - 1
                 player.page -= 2
@@ -232,7 +235,6 @@ while running:
             if player.rect_button_right_book.collidepoint(event.pos) and player.page < 6:
                 player.startBookAnimation(player.turn_right, 0.25)
                 player.IsOpen = True
-                print("bouton clique")
                 player.page += 2
                 player.page_a_cote = player.page + 1
 
@@ -270,7 +272,7 @@ while running:
                             if progress >= 1.0:
                                 progressing = False
                                 show_message = True
-                                print("Nourriture consommée")
+                                
                                 player.eat(player.inventory_index)  # On active la méthode eat lorsque "la progress circle" se termine
                                 finished_time = pygame.time.get_ticks()
                     else:
@@ -307,11 +309,11 @@ while running:
             fill_time_cut = 4
         else:
             fill_time_cut = 8
-
+    near_chest = None  # Reset à chaque frame
     for sprite in group.sprites():
         if show_inventory == False:
             if isinstance(sprite, Tronc) and player.hit_box.colliderect(sprite.hitbox):
-                print(sprite.rect.x,sprite.rect.y)
+                
                 if sprite.Can_cut:
                     if pygame.mouse.get_pressed()[0]:
                         if not cut_progressing:
@@ -359,19 +361,15 @@ while running:
                                 screen.blit(player.hache, (screen_pos[0] - 80, screen_pos[1] - 75))
 
 
-    for sprite in group.sprites():
         if isinstance(sprite, Tronc) and player.feet.colliderect(sprite.hitbox):
-            
             player.move_back()
 
-    near_chest = None  # Reset à chaque frame
+    
 
     #On gere ici les collision aves les objets de type "Coffre"
-    for sprite in group.sprites():
         if isinstance(sprite, Coffre) and player.feet.colliderect(sprite.rect):
             player.move_back()
 
-    for sprite in group.sprites():
         if isinstance(sprite, Coffre) and player.hit_box.colliderect(sprite.rect):
             near_chest = sprite  # On garde en mémoire le coffre à proximité
             if sprite.Can_open:
@@ -379,17 +377,16 @@ while running:
                 screen_pos = map_layer.translate_point(world_pos)
                 screen.blit(player.key_board_I, (screen_pos[0]-23, screen_pos[1]+10))
 
-                 
+        if isinstance(sprite, Item) and player.hit_box.colliderect(sprite.rect):
+            group.remove(sprite)  # Supprime l'objet du groupe
+            player.add_to_inventory(sprite)
+             
     # Collision avec la map (rectangles Tiled)
     for rect in collision_rects:
         if player.feet.colliderect(rect):
             player.move_back()
 
-    for sprite in group.sprites():
-        if isinstance(sprite, Item) and player.hit_box.colliderect(sprite.rect):
-            group.remove(sprite)  # Supprime l'objet du groupe
-            player.add_to_inventory(sprite)
-
+    
     if show_inventory:
         player.display_inventory()  # On appelle la méthode display_inventory pour afficher l'inventaire
 
@@ -418,6 +415,7 @@ while running:
     save_menu.update()
     chest1.anim_chest()
     
+    pnj1.move_right(pnj1.right_move,0.2)
     
 
 
