@@ -191,7 +191,8 @@ class PNJ(pygame.sprite.Sprite):
                 self.bottom = False
                 self.right = False
                 self.haut()
-            self.screen.blit(self.image, self.rect)
+            self.screen.blit(self.image, self.rect) # on affiche le PNJ à sa nouvelle position
+            self.image.fill((0, 0, 0))
             pygame.display.flip()
     
     
