@@ -56,28 +56,26 @@ for obj in tmx_data.objects:
 
 
 player_position = tmx_data.get_object_by_name("Player")
-player = Player(250, 250, screen)  # Positionner le joueur
+player = Player(player_position.x, player_position.y, screen)  # Positionner le joueur
 
 save_menu = Save_game(screen)
 chest_position = tmx_data.get_object_by_name("coffre1")
 
-pnj1 = Entity("chasseur",200,200)
+pnj1 = Entity("chasseur",200,200,"pnj",screen)
 
 chest1 = Coffre("chest1",chest_position.x,chest_position.y)
 
-item = Item("pain", 24, 10, 352, 350, "Food")
+item = Item("pain", 24, 30, 352, 350, "Food")
 item2 = Item("plastron", 1, 10, 300, 450, "Plastron")
 item3 = Item("apple", 24, 10, 352, 290, "Food")
 item4 = Item("bottes", 1, 10, 500, 270, "Bottes")
-item5 = Item("fromage", 24, 10, 330, 500, "Food")
-item6 = Item("rubis", 24, 10, 352, 530, "Artefact")
-item7 = Item("casque", 1, 10, 180, 560, "Casque")
-item8 = Item("jambiere", 1, 10, 352, 230, "Jambiere")
-item9 = Item("pain", 24, 10, 352, 700, "Food")
-item10 = Item("fish", 24, 10, 352, 710, "Food")
-item11 = Item("pioche1", 24, 10, 352, 130, "Pioche")
-item12 = Item("hache", 24, 10, 400, 130, "Hache")
-item13 = Item("emeraude", 24, 10, 408, 110, "Artefact")
+item5 = Item("rubis", 24, 10, 352, 530, "Artefact")
+item6 = Item("casque", 1, 10, 180, 560, "Casque")
+item7 = Item("jambiere", 1, 10, 352, 230, "Jambiere")
+
+item8 = Item("fish", 24, 10, 352, 710, "Food")
+item9 = Item("pioche1", 24, 10, 352, 130, "Pioche")
+item10 = Item("hache", 24, 10, 400, 130, "Hache")
 
 
 
@@ -106,12 +104,8 @@ group.add(item7)
 group.add(item8)
 group.add(item9)
 group.add(item10)
-group.add(item11)
-group.add(item12)
-group.add(item13)
-
 group.add(chest1,layer = 2)
-group.add(pnj1 , layer = 2  )
+group.add(pnj1 , layer = 2 )
 troncs = []
 for x, y in tree_positions:
     feuillage = Feuillage(x, y)
@@ -157,8 +151,6 @@ def input():
         elif player.last_direction == "left":
             player.idle_left()
 
-curent_quantity = 0
-
 # Paramètres la progression du cercle pour le "manger"
 fill_time = 3.0  # Durée du remplissage
 fill_time_cut = 11
@@ -184,6 +176,8 @@ Arbre_touche = False
 
 running = True
 near_chest = None  # coffre à proximité par défaut à None
+a_proximite = False
+Dialog = False
 while running:
     dt = mainClock.tick(60) / 1000  # Temps écoulé en secondes
     
@@ -244,11 +238,19 @@ while running:
         player.handle_key_events(event)
 
         save_menu.handle_event(event,"ruen",1,player.rect.x,player.rect.y)
+
         #On gère ici la capacité d'ouvrir un coffre lors de l'appuie sur la touche i
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_i:
                 if near_chest and near_chest.Can_open:
                     near_chest.start_animation_coffre(near_chest.coffre_open_list, 0.3)
+                if a_proximite:
+                    print("dialog")
+                    Dialog = True
+
+
+
+                    
 
        
     # vérifier si l'on peut marcher
@@ -310,6 +312,7 @@ while running:
         else:
             fill_time_cut = 8
     near_chest = None  # Reset à chaque frame
+    
     for sprite in group.sprites():
         if show_inventory == False:
             if isinstance(sprite, Tronc) and player.hit_box.colliderect(sprite.hitbox):
@@ -368,6 +371,7 @@ while running:
 
     #On gere ici les collision aves les objets de type "Coffre"
         if isinstance(sprite, Coffre) and player.feet.colliderect(sprite.rect):
+            
             player.move_back()
 
         if isinstance(sprite, Coffre) and player.hit_box.colliderect(sprite.rect):
@@ -380,11 +384,31 @@ while running:
         if isinstance(sprite, Item) and player.hit_box.colliderect(sprite.rect):
             group.remove(sprite)  # Supprime l'objet du groupe
             player.add_to_inventory(sprite)
-             
+
+        if isinstance(sprite, Entity) and player.feet.colliderect(sprite.hit_box):
+            player.move_back()
+
+        if isinstance(sprite, Entity) and player.hit_box.colliderect(sprite.champ_vision):
+            world_pos = (player.rect.centerx , player.rect.top - 10)
+            screen_pos = map_layer.translate_point(world_pos)
+            screen.blit(player.key_board_I, (screen_pos[0]-23, screen_pos[1]+10))
+            a_proximite = True
+            print(Dialog)
+            if Dialog :
+                sprite.CanDialog = True
+        else:
+            sprite.CanDialog =False
+
+            
+            
+
     # Collision avec la map (rectangles Tiled)
     for rect in collision_rects:
         if player.feet.colliderect(rect):
             player.move_back()
+            
+    
+                
 
     
     if show_inventory:
@@ -411,12 +435,18 @@ while running:
 
     pygame.draw.rect(screen, (255, 255, 0), map_layer.translate_rect(chest1.rect), 2)
     pygame.draw.rect(screen, (255, 255, 0), map_layer.translate_rect(player.feet), 2)
+
+    pygame.draw.rect(screen, (255, 125, 56), map_layer.translate_rect(pnj1.rect), 2)
     '''
+    pygame.draw.rect(screen, (255, 125, 56), map_layer.translate_rect(pnj1.champ_vision), 2)
+    
+    pnj1.update()
+    #pnj1.update()
     save_menu.update()
     chest1.anim_chest()
     
-    pnj1.move_right(pnj1.right_move,0.2)
     
+    pnj1.idle()
 
 
     pygame.display.update()
