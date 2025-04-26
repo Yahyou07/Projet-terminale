@@ -182,8 +182,10 @@ running = True
 near_chest = None  # coffre à proximité par défaut à None
 
 
-pnj1_dialog_active = False
+
 can_talk_to_pnj1 = False
+
+active_pnj = None
 
 while running:
     dt = mainClock.tick(60) / 1000  # Temps écoulé en secondes
@@ -250,8 +252,14 @@ while running:
             if event.key == pygame.K_i:
                 if near_chest and near_chest.Can_open:
                     near_chest.start_animation_coffre(near_chest.coffre_open_list, 0.3)
-                elif can_talk_to_pnj1:  # ← S'il est proche d'un PNJ
-                    pnj1_dialog_active = not pnj1_dialog_active  # ← On affiche ou on enlève
+                elif active_pnj:  # ← Si on a un PNJ actif
+                    active_pnj.CanDialog = not active_pnj.CanDialog
+                    if active_pnj.CanDialog:
+                        active_pnj.start_dialog(0)  # ← Lancer le texte de ce PNJ
+            if event.key == pygame.K_SPACE:
+                if active_pnj and active_pnj.CanDialog:
+                    active_pnj.next_dialog()
+
 
 
 
@@ -397,15 +405,15 @@ while running:
 
         if isinstance(sprite, Entity):
             if player.hit_box.colliderect(sprite.champ_vision):
-                can_talk_to_pnj1 = True  # ← Il est proche
+                can_talk_to_pnj1 = True
+                active_pnj = sprite  # ← Le PNJ actif devient celui détecté
                 world_pos = (player.rect.centerx , player.rect.top - 10)
                 screen_pos = map_layer.translate_point(world_pos)
                 screen.blit(player.key_board_I, (screen_pos[0]-23, screen_pos[1]+10))
             else:
-                can_talk_to_pnj1 = False  # ← Il n'est plus proche
-                pnj1_dialog_active = False  # ← Et on ferme la boîte auto
+                if active_pnj == sprite:
+                    active_pnj = None
 
-            sprite.CanDialog = pnj1_dialog_active  # ← Afficher ou non le dialogue
             
             
 
