@@ -19,8 +19,7 @@ class Entity(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(self.image,(50,50))
         self.rect = self.image.get_rect()
         
-        self.font_dialog_box_name = pygame.font.Font("UI/dialog_font.ttf", 20)
-        self.font_dialog_box = pygame.font.Font("UI/dialog_font.ttf", 15)
+        
 
         self.rect.x = x
         self.rect.y = y
@@ -28,27 +27,10 @@ class Entity(pygame.sprite.Sprite):
         self.champ_vision = self.rect.copy().inflate(20,20)
 
         self.sprite_index = 0
-        self.parole = [f"Salutations, je suis {name}.",
-                       "Je serais ton guide dans ce monde",
-                       "J'ai besoin de ton aide pour sécuriser cette clairière",
-                       "Des gobelins on pris possesion de cette terre tu dois les exterminer",
-                       "Voila un objet qui te sera utile, bonne chance."]
+        
         self.right = True
-        self.dialog_box = pygame.image.load("UI/dialog_box_gris.png")
-        self.dialog_box_name = pygame.image.load("UI/dialog_box_nom.png")
-        self.portrait = pygame.image.load(f"{type}/{name}/portrait2.png")
         self.screen = screen
-
-        self.CanDialog = False
-        self.name_entity = self.font_dialog_box_name.render(self.name,True, (255, 255, 111))
-        self.entity_parole = self.font_dialog_box.render(self.parole[3],True, (255, 255, 111))
-
-        self.current_text = ""    # Le texte affiché progressivement
-        self.full_text = ""       # Le texte complet à afficher
-        self.text_index = 0       # Où on en est dans le texte
-        self.last_update_time = pygame.time.get_ticks()  # Pour gérer la vitesse
-        self.text_speed = 50      # Millisecondes entre chaque lettre (plus petit = plus rapide)
-        self.current_parole_index = 0  # Numéro de la phrase actuelle
+       
 
 
     def animation(self,list_mouv,speed):
@@ -95,6 +77,37 @@ class Entity(pygame.sprite.Sprite):
         """
         self.rect.x -= 1
 
+    
+
+class PNJ(Entity):
+    def __init__(self, name, x, y, type, screen):
+        super().__init__(name, x, y, type, screen)
+        self.dialog_box = pygame.image.load("UI/dialog_box_gris.png")
+        self.dialog_box_name = pygame.image.load("UI/dialog_box_nom.png")
+        self.portrait = pygame.image.load(f"{type}/{name}/portrait2.png")
+        
+        self.font_dialog_box_name = pygame.font.Font("UI/dialog_font.ttf", 20)
+        self.font_dialog_box = pygame.font.Font("UI/dialog_font.ttf", 15)
+
+        self.CanDialog = False
+        
+
+        self.current_text = ""    # Le texte affiché progressivement
+        self.full_text = ""       # Le texte complet à afficher
+        self.text_index = 0       # Où on en est dans le texte
+        self.last_update_time = pygame.time.get_ticks()  # Pour gérer la vitesse
+        self.text_speed = 50      # Millisecondes entre chaque lettre (plus petit = plus rapide)
+        self.current_parole_index = 0  # Numéro de la phrase actuelle
+    
+        self.parole = [f"Salutations, je suis {name}.",
+                       "Je serais ton guide dans ce monde",
+                       "J'ai besoin de ton aide pour \n sécuriser  cette clairière",
+                       "Des gobelins on pris possesion \n de cette terre tu dois les exterminer",
+                       "Voila un objet qui te sera utile,\n bonne chance."]
+        
+        self.name_entity = self.font_dialog_box_name.render(self.name,True, (255, 255, 111))
+        self.entity_parole = self.font_dialog_box.render(self.parole[3],True, (255, 255, 111))
+        
     def update(self):
         """
             Met à jour l'entité
@@ -105,7 +118,6 @@ class Entity(pygame.sprite.Sprite):
             self.screen.blit(self.dialog_box_name,(350,750))
             self.screen.blit(self.name_entity,(410,770))
 
-            # Animation lettre par lettre
             now = pygame.time.get_ticks()
             if now - self.last_update_time > self.text_speed:
                 if self.text_index < len(self.full_text):
@@ -113,8 +125,12 @@ class Entity(pygame.sprite.Sprite):
                     self.text_index += 1
                     self.last_update_time = now
 
-            text_surface = self.font_dialog_box.render(self.current_text, True, (255, 255, 111))
-            self.screen.blit(text_surface, (600, 660))
+            # --------- Affichage avec saut de ligne ---------
+            lines = self.current_text.split('\n')  # ← ici
+            for i, line in enumerate(lines):
+                line_surface = self.font_dialog_box.render(line, True, (255, 255, 111))
+                self.screen.blit(line_surface, (580, 660 + i * 30))  # ← 25 px entre chaque ligne
+
 
     def start_dialog(self, index=0):
         """
@@ -138,6 +154,7 @@ class Entity(pygame.sprite.Sprite):
         else:
             self.CanDialog = False  # Plus de texte = fermer la boîte
 
+<<<<<<< Updated upstream
 
 class PNJ(Entity):
     """
@@ -216,3 +233,5 @@ class Mob(Entity):
                 print(f"{player.name} est mort !")
                 break
 
+=======
+>>>>>>> Stashed changes

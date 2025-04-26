@@ -65,7 +65,7 @@ player = Player(player_position.x, player_position.y, screen)  # Positionner le 
 save_menu = Save_game(screen)
 chest_position = tmx_data.get_object_by_name("coffre1")
 
-pnj1 = Entity("Chasseur",200,200,"pnj",screen)
+pnj1 = PNJ("Chasseur",200,200,"pnj",screen)
 
 chest1 = Coffre("chest1",chest_position.x,chest_position.y)
 

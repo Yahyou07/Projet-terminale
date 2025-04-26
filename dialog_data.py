@@ -1,0 +1,2 @@
+
+print("fichier de dialogue")
