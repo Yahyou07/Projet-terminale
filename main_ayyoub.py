@@ -167,7 +167,7 @@ while True :
             for i in player.inventory_list:
                 print(i)
 
-    
+    dicco.affiche(1)
     
     if show_inventory:
         
