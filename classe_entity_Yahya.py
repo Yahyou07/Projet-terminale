@@ -81,6 +81,17 @@ class Entity(pygame.sprite.Sprite):
 
 class PNJ(Entity):
     def __init__(self, name, x, y, type, screen):
+        """
+        Classe PNJ qui hérite de la classe Entity
+        Attributs:
+            name : nom du PNJ
+            x : position x du PNJ
+            y : position y du PNJ
+            collision : collision du PNJ (booléen)
+            speed : vitesse de déplacement du PNJ
+            health_value : vie du PNJ
+            attack_value : valeur d'attaque
+        """
         super().__init__(name, x, y, type, screen)
         self.dialog_box = pygame.image.load("UI/dialog_box_gris.png")
         self.dialog_box_name = pygame.image.load("UI/dialog_box_nom.png")
@@ -154,9 +165,8 @@ class PNJ(Entity):
         else:
             self.CanDialog = False  # Plus de texte = fermer la boîte
 
-<<<<<<< Updated upstream
 
-class PNJ(Entity):
+class PNJ_bis(Entity):
     """
         Classe PNJ qui hérite de la classe Entity
         Attributs:
@@ -233,5 +243,3 @@ class Mob(Entity):
                 print(f"{player.name} est mort !")
                 break
 
-=======
->>>>>>> Stashed changes
