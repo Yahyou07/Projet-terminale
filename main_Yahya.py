@@ -16,7 +16,11 @@ def generate_tree_positions(max_x, max_y, num_trees, min_distance, max_attempts=
 
 
 #tree_positions = [(216, 860), (1430, 1322), (1026, 1471), (20, 537), (899, 706), (1332, 1150), (1124, 395), (698, 252), (816, 18), (1513, 1237), (327, 119), (479, 1026), (613, 619),(114,1460),(298,1460)]
-tree_positions = [(931, 1390), (383, 1226), (450, 199), (1030, 190), (9, 341), (83, 49), (1331, 1053), (1522, 1112), (137, 941), (192, 757), (1182, 897), (1264, 1498), (297, 705), (550, 705), (585, 1300), (723, 532), (774, 1344), (1098, 500), (1405, 1440), (239, 840), (1466, 1159), (820, 93), (995, 600), (862, 1007), (522, 291)]
+tree_positions = [(931, 1390), (383, 1226), (450, 199), (1030, 190),
+                   (9, 341), (83, 49), (1331, 1053), (1522, 1112), 
+                   (137, 941), (192, 757), (1182, 897), (1264, 1498), 
+                   (297, 705), (550, 705), (585, 1300)
+                   ]
 
 
 import pygame, sys
@@ -61,7 +65,7 @@ player = Player(player_position.x, player_position.y, screen)  # Positionner le 
 save_menu = Save_game(screen)
 chest_position = tmx_data.get_object_by_name("coffre1")
 
-pnj1 = Entity("chasseur",200,200,"pnj",screen)
+pnj1 = Entity("Chasseur",200,200,"pnj",screen)
 
 chest1 = Coffre("chest1",chest_position.x,chest_position.y)
 
@@ -176,8 +180,11 @@ Arbre_touche = False
 
 running = True
 near_chest = None  # coffre à proximité par défaut à None
-a_proximite = False
-Dialog = False
+
+
+pnj1_dialog_active = False
+can_talk_to_pnj1 = False
+
 while running:
     dt = mainClock.tick(60) / 1000  # Temps écoulé en secondes
     
@@ -239,14 +246,14 @@ while running:
 
         save_menu.handle_event(event,"ruen",1,player.rect.x,player.rect.y)
 
-        #On gère ici la capacité d'ouvrir un coffre lors de l'appuie sur la touche i
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_i:
                 if near_chest and near_chest.Can_open:
                     near_chest.start_animation_coffre(near_chest.coffre_open_list, 0.3)
-                if a_proximite:
-                    print("dialog")
-                    Dialog = True
+                elif can_talk_to_pnj1:  # ← S'il est proche d'un PNJ
+                    pnj1_dialog_active = not pnj1_dialog_active  # ← On affiche ou on enlève
+
+
 
 
 
@@ -388,17 +395,17 @@ while running:
         if isinstance(sprite, Entity) and player.feet.colliderect(sprite.hit_box):
             player.move_back()
 
-        if isinstance(sprite, Entity) and player.hit_box.colliderect(sprite.champ_vision):
-            world_pos = (player.rect.centerx , player.rect.top - 10)
-            screen_pos = map_layer.translate_point(world_pos)
-            screen.blit(player.key_board_I, (screen_pos[0]-23, screen_pos[1]+10))
-            a_proximite = True
-            print(Dialog)
-            if Dialog :
-                sprite.CanDialog = True
-        else:
-            sprite.CanDialog =False
+        if isinstance(sprite, Entity):
+            if player.hit_box.colliderect(sprite.champ_vision):
+                can_talk_to_pnj1 = True  # ← Il est proche
+                world_pos = (player.rect.centerx , player.rect.top - 10)
+                screen_pos = map_layer.translate_point(world_pos)
+                screen.blit(player.key_board_I, (screen_pos[0]-23, screen_pos[1]+10))
+            else:
+                can_talk_to_pnj1 = False  # ← Il n'est plus proche
+                pnj1_dialog_active = False  # ← Et on ferme la boîte auto
 
+            sprite.CanDialog = pnj1_dialog_active  # ← Afficher ou non le dialogue
             
             
 
@@ -437,11 +444,12 @@ while running:
     pygame.draw.rect(screen, (255, 255, 0), map_layer.translate_rect(player.feet), 2)
 
     pygame.draw.rect(screen, (255, 125, 56), map_layer.translate_rect(pnj1.rect), 2)
-    '''
-    pygame.draw.rect(screen, (255, 125, 56), map_layer.translate_rect(pnj1.champ_vision), 2)
     
+    pygame.draw.rect(screen, (255, 125, 56), map_layer.translate_rect(pnj1.champ_vision), 2)
+    pygame.draw.rect(screen, (255, 0, 0), map_layer.translate_rect(player.hit_box), 2)
+    print(a_proximite)
+    '''
     pnj1.update()
-    #pnj1.update()
     save_menu.update()
     chest1.anim_chest()
     
