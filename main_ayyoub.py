@@ -152,7 +152,7 @@ while True :
     group.draw(screen)
     player.affiche_ui()
     
-    pnj.pattern(150,150,450,450)
+    print(pnj.list_right)
 
     for sprite in group.sprites():
         if isinstance(sprite, Item) and player.rect.colliderect(sprite.rect):

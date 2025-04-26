@@ -27,14 +27,27 @@ class PNJ(pygame.sprite.Sprite):
         self.screen = screen
         self.font = pygame.font.Font("Items/Minecraft.ttf", 14)
         self.collide = False
+        self.sprite_index = 0 
 
-    def animation(self):
+        ## Initialisation des listes de mouvement
+        self.list_right = self.right()
+        self.list_left = self.left()
+        self.list_up = self.up()
+        self.list_down = self.down()
+        self.list_static_right = self.static_right()
+        self.list_static_left = self.static_left()
+        self.list_static_down = self.static_down()
+
+    def animation(self, list_mouv):
         """
             Fonction qui gère l'animation du PNJ.
             Elle utilise une boucle infinie pour mettre à jour l'image du PNJ en fonction de la direction.
         """
-        if self.crop_rect.x >= self.image.get_width() // 13 :
-            self.crop_rect.x = 0 # soit self.crop_rect.x -= self.image.get_width() // 13 
+        self.rect.x +=1
+        self.sprite_index += self.speed
+        if self.sprite_index >= len(list_mouv):
+            self.sprite_index = 0
+        self.image = list_mouv[int(self.sprite_index)]
     
     def right(self):
         """
@@ -43,11 +56,9 @@ class PNJ(pygame.sprite.Sprite):
         self.list_right = list()
 
         for i in range(12):
-            self.crop_rect = pygame.Rect(self.spreadsheet.get_width() // 13 * i, self.spreadsheet.get_height() // 54 * 7, self.spreadsheet.get_width() // 13, self.spreadsheet.get_height() // 54 )
-            self.cropped_image = self.spreadsheet.subsurface(self.crop_rect).copy()
-            self.image = self.cropped_image
-            self.image = pygame.transform.scale(self.image, (int(self.crop_rect.width * self.pourcent), int(self.crop_rect.height * self.pourcent)))
-            self.list_right.append(self.image)
+            self.list_right.append(pygame.transform.scale(self.spreadsheet.subsurface(pygame.Rect(self.spreadsheet.get_width() // 13 * i, self.spreadsheet.get_height() // 54 * 7, self.spreadsheet.get_width() // 13, self.spreadsheet.get_height() // 54)).copy(), (int(self.spreadsheet.get_width() // 13 * self.pourcent), int(self.spreadsheet.get_height() // 54 * self.pourcent))))
+        return self.list_right
+    
 
     def left(self):
         """
@@ -60,6 +71,7 @@ class PNJ(pygame.sprite.Sprite):
             self.image = self.cropped_image
             self.image = pygame.transform.scale(self.image, (int(self.crop_rect.width * self.pourcent), int(self.crop_rect.height * self.pourcent)))
             self.list_left.append(self.image)
+        return self.list_left
 
     def up(self):
         """
@@ -72,6 +84,7 @@ class PNJ(pygame.sprite.Sprite):
             self.image = self.cropped_image
             self.image = pygame.transform.scale(self.image, (int(self.crop_rect.width * self.pourcent), int(self.crop_rect.height * self.pourcent)))
             self.list_up.append(self.image)
+        return self.list_up
 
     def down(self):
         """
@@ -84,6 +97,7 @@ class PNJ(pygame.sprite.Sprite):
             self.image = self.cropped_image
             self.image = pygame.transform.scale(self.image, (int(self.crop_rect.width * self.pourcent), int(self.crop_rect.height * self.pourcent)))
             self.list_down.append(self.image)
+        return self.list_down
 
     def static_right(self):
         """
@@ -96,6 +110,7 @@ class PNJ(pygame.sprite.Sprite):
             self.image = self.cropped_image
             self.image = pygame.transform.scale(self.image, (int(self.crop_rect.width * self.pourcent), int(self.crop_rect.height * self.pourcent)))
             self.list_static_right.append(self.image)
+        return self.list_static_right
 
     def static_left(self):
         """
@@ -108,6 +123,7 @@ class PNJ(pygame.sprite.Sprite):
             self.image = self.cropped_image
             self.image = pygame.transform.scale(self.image, (int(self.crop_rect.width * self.pourcent), int(self.crop_rect.height * self.pourcent)))
             self.list_static_left.append(self.image)
+        return self.list_static_left
 
     def static_down(self):
         """
@@ -120,6 +136,7 @@ class PNJ(pygame.sprite.Sprite):
             self.image = self.cropped_image
             self.image = pygame.transform.scale(self.image, (int(self.crop_rect.width * self.pourcent), int(self.crop_rect.height * self.pourcent)))
             self.list_static_down.append(self.image)
+        return self.list_static_down
 
 
     def static(self):
@@ -252,10 +269,7 @@ class PNJ(pygame.sprite.Sprite):
         while not self.collide: # on lui fait faire suivre un patern tant qu'il n'y a pas de collision
             time.sleep(0.01)  # Pause de 0.01 seconde pour ralentir le mouvement
             if self.rect.x >= lim_x1 and self.rect.y == lim_y1:
-                self.top = False
-                self.left = False
-                self.bottom = True
-                self.droite()
+                self.animation(self.list_right) # on lui fait faire une animation de marche vers la droite
             elif self.rect.x == lim_x2 and self.rect.y == lim_y1:
                 self.right = False
                 self.top = False
@@ -271,9 +285,7 @@ class PNJ(pygame.sprite.Sprite):
                 self.bottom = False
                 self.right = False
                 self.haut()
-            self.screen.blit(self.image, self.rect) # on affiche le PNJ à sa nouvelle position
-            self.image.fill((0, 0, 0))
-            pygame.display.flip()
+
     
     
     
