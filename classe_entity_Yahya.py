@@ -1,6 +1,15 @@
 import pygame
 
 class Entity(pygame.sprite.Sprite):
+    """
+        Classe Entity qui hérite de la classe Sprite de Pygame
+        Attributs:
+            name : nom de l'entité
+            x : position x de l'entité 
+            y : position y de l'entité
+            type : type de l'entité (string)
+            screen : écran sur lequel l'entité est affichée
+        """
     def __init__(self,name,x,y,type,screen):
         super().__init__()
         self.name = name
@@ -43,6 +52,12 @@ class Entity(pygame.sprite.Sprite):
 
 
     def animation(self,list_mouv,speed):
+        """
+            Animation de l'entité
+            Attributs:
+                list_mouv : liste des images de l'animation
+                speed : vitesse de l'animation
+        """
         self.sprite_index += speed
         if self.sprite_index >=len(list_mouv):
             self.sprite_index = 0
@@ -50,22 +65,40 @@ class Entity(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(self.image,(50,50))
 
     def droite(self):
+        """
+            Déplacement de l'entité vers la droite
+        """
         self.rect.x += 1
         self.animation(self.right_move,0.20)
         
     def idle(self):
+        """
+            Animation idle de l'entité
+        """
         self.animation(self.idle_move,0.12)
 
     def haut(self):
+        """
+            Déplacement de l'entité vers le haut
+        """
         self.rect.y += 1
 
     def bas(self):
+        """
+            Déplacement de l'entité vers le bas
+        """
         self.rect.y -= 1
 
     def gauche(self):
+        """
+            Déplacement de l'entité vers la gauche
+        """
         self.rect.x -= 1
 
     def update(self):
+        """
+            Met à jour l'entité
+        """
         if self.CanDialog:
             self.screen.blit(self.dialog_box,(300,600))
             self.screen.blit(self.portrait,(360,500))
@@ -84,6 +117,11 @@ class Entity(pygame.sprite.Sprite):
             self.screen.blit(text_surface, (600, 660))
 
     def start_dialog(self, index=0):
+        """
+            Démarre le dialogue avec l'entité
+            Attributs:
+                index : index de la phrase à afficher
+        """
         self.full_text = self.parole[index]
         self.current_text = ""
         self.text_index = 0
@@ -91,13 +129,16 @@ class Entity(pygame.sprite.Sprite):
         self.last_update_time = pygame.time.get_ticks()
         
     def next_dialog(self):
+        """
+            Passe à la phrase suivante du dialogue
+        """
         if self.current_parole_index + 1 < len(self.parole):
             self.current_parole_index += 1
             self.start_dialog(self.current_parole_index)
         else:
             self.CanDialog = False  # Plus de texte = fermer la boîte
 
-# On crée ici une classe qui hérite de la classe Entity
+
 class PNJ(Entity):
     """
         Classe PNJ qui hérite de la classe Entity
