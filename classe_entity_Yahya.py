@@ -34,6 +34,14 @@ class Entity(pygame.sprite.Sprite):
         self.name_entity = self.font_dialog_box_name.render(self.name,True, (255, 255, 111))
         self.entity_parole = self.font_dialog_box.render(self.parole[3],True, (255, 255, 111))
 
+        self.current_text = ""    # Le texte affiché progressivement
+        self.full_text = ""       # Le texte complet à afficher
+        self.text_index = 0       # Où on en est dans le texte
+        self.last_update_time = pygame.time.get_ticks()  # Pour gérer la vitesse
+        self.text_speed = 50      # Millisecondes entre chaque lettre (plus petit = plus rapide)
+        self.current_parole_index = 0  # Numéro de la phrase actuelle
+
+
     def animation(self,list_mouv,speed):
         self.sprite_index += speed
         if self.sprite_index >=len(list_mouv):
@@ -63,9 +71,31 @@ class Entity(pygame.sprite.Sprite):
             self.screen.blit(self.portrait,(360,500))
             self.screen.blit(self.dialog_box_name,(350,750))
             self.screen.blit(self.name_entity,(410,770))
-            self.screen.blit(self.entity_parole,(600,660))
+
+            # Animation lettre par lettre
+            now = pygame.time.get_ticks()
+            if now - self.last_update_time > self.text_speed:
+                if self.text_index < len(self.full_text):
+                    self.current_text += self.full_text[self.text_index]
+                    self.text_index += 1
+                    self.last_update_time = now
+
+            text_surface = self.font_dialog_box.render(self.current_text, True, (255, 255, 111))
+            self.screen.blit(text_surface, (600, 660))
+
+    def start_dialog(self, index=0):
+        self.full_text = self.parole[index]
+        self.current_text = ""
+        self.text_index = 0
+        self.current_parole_index = index
+        self.last_update_time = pygame.time.get_ticks()
         
-        
+    def next_dialog(self):
+        if self.current_parole_index + 1 < len(self.parole):
+            self.current_parole_index += 1
+            self.start_dialog(self.current_parole_index)
+        else:
+            self.CanDialog = False  # Plus de texte = fermer la boîte
 
 # On crée ici une classe qui hérite de la classe Entity
 class PNJ(Entity):
