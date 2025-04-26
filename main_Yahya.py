@@ -414,7 +414,7 @@ while running:
                 if active_pnj == sprite:
                     active_pnj = None
 
-            
+    pnj1.pattern(200,400,200,400)
             
 
     # Collision avec la map (rectangles Tiled)

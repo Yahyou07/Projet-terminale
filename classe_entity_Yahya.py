@@ -99,6 +99,79 @@ class Entity(pygame.sprite.Sprite):
 
 # On crée ici une classe qui hérite de la classe Entity
 class PNJ(Entity):
+    """
+        Classe PNJ qui hérite de la classe Entity
+        Attributs:
+            name : nom du PNJ
+            x : position x du PNJ
+            y : position y du PNJ
+            collision : collision du PNJ (booléen)
+            speed : vitesse de déplacement du PNJ
+            health_value : vie du PNJ
+            attack_value : valeur d'attaque
+    """
     def __init__(self, name, x, y):
         super().__init__(name, x, y)
+        self.collision = False
         pass
+
+    def pattern(self,limx1,limx2,limy1,limy2):
+        """
+            Crée un pattern de forme rectangulaire de mouvement pour le PNJ
+        """
+        pass
+
+class Mob(Entity):
+    """
+        Classe Mob qui hérite de la classe Entity
+        Attributs:
+            name : nom du mob
+            x : position x du mob
+            y : position y du mob
+            collision : collision du mob (booléen)
+            speed : vitesse de déplacement du mob
+            health_value : vie du mob
+            attack_value : valeur d'attaque du mob
+            type : type du mob (string)
+    """
+    def __init__(self, name, x, y):
+        super().__init__(name, x, y)
+        self.collision = False
+        self.speed = 1
+        self.health_value = 10
+        self.attack_value = 1
+        self.type = "mob"
+    
+    def follow_player(self, player):
+        """
+            Fait suivre le joueur au mob.
+            Attributs:
+                player : le joueur à suivre
+        """
+        if self.distance(player) < 50:
+            while self.rect.x != player.rect.x:
+                if self.rect.x < player.rect.x:
+                    self.rect.x += self.speed
+                elif self.rect.x > player.rect.x:
+                    self.rect.x -= self.speed
+            while self.rect.y != player.rect.y:
+                if self.rect.y < player.rect.y:
+                    self.rect.y += self.speed
+                elif self.rect.y > player.rect.y:
+                    self.rect.y -= self.speed
+            if self.distance(player) == 0:
+                self.attack_player(player)
+    
+    def attack_player(self, player):
+        """
+            Fait attaquer le joueur par le mob lorsque la distance est nulle.
+            Attributs:
+                player : le joueur à attaquer
+        """
+        while player.health_value > 0:
+            player.health_value -= self.attack_value
+            print(f"{self.name} attaque {player.name} !")
+            if player.health_value <= 0:
+                print(f"{player.name} est mort !")
+                break
+
