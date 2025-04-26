@@ -10,20 +10,30 @@ class Entity(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(self.image,(50,50))
         self.rect = self.image.get_rect()
         
+        self.font_dialog_box_name = pygame.font.Font("UI/dialog_font.ttf", 20)
+        self.font_dialog_box = pygame.font.Font("UI/dialog_font.ttf", 15)
+
         self.rect.x = x
         self.rect.y = y
         self.hit_box = self.rect.copy().inflate(-30,0)
         self.champ_vision = self.rect.copy().inflate(20,20)
 
         self.sprite_index = 0
-        self.parole = None
+        self.parole = [f"Salutations, je suis {name}.",
+                       "Je serais ton guide dans ce monde",
+                       "J'ai besoin de ton aide pour sécuriser cette clairière",
+                       "Des gobelins on pris possesion de cette terre tu dois les exterminer",
+                       "Voila un objet qui te sera utile, bonne chance."]
         self.right = True
         self.dialog_box = pygame.image.load("UI/dialog_box_gris.png")
         self.dialog_box_name = pygame.image.load("UI/dialog_box_nom.png")
-        self.portrait = pygame.image.load(f"{type}\{name}\portrait2.png")
+        self.portrait = pygame.image.load(f"{type}/{name}/portrait2.png")
         self.screen = screen
 
         self.CanDialog = False
+        self.name_entity = self.font_dialog_box_name.render(self.name,True, (255, 255, 111))
+        self.entity_parole = self.font_dialog_box.render(self.parole[3],True, (255, 255, 111))
+
     def animation(self,list_mouv,speed):
         self.sprite_index += speed
         if self.sprite_index >=len(list_mouv):
@@ -52,6 +62,8 @@ class Entity(pygame.sprite.Sprite):
             self.screen.blit(self.dialog_box,(300,600))
             self.screen.blit(self.portrait,(360,500))
             self.screen.blit(self.dialog_box_name,(350,750))
+            self.screen.blit(self.name_entity,(410,770))
+            self.screen.blit(self.entity_parole,(600,660))
         
         
 
