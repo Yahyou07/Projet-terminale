@@ -99,6 +99,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.x = pos_x
         self.rect.y = pos_y
         self.hit_box = self.rect.copy().inflate(-53, -53)
+
         self.old_position = self.rect.copy()
         # Variable qui stocke la dernière direction du personnage, par défaut on la met à down
         self.last_direction = "down"

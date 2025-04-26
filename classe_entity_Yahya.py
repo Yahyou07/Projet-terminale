@@ -15,6 +15,10 @@ class Entity(pygame.sprite.Sprite):
         self.name = name
         self.image = pygame.image.load(f"{type}/{name}/idle/idle1.png")
         self.right_move = [pygame.image.load(f"{type}/{name}/walk/walk1/right{i}.png")for i in range(1,10)]
+        self.left_move = [pygame.image.load(f"{type}/{name}/walk/walk2/left{i}.png")for i in range(1,10)]
+        self.top_move = [pygame.image.load(f"{type}/{name}/walk/walk3/top{i}.png")for i in range(1,10)]
+        self.bottom_move = [pygame.image.load(f"{type}/{name}/walk/walk4/bottom{i}.png")for i in range(1,10)]
+
         self.idle_move = [pygame.image.load(f"{type}/{name}/idle/idle{i}.png")for i in range(1,4)]
         self.image = pygame.transform.scale(self.image,(50,50))
         self.rect = self.image.get_rect()
@@ -63,19 +67,22 @@ class Entity(pygame.sprite.Sprite):
         """
             Déplacement de l'entité vers le haut
         """
-        self.rect.y += 1
+        self.rect.y -= 1
+        self.animation(self.top_move,0.20)
 
     def bas(self):
         """
             Déplacement de l'entité vers le bas
         """
-        self.rect.y -= 1
+        self.rect.y += 1
+        self.animation(self.bottom_move,0.2)
 
     def gauche(self):
         """
             Déplacement de l'entité vers la gauche
         """
         self.rect.x -= 1
+        self.animation(self.left_move,0.2)
 
     
 
@@ -95,7 +102,7 @@ class PNJ(Entity):
         super().__init__(name, x, y, type, screen)
         self.dialog_box = pygame.image.load("UI/dialog_box_gris.png")
         self.dialog_box_name = pygame.image.load("UI/dialog_box_nom.png")
-        self.portrait = pygame.image.load(f"{type}/{name}/portrait2.png")
+        self.portrait = pygame.image.load(f"{type}/{name}/portrait.png")
         
         self.font_dialog_box_name = pygame.font.Font("UI/dialog_font.ttf", 20)
         self.font_dialog_box = pygame.font.Font("UI/dialog_font.ttf", 15)
@@ -107,14 +114,14 @@ class PNJ(Entity):
         self.full_text = ""       # Le texte complet à afficher
         self.text_index = 0       # Où on en est dans le texte
         self.last_update_time = pygame.time.get_ticks()  # Pour gérer la vitesse
-        self.text_speed = 50      # Millisecondes entre chaque lettre (plus petit = plus rapide)
+        self.text_speed = 30      # Millisecondes entre chaque lettre (plus petit = plus rapide)
         self.current_parole_index = 0  # Numéro de la phrase actuelle
     
         self.parole = [f"Salutations, je suis {name}.",
                        "Je serais ton guide dans ce monde",
                        "J'ai besoin de ton aide pour \n sécuriser  cette clairière",
                        "Des gobelins on pris possesion \n de cette terre tu dois les exterminer",
-                       "Voila un objet qui te sera utile,\n bonne chance."]
+                       "Suis le chemin et tu les trouvera,\n bonne chance."]
         
         self.name_entity = self.font_dialog_box_name.render(self.name,True, (255, 255, 111))
         self.entity_parole = self.font_dialog_box.render(self.parole[3],True, (255, 255, 111))
@@ -164,31 +171,72 @@ class PNJ(Entity):
             self.start_dialog(self.current_parole_index)
         else:
             self.CanDialog = False  # Plus de texte = fermer la boîte
+            
 
 
-class PNJ_bis(Entity):
-    """
-        Classe PNJ qui hérite de la classe Entity
-        Attributs:
-            name : nom du PNJ
-            x : position x du PNJ
-            y : position y du PNJ
-            collision : collision du PNJ (booléen)
-            speed : vitesse de déplacement du PNJ
-            health_value : vie du PNJ
-            attack_value : valeur d'attaque
-    """
-    def __init__(self, name, x, y):
-        super().__init__(name, x, y)
-        self.collision = False
-        pass
+class Enemy(Entity):
+    def __init__(self, name, x, y, type, screen):
+        super().__init__(name, x, y, type, screen)
 
-    def pattern(self,limx1,limx2,limy1,limy2):
-        """
-            Crée un pattern de forme rectangulaire de mouvement pour le PNJ
-        """
-        pass
+        self.dead_mouve = [pygame.image.load(f"{type}/{name}/dead/dead{i}.png")for i in range(1,7)]
+        self.champ_vision_enemy = self.rect.copy().inflate(300, 300)  # Champ de vision agrandi autour de l'ennemi
+        self.speed = 1  # Vitesse de déplacement vers le joueur
+        self.detected_player = False  # Si le joueur est détecté
 
+        
+    def dead(self):
+        self.animation(self.dead_mouve,0.12)
+    
+    def follow_player(self, player):
+        """ Fait bouger l'ennemi vers le joueur en diagonale, mais avec anim gauche/droite seulement """
+        if self.champ_vision_enemy.colliderect(player.rect):
+            self.detected_player = True
+        else:
+            self.detected_player = False
+
+        if self.detected_player:
+            dx = player.rect.centerx - self.rect.centerx
+            dy = player.rect.centery - self.rect.centery
+
+            if dx != 0:
+                self.rect.x += self.speed if dx > 0 else -self.speed
+            if dy != 0:
+                self.rect.y += self.speed if dy > 0 else -self.speed
+
+            # Maintenant choisir l'animation : droite ou gauche selon dx
+            if dx > 0:
+                self.animation(self.right_move, 0.2)
+            elif dx < 0:
+                self.animation(self.left_move, 0.2)
+
+        else:
+            self.idle()
+
+    '''
+    def follow_player(self, player):
+        """ Fait bouger l'ennemi vers le joueur s'il est détecté """
+        if self.champ_vision_enemy.colliderect(player.rect):
+            self.detected_player = True
+        else:
+            self.detected_player = False
+
+        if self.detected_player:
+            if self.rect.x < player.rect.x:
+                self.rect.x += self.speed
+                self.animation(self.right_move, 0.2)
+            elif self.rect.x > player.rect.x:
+                self.rect.x -= self.speed
+                self.animation(self.left_move, 0.2)
+            if self.rect.y < player.rect.y:
+                self.rect.y += self.speed
+                self.animation(self.bottom_move, 0.2)
+            elif self.rect.y > player.rect.y:
+                self.rect.y -= self.speed
+                self.animation(self.top_move, 0.2)
+        else:
+            self.idle()
+        '''
+    
 class Mob(Entity):
     """
         Classe Mob qui hérite de la classe Entity

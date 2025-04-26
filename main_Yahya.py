@@ -65,8 +65,9 @@ player = Player(player_position.x, player_position.y, screen)  # Positionner le 
 save_menu = Save_game(screen)
 chest_position = tmx_data.get_object_by_name("coffre1")
 
-pnj1 = PNJ("Chasseur",200,200,"pnj",screen)
-
+pnj1 = PNJ("Wizard",200,200,"pnj",screen)
+gobelin1 = Enemy("gobelin_epee",250,300,"enemy",screen)
+#pnj2 = PNJ("Wizard",200,500,"pnj",screen)
 chest1 = Coffre("chest1",chest_position.x,chest_position.y)
 
 item = Item("pain", 24, 30, 352, 350, "Food")
@@ -110,6 +111,9 @@ group.add(item9)
 group.add(item10)
 group.add(chest1,layer = 2)
 group.add(pnj1 , layer = 2 )
+group.add(gobelin1,layer = 2)
+#group.add(pnj2, layer = 2)
+
 troncs = []
 for x, y in tree_positions:
     feuillage = Feuillage(x, y)
@@ -201,14 +205,18 @@ while running:
                 player.OnArmour = False
                 moving = not moving
         
+
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             
             if show_inventory == False :
                 if player.last_direction == "right" or player.last_direction == "down":
                     player.start_anim_attack(player.attack_right_mouv, 0.3, 0)
+                
 
                 if player.last_direction == "left" or player.last_direction == "up":
                     player.start_anim_attack(player.attack_left_mouv, 0.3, -0)
+                    
+            
 
             if player.rect_button_armour.collidepoint(event.pos):
                 player.OnArmour = True
@@ -235,7 +243,7 @@ while running:
                 player.page_a_cote = player.page - 1
                 player.page -= 2
 
-            if player.rect_button_right_book.collidepoint(event.pos) and player.page < 6:
+            if player.rect_button_right_book.collidepoint(event.pos) and player.page < 20:
                 player.startBookAnimation(player.turn_right, 0.25)
                 player.IsOpen = True
                 player.page += 2
@@ -378,7 +386,7 @@ while running:
                             if player.inventory_bar_list[player.inventory_index]['object'].type == "Hache":
                                 screen.blit(player.hache, (screen_pos[0] - 80, screen_pos[1] - 75))
 
-
+            
         if isinstance(sprite, Tronc) and player.feet.colliderect(sprite.hitbox):
             player.move_back()
 
@@ -403,7 +411,7 @@ while running:
         if isinstance(sprite, Entity) and player.feet.colliderect(sprite.hit_box):
             player.move_back()
 
-        if isinstance(sprite, Entity):
+        if isinstance(sprite, PNJ):
             if player.hit_box.colliderect(sprite.champ_vision):
                 can_talk_to_pnj1 = True
                 active_pnj = sprite  # ← Le PNJ actif devient celui détecté
@@ -412,9 +420,13 @@ while running:
                 screen.blit(player.key_board_I, (screen_pos[0]-23, screen_pos[1]+10))
             else:
                 if active_pnj == sprite:
+                    sprite.CanDialog = False   # ← FERME la boîte de dialogue
                     active_pnj = None
+        if isinstance(sprite, Enemy):
+            sprite.champ_vision_enemy.center = sprite.rect.center  # Toujours mettre à jour le champ de vision
+            sprite.follow_player(player)
 
-    pnj1.pattern(200,400,200,400)
+   
             
 
     # Collision avec la map (rectangles Tiled)
@@ -454,15 +466,17 @@ while running:
     pygame.draw.rect(screen, (255, 125, 56), map_layer.translate_rect(pnj1.rect), 2)
     
     pygame.draw.rect(screen, (255, 125, 56), map_layer.translate_rect(pnj1.champ_vision), 2)
-    pygame.draw.rect(screen, (255, 0, 0), map_layer.translate_rect(player.hit_box), 2)
+    
     print(a_proximite)
     '''
+    pygame.draw.rect(screen, (255, 125, 56), map_layer.translate_rect(gobelin1.champ_vision_enemy), 2)
     pnj1.update()
+    pygame.draw.rect(screen, (255, 0, 0), map_layer.translate_rect(player.hit_box), 2)
     save_menu.update()
     chest1.anim_chest()
     
     
     pnj1.idle()
-
+    
 
     pygame.display.update()
