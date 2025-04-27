@@ -189,6 +189,12 @@ class Player(pygame.sprite.Sprite):
         self.hache = pygame.transform.scale(self.hache,(140,140))
 
         self.key_board_I = pygame.image.load("UI/Keyboard icons/I.png")
+        
+        self.degats = 10
+        # On initialise tous ce qui est en rapport avec la mort du joueur
+        self.dead = False
+        self.dead_image = pygame.image.load("UI/dead.png")
+        self.largeur,self.hauteur = self.screen.get_size()
 
         
     def start_anim_attack(self,list_mouv,speed,decal):
@@ -791,8 +797,45 @@ class Player(pygame.sprite.Sprite):
                     # Mettez à jour l'affichage de la quantité
                     self.stack_text[index] = self.font.render(str(item["quantity"]), True, (255, 255, 255))
                 print(f"Mange {item['object'].name}. Quantite restante: {item['quantity']}")
-            
+
+    def dead(self):
+        """
+            Méthode pour gérer la mort du joueur.
+            On va afficher un écran de mort et on va faire un fade out de l'écran
+            On va également faire un fade in de l'écran de respawn
+
+        """
+        if self.health_value <= 0:
+            self.dead = True
         
+        if self.dead:
+            # Afficher l'écran de mort
+            self.screen.blit(self.dead_image, ((self.largeur-self.dead_image.get_width())//2, (self.hauteur-self.dead_image.get_height())//2))
+            pygame.display.flip()
+            time.sleep(2)
+            self.respawn()
+            self.dead = False
 
 
-   
+    
+    def respawn(self,player_pos):
+        """
+            Méthode pour respawn le joueur
+            On va faire un fade out de l'écran de mort et on va faire un fade in de l'écran de respawn
+        """
+        # Réinitialiser la position du joueur au spawn de base
+        self.rect = self.image.get_rect()
+        self.rect.center = (player_pos.x, player_pos.y)  # Centre le rectangle
+        self.rect.x = player_pos.x
+        self.rect.y = player_pos.y
+        self.hit_box = self.rect.copy().inflate(-53, -53)
+
+        # Réinitialiser les caractéristiques de base
+        self.health_value = 100
+        self.endurance_value = 100
+
+        # Réinitialiser les états
+        self.dragging_item = None
+        self.drag_start_pos = None
+        self.Regen = False
+        self.dead = False
