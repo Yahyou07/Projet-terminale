@@ -14,13 +14,23 @@ class Entity(pygame.sprite.Sprite):
         super().__init__()
         self.name = name
         self.image = pygame.image.load(f"{type}/{name}/idle/idle1.png")
+        #mouvement basique de l'enemy walk
         self.right_move = [pygame.image.load(f"{type}/{name}/walk/walk1/right{i}.png")for i in range(1,10)]
         self.left_move = [pygame.image.load(f"{type}/{name}/walk/walk2/left{i}.png")for i in range(1,10)]
         self.top_move = [pygame.image.load(f"{type}/{name}/walk/walk3/top{i}.png")for i in range(1,10)]
         self.bottom_move = [pygame.image.load(f"{type}/{name}/walk/walk4/bottom{i}.png")for i in range(1,10)]
+        
 
         self.idle_move = [pygame.image.load(f"{type}/{name}/idle/idle{i}.png")for i in range(1,4)]
-        self.image = pygame.transform.scale(self.image,(50,50))
+                # Détection automatique de la taille d'origine
+        original_width, original_height = self.image.get_size()
+
+        # Si l'image est grande (128px), alors on réduit moins fort
+        if original_width == 128:
+            self.image = pygame.transform.scale(self.image, (64, 64))  # 64x64 visuellement
+        elif original_width == 64:
+            self.image = pygame.transform.scale(self.image, (50, 50))  # 50x50 visuellement
+
         self.rect = self.image.get_rect()
         
         
@@ -30,12 +40,11 @@ class Entity(pygame.sprite.Sprite):
         
         self.sprite_index = 0
         
-        self.right = True
         self.screen = screen
        
 
 
-    def animation(self,list_mouv,speed):
+    def animation(self,list_mouv,speed,scale):
         """
             Animation de l'entité
             Attributs:
@@ -46,41 +55,41 @@ class Entity(pygame.sprite.Sprite):
         if self.sprite_index >=len(list_mouv):
             self.sprite_index = 0
         self.image = list_mouv[int(self.sprite_index)]
-        self.image = pygame.transform.scale(self.image,(50,50))
+        self.image = pygame.transform.scale(self.image,scale)
 
     def droite(self):
         """
             Déplacement de l'entité vers la droite
         """
         self.rect.x += 1
-        self.animation(self.right_move,0.20)
+        self.animation(self.right_move,0.20,(50,50))
         
     def idle(self):
         """
             Animation idle de l'entité
         """
-        self.animation(self.idle_move,0.12)
+        self.animation(self.idle_move,0.12,(50,50))
 
     def haut(self):
         """
             Déplacement de l'entité vers le haut
         """
         self.rect.y -= 1
-        self.animation(self.top_move,0.20)
+        self.animation(self.top_move,0.20,(50,50))
 
     def bas(self):
         """
             Déplacement de l'entité vers le bas
         """
         self.rect.y += 1
-        self.animation(self.bottom_move,0.2)
+        self.animation(self.bottom_move,0.2,(50,50))
 
     def gauche(self):
         """
             Déplacement de l'entité vers la gauche
         """
         self.rect.x -= 1
-        self.animation(self.left_move,0.2)
+        self.animation(self.left_move,0.2,(50,50))
 
     
 
@@ -107,7 +116,7 @@ class PNJ(Entity):
         
         self.font_dialog_box_name = pygame.font.Font("UI/dialog_font.ttf", 20)
         self.font_dialog_box = pygame.font.Font("UI/dialog_font.ttf", 15)
-
+        self.font_dialog_box_pass = pygame.font.Font("UI/dialog_font.ttf", 13)
         self.CanDialog = False
         
 
@@ -119,9 +128,10 @@ class PNJ(Entity):
         self.current_parole_index = 0  # Numéro de la phrase actuelle
     
         self.parole = parole
-        
+        self.message_passer = "[ESPACE] pour passer"
         self.name_entity = self.font_dialog_box_name.render(self.name,True, (255, 255, 111))
         self.entity_parole = self.font_dialog_box.render(self.parole[3],True, (255, 255, 111))
+        self.pass_message = self.font_dialog_box_pass.render(self.message_passer,True, (255, 255, 255))
         
     def update(self):
         """
@@ -132,6 +142,14 @@ class PNJ(Entity):
             self.screen.blit(self.portrait,(360,500))
             self.screen.blit(self.dialog_box_name,(350,750))
             self.screen.blit(self.name_entity,(410,770))
+            
+            if self.parole.index == len(self.parole)-1:
+                self.pass_message = self.font_dialog_box_pass.render("[ESPACE] pour quitter",True, (255, 255, 255))
+                self.screen.blit(self.pass_message,(680,780))
+            else:
+                self.pass_message = self.font_dialog_box_pass.render("[ESPACE] pour passer",True, (255, 255, 255))
+                self.screen.blit(self.pass_message,(680,780))
+
 
             now = pygame.time.get_ticks()
             if now - self.last_update_time > self.text_speed:
@@ -145,7 +163,7 @@ class PNJ(Entity):
             for i, line in enumerate(lines):
                 line_surface = self.font_dialog_box.render(line, True, (255, 255, 111))
                 self.screen.blit(line_surface, (580, 660 + i * 30))  # ← 25 px entre chaque ligne
-
+            
 
     def start_dialog(self, index=0):
         """
@@ -175,10 +193,18 @@ class Enemy(Entity):
     def __init__(self, name, x, y, type, screen):
         super().__init__(name, x, y, type, screen)
 
+        #mouvements d'attaque de l'ennemi 
+        self.right_attack = [pygame.image.load(f"{type}/{name}/attack/attack1/right{i}.png")for i in range(1,7)]
+        self.left_attack = [pygame.image.load(f"{type}/{name}/attack/attack2/left{i}.png")for i in range(1,7)]
+        self.top_attack = [pygame.image.load(f"{type}/{name}/attack/attack3/top{i}.png")for i in range(1,7)]
+        self.bottom_attack =[pygame.image.load(f"{type}/{name}/attack/attack4/bottom{i}.png")for i in range(1,7)]
+
+        #mouvement de mort à voir si on l'intègre
         self.dead_mouve = [pygame.image.load(f"{type}/{name}/dead/dead{i}.png")for i in range(1,7)]
         self.champ_vision_enemy = self.rect.copy().inflate(300, 300)  # Champ de vision agrandi autour de l'ennemi
         self.speed = 1  # Vitesse de déplacement vers le joueur
         self.detected_player = False  # Si le joueur est détecté
+        
 
         self.hit_box = self.rect.copy().inflate(0,0)
 
@@ -189,6 +215,10 @@ class Enemy(Entity):
         self.health_bar_height = 10   # Hauteur de la barre
         self.last_dir = "down"
 
+        self.knockback = False    # Est-ce que l'ennemi est repoussé
+        self.knockback_speed = 0  # Vitesse actuelle du recul
+        self.knockback_direction = 0  # Direction du recul : -1 pour gauche, 1 pour droite
+     
     def draw_health_bar(self, screen, map_layer):
         """ Dessine la barre de vie arrondie de l'ennemi au-dessus de lui """
         world_pos = (self.rect.centerx, self.rect.top - 10)
@@ -243,17 +273,17 @@ class Enemy(Entity):
             # Animation : choisir la plus grande distance
             if abs(dx) > abs(dy):
                 if dx > 0:
-                    self.animation(self.right_move, 0.2)
+                    self.animation(self.right_move, 0.2,(50,50))
                     self.last_dir = "right"
                 else:
-                    self.animation(self.left_move, 0.2)
+                    self.animation(self.left_move, 0.2,(50,50))
                     self.last_dir = "left"
             else:
                 if dy > 0:
-                    self.animation(self.bottom_move, 0.2)
+                    self.animation(self.bottom_move, 0.2,(50,50))
                     self.last_dir = "down"
                 else:
-                    self.animation(self.top_move, 0.2)
+                    self.animation(self.top_move, 0.2,(50,50))
                     self.last_dir = "up"
 
         else:
@@ -284,7 +314,82 @@ class Enemy(Entity):
         else:
             self.idle()
         '''
-    
+class Slime(pygame.sprite.Sprite):
+    def __init__(self,name,type,x,y):
+        super().__init__()
+        
+        self.name = name
+        self.image = pygame.image.load(f"{type}/{name}/walk/walk4/bottom1.png")
+        #mouvement basique du slime walk
+        self.right_move = [pygame.image.load(f"{type}/{name}/walk/walk1/right{i}.png")for i in range(1,10)]
+        self.left_move = [pygame.image.load(f"{type}/{name}/walk/walk2/left{i}.png")for i in range(1,25)]
+        self.top_move = [pygame.image.load(f"{type}/{name}/walk/walk3/top{i}.png")for i in range(1,25)]
+        self.bottom_move = [pygame.image.load(f"{type}/{name}/walk/walk4/bottom{i}.png")for i in range(1,25)]
+        
+
+        self.idle_move = [pygame.image.load(f"{type}/{name}/walk/walk4/bottom{i}.png")for i in range(1,25)]
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+        self.sprite_index = 0
+        self.champ_vision_enemy = self.rect.copy().inflate(500, 500)  # Champ de vision agrandi autour de l'ennemi
+        self.speed = 1  # Vitesse de déplacement vers le joueur
+        self.detected_player = False  # Si le joueur est détecté
+
+    def animation(self,list_mouv,speed):
+        """
+            Animation de l'entité
+            Attributs:
+                list_mouv : liste des images de l'animation
+                speed : vitesse de l'animation
+        """
+        self.sprite_index += speed
+        if self.sprite_index >=len(list_mouv):
+            self.sprite_index = 0
+        self.image = list_mouv[int(self.sprite_index)]
+
+    def idle(self):
+        self.animation(self.bottom_move,0.5)
+        
+    def follow_player(self, player):
+        """ Fait bouger l'ennemi vers le joueur en diagonale avec bonne animation """
+        if self.champ_vision_enemy.colliderect(player.hit_box):
+            self.detected_player = True
+        else:
+            self.detected_player = False
+
+        if self.detected_player:
+            dx = player.rect.centerx - self.rect.centerx
+            dy = player.rect.centery - self.rect.centery
+
+            # Déplacement en X et Y
+            if dx != 0:
+                self.rect.x += self.speed if dx > 0 else -self.speed
+            if dy != 0:
+                self.rect.y += self.speed if dy > 0 else -self.speed
+
+            # Animation : choisir la plus grande distance
+            if abs(dx) > abs(dy):
+                if dx > 0:
+                    self.animation(self.right_move, 0.5)
+                    self.last_dir = "right"
+                else:
+                    self.animation(self.left_move, 0.5)
+                    self.last_dir = "left"
+            else:
+                if dy > 0:
+                    self.animation(self.bottom_move, 0.5)
+                    self.last_dir = "down"
+                else:
+                    self.animation(self.top_move, 0.2)
+                    self.last_dir = "up"
+
+        else:
+            self.idle()   
+
+
+
 class Mob(Entity):
     """
         Classe Mob qui hérite de la classe Entity

@@ -68,8 +68,14 @@ chest_position = tmx_data.get_object_by_name("coffre1")
 
 pnj1 = PNJ("Wizard",200,200,"pnj",screen,pnj1_dialog)
 
+#Création des gobelins
 gobelin1 = Enemy("gobelin_epee",250,300,"enemy",screen)
 
+gobelin2 = Enemy("gobelin_epee",350,250,"enemy",screen)
+
+gobelin3 = Enemy("gobelin_epee",350,400,"enemy",screen)
+
+slime1 = Slime("slime","enemy",600,100)
 #pnj2 = PNJ("Wizard",200,500,"pnj",screen)
 chest1 = Coffre("chest1",chest_position.x,chest_position.y)
 
@@ -112,11 +118,20 @@ group.add(item7)
 group.add(item8)
 group.add(item9)
 group.add(item10)
+
+#On ajoute ici le coffre
 group.add(chest1,layer = 2)
+
+#On ajoute ici les PNJ
 group.add(pnj1 , layer = 2 )
+
+#On ajoute ici les gobelins
 group.add(gobelin1,layer = 2)
+group.add(gobelin2,layer = 2)
+group.add(gobelin3, layer = 2)
 #group.add(pnj2, layer = 2)
 
+group.add(slime1 ,layer = 2)
 troncs = []
 for x, y in tree_positions:
     feuillage = Feuillage(x, y)
@@ -224,11 +239,16 @@ while running:
                         attack_zone = player.hit_box.inflate(40, 40)  # Zone légèrement plus grande
                         if attack_zone.colliderect(sprite.rect):
                             sprite.current_health -= 10  # Inflige 10 de dégâts
-                            if sprite.last_dir == "right":
-                                sprite.rect.x -=20
+                            if player.last_direction == "right":
+                                sprite.knockback = True
+                                sprite.knockback_speed = 6
+                                sprite.knockback_direction = 1
 
-                            if sprite.last_dir == "left":
-                                sprite.rect.x +=20
+                            if player.last_direction == "left":
+                                sprite.knockback = True
+                                sprite.knockback_speed = 6
+                                sprite.knockback_direction = -1
+
                             if sprite.current_health < 0:
                                 sprite.current_health = 0
                             if sprite.current_health == 0:
@@ -438,17 +458,29 @@ while running:
                 screen.blit(player.key_board_I, (screen_pos[0]-23, screen_pos[1]+10))
             else:
                 if active_pnj == sprite:
-                    sprite.CanDialog = False   # ← FERME la boîte de dialogue
+                    sprite.CanDialog = False   # On FERME la boîte de dialogue
                     active_pnj = None
         if isinstance(sprite, Enemy):
             sprite.champ_vision_enemy.center = sprite.rect.center  # Toujours mettre à jour le champ de vision
             sprite.follow_player(player)
-                    
-                    
 
+            # Si knockback est actif
+            if sprite.knockback:
+                sprite.rect.x += sprite.knockback_direction * sprite.knockback_speed
+                sprite.knockback_speed -= 0.5  # on ralentit progressivement
+                if sprite.knockback_speed <= 0:
+                    sprite.knockback = False
+                    sprite.knockback_speed = 0
 
-        if isinstance(sprite,Enemy):
             sprite.draw_health_bar(screen,map_layer)
+        if isinstance(sprite,Slime):
+            sprite.follow_player(player)
+                    
+           
+
+
+       
+            
             
 
     # Collision avec la map (rectangles Tiled)
@@ -491,7 +523,8 @@ while running:
     pygame.draw.rect(screen, (255, 125, 56), map_layer.translate_rect(gobelin1.champ_vision_enemy), 2)
     print(a_proximite)
     '''
-    
+    pygame.draw.rect(screen, (255, 125, 56), map_layer.translate_rect(slime1.champ_vision_enemy), 2)
+
     pnj1.update()
     
     save_menu.update()
