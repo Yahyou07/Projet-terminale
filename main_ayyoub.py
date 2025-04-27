@@ -11,7 +11,7 @@ import pyscroll.data
 import time
 from scripte.enigme import*
 from scripte.save_game import*
-from scripte.pnj import *
+from classe_entity_Yahya import *
 from scripte.mob import *
 pygame.init()
 pygame.display.set_caption("Jeu")
@@ -48,7 +48,6 @@ item9 = Item("pain",1,10,352,700,"Food")
 item10 = Item("fish",24,10,352,710,"Food")
 item11 = Item("fromage",24,10,352,130,"Food")
 item12 = Item("fromage",1,10,352,130,"Food")
-pnj = PNJ(150, 150, screen, "pnj/wizard.png",player.rect.height)
 
 
 
@@ -75,7 +74,6 @@ group.add(item9)
 group.add(item10)
 group.add(item11)
 group.add(item12)
-group.add(pnj)
 
 
 
@@ -152,7 +150,6 @@ while True :
     group.draw(screen)
     player.affiche_ui()
     
-    print(pnj.list_right)
 
     for sprite in group.sprites():
         if isinstance(sprite, Item) and player.rect.colliderect(sprite.rect):
@@ -166,6 +163,7 @@ while True :
             print("**Inventaire**")
             for i in player.inventory_list:
                 print(i)
+
 
     dicco.affiche(1)
     

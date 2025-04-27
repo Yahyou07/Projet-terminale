@@ -21,7 +21,9 @@ class Enigme(object):
         
         self.largeur, self.hauteur = self.screen.get_size() #récuparation de la taille de l'écran
         self.image = pygame.image.load("enigme.png")    # chargement de l'image où il y a l'énigme
-        self.image = pygame.transform.scale(self.image,(790,790)) # rétrécit l'image
+        self.witdh, self.height = self.image.get_size() #récupération de la taille de l'image
+        self.percent = 790 // self.height # pour réduire l'image à la taille de l'écran
+        self.image = pygame.transform.scale(self.image,(559,790)) # rétrécit l'image
         self.Loose = False
         self.Perdu = False
         self.running = True
@@ -175,7 +177,7 @@ class Enigme(object):
         while self.running :
             
             if not self.Loose : 
-                self.screen.blit(self.image, ((self.largeur-790)//2, (self.hauteur-790)//2))
+                self.screen.blit(self.image, ((self.largeur-self.witdh)//2, (self.hauteur-self.height)//2))
                 self.screen.blit(questionn, (300, 50))
                 self.screen.blit(reponseA, (350, 500))
                 self.screen.blit(reponseB, (750, 500))

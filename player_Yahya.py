@@ -193,7 +193,7 @@ class Player(pygame.sprite.Sprite):
         self.degats = 10
         # On initialise tous ce qui est en rapport avec la mort du joueur
         self.dead = False
-        self.dead_image = pygame.image.load("UI/dead.png")
+        #self.dead_image = pygame.image.load("UI/dead.png")
         self.largeur,self.hauteur = self.screen.get_size()
 
         

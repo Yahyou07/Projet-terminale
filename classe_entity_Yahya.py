@@ -132,6 +132,8 @@ class PNJ(Entity):
         self.name_entity = self.font_dialog_box_name.render(self.name,True, (255, 255, 111))
         self.entity_parole = self.font_dialog_box.render(self.parole[3],True, (255, 255, 111))
         self.pass_message = self.font_dialog_box_pass.render(self.message_passer,True, (255, 255, 255))
+
+        self.speed = 1
         
     def update(self):
         """
@@ -186,8 +188,25 @@ class PNJ(Entity):
             self.start_dialog(self.current_parole_index)
         else:
             self.CanDialog = False  # Plus de texte = fermer la boîte
-            
-
+    """
+    def pattern(self,limx1,limx2,limy1,limy2):
+        
+            Fait bouger le PNJ dans un pattern de type carré
+            Attributs:
+                limx1 : limite x1
+                limx2 : limite x2
+                limy1 : limite y1
+                limy2 : limite y2
+        
+        if self.rect.x >= limx1 and self.rect.x <= limx2 and self.rect.y == limy1:
+            self.droite()
+        if self.rect.x == limx2 and self.rect.y == limy1:
+            self.bas()
+        if self.rect.y == limy2 and self.rect.x == limx2:
+            self.gauche()
+        if self.rect.x == limx1 and self.rect.y == limy2:
+            self.haut()
+    """
 
 class Enemy(Entity):
     def __init__(self, name, x, y, type, screen):
