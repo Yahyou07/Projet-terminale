@@ -79,3 +79,14 @@ class Coffre(pygame.sprite.Sprite):
             elif self.coffre_anim_index < 0: 
                 self.coffre_anim_index = 0  # Alors on le remet a zero
             self.image = self.coffre_animation_list[int(self.coffre_anim_index)] # On change l'image de base par l'image de la liste de mouvment du current_index
+
+class Crater(pygame.sprite.Sprite):
+    def __init__(self,name,x,y):
+        super().__init__()
+        self.name = name
+        self.image = pygame.image.load(f"enemy/{name}.png")
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+        

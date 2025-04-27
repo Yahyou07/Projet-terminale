@@ -1,5 +1,6 @@
 import pygame
 from effect import *
+from objects_Yahya import *
 from math import *
 class Entity(pygame.sprite.Sprite):
     """
@@ -11,7 +12,7 @@ class Entity(pygame.sprite.Sprite):
             type : type de l'entité (string)
             screen : écran sur lequel l'entité est affichée
         """
-    def __init__(self,name,x,y,type,screen):
+    def __init__(self,name,x,y,type,screen,scale):
         super().__init__()
         self.name = name
         self.image = pygame.image.load(f"{type}/{name}/idle/idle1.png")
@@ -28,16 +29,15 @@ class Entity(pygame.sprite.Sprite):
 
         # Si l'image est grande (128px), alors on réduit moins fort
         if original_width == 128:
-            self.image = pygame.transform.scale(self.image, (64, 64))  # 64x64 visuellement
+            self.image = pygame.transform.scale(self.image, scale)  # 64x64 visuellement
         elif original_width == 64:
-            self.image = pygame.transform.scale(self.image, (50, 50))  # 50x50 visuellement
+            self.image = pygame.transform.scale(self.image, scale)  # 50x50 visuellement
 
         self.rect = self.image.get_rect()
         
         
 
-        self.rect.x = x
-        self.rect.y = y
+        self.rect.center = (x, y)
         
         self.sprite_index = 0
         
@@ -95,7 +95,7 @@ class Entity(pygame.sprite.Sprite):
     
 
 class PNJ(Entity):
-    def __init__(self, name, x, y, type, screen,parole):
+    def __init__(self, name, x, y, type, screen,scale,parole):
         """
         Classe PNJ qui hérite de la classe Entity
         Attributs:
@@ -107,7 +107,7 @@ class PNJ(Entity):
             health_value : vie du PNJ
             attack_value : valeur d'attaque
         """
-        super().__init__(name, x, y, type, screen)
+        super().__init__(name, x, y, type, screen,scale)
         self.hit_box = self.rect.copy().inflate(-30,0)
         self.champ_vision = self.rect.copy().inflate(20,20)
 
@@ -191,8 +191,8 @@ class PNJ(Entity):
 
 
 class Enemy(Entity):
-    def __init__(self, name, x, y, type, screen):
-        super().__init__(name, x, y, type, screen)
+    def __init__(self, name, x, y, type, screen,scale):
+        super().__init__(name, x, y, type, screen,scale)
 
         #mouvements d'attaque de l'ennemi 
         self.right_attack = [pygame.image.load(f"{type}/{name}/attack/attack1/right{i}.png")for i in range(1,7)]
@@ -219,7 +219,9 @@ class Enemy(Entity):
         self.knockback = False    # Est-ce que l'ennemi est repoussé
         self.knockback_speed = 0  # Vitesse actuelle du recul
         self.knockback_direction = 0  # Direction du recul : -1 pour gauche, 1 pour droite
-     
+
+        self.distance_between_player_enemy = None
+
     def draw_health_bar(self, screen, map_layer):
         """ Dessine la barre de vie arrondie de l'ennemi au-dessus de lui """
         world_pos = (self.rect.centerx, self.rect.top - 10)
@@ -247,9 +249,14 @@ class Enemy(Entity):
         
 
         
-    
+    def idle_enemy(self):
+        """
+            Animation idle de l'entité
+        """
+        self.animation(self.idle_move,0.12,(100,100))
     def follow_player(self, player):
         """ Fait bouger l'ennemi vers le joueur en diagonale avec bonne animation """
+        self.distance_between_player_enemy = sqrt((player.rect.centerx - self.rect.centerx)**2 +(player.rect.centery - self.rect.centery)**2)
         
         if self.champ_vision_enemy.colliderect(player.hit_box):
             self.detected_player = True
@@ -269,21 +276,35 @@ class Enemy(Entity):
             # Animation : choisir la plus grande distance
             if abs(dx) > abs(dy):
                 if dx > 0:
-                    self.animation(self.right_move, 0.2,(50,50))
+                    if self.distance_between_player_enemy <=20:
+                        self.animation(self.right_attack, 0.2,(100,100))
+                        self.last_dir = "right"
+                    self.animation(self.right_move, 0.2,(100,100))
                     self.last_dir = "right"
+
                 else:
-                    self.animation(self.left_move, 0.2,(50,50))
+                    if self.distance_between_player_enemy <=20:
+                        self.animation(self.left_attack, 0.2,(100,100))
+                        self.last_dir = "left"
+                    self.animation(self.left_move, 0.2,(100,100))
                     self.last_dir = "left"
             else:
                 if dy > 0:
-                    self.animation(self.bottom_move, 0.2,(50,50))
+                    if self.distance_between_player_enemy <=20:
+                        self.animation(self.bottom_attack, 0.2,(100,100))
+                        self.last_dir = "down"
+                    self.animation(self.bottom_move, 0.2,(100,100))
                     self.last_dir = "down"
+
                 else:
-                    self.animation(self.top_move, 0.2,(50,50))
+                    if self.distance_between_player_enemy <=20:
+                        self.animation(self.top_attack, 0.2,(100,100))
+                        self.last_dir = "up"
+                    self.animation(self.top_move, 0.2,(100,100))
                     self.last_dir = "up"
 
         else:
-            self.idle()
+            self.idle_enemy()
 
 
 class Slime(pygame.sprite.Sprite):
@@ -294,7 +315,7 @@ class Slime(pygame.sprite.Sprite):
         self.image = pygame.image.load(f"{type}/{name}/walk/walk4/bottom1.png")
         
         #mouvement basique du slime walk
-        self.right_move = [pygame.image.load(f"{type}/{name}/walk/walk1/right{i}.png")for i in range(1,10)]
+        self.right_move = [pygame.image.load(f"{type}/{name}/walk/walk1/right{i}.png")for i in range(1,25)]
         self.left_move = [pygame.image.load(f"{type}/{name}/walk/walk2/left{i}.png")for i in range(1,25)]
         self.top_move = [pygame.image.load(f"{type}/{name}/walk/walk3/top{i}.png")for i in range(1,25)]
         self.bottom_move = [pygame.image.load(f"{type}/{name}/walk/walk4/bottom{i}.png")for i in range(1,25)]
@@ -308,13 +329,15 @@ class Slime(pygame.sprite.Sprite):
         
         self.sprite_index = 0
         self.champ_vision_enemy = self.rect.copy().inflate(500, 500)  # Champ de vision agrandi autour de l'ennemi
-        self.speed = 1  # Vitesse de déplacement vers le joueur
+        self.speed = 1.3  # Vitesse de déplacement vers le joueur
         self.detected_player = False  # Si le joueur est détecté
 
         self.max_health = 20  # Vie maximale
         self.current_health = 20  # Vie actuelle
         self.health_bar_width = 20  # Largeur de la barre de vie
         self.health_bar_height = 10   # Hauteur de la barre
+
+        
 
     def draw_health_bar(self, screen, map_layer):
         """ Dessine la barre de vie arrondie de l'ennemi au-dessus de lui """
@@ -388,11 +411,38 @@ class Slime(pygame.sprite.Sprite):
 
         else:
             self.idle()   
-    def dead(self,sprite,group,player):
+    def kamikaze(self,sprite,group,player):
         explosion = Effect("explosion","frame",self.rect.centerx, self.rect.centery,(150,150))
+        crater = Crater("crater",self.rect.centerx-40,self.rect.centery)
+        
+        group.add(crater,layer = 3)
         group.add(explosion,layer = 6)
+        if player.last_direction == "right":
+            player.knockback = True
+            player.knockback_speed = 10
+            player.knockback_direction = -1
+            player.knockback_direction_y = 0
 
+        if player.last_direction == "left" :
+            player.knockback = True
+            player.knockback_speed = 10
+            player.knockback_direction = 1
+            player.knockback_direction_y = 0
+
+        if player.last_direction == "up" :
+            player.knockback = True
+            player.knockback_speed = 10
+            player.knockback_direction_y = 1
+
+        if player.last_direction == "down" :
+            player.knockback = True
+            player.knockback_speed = 10
+            player.knockback_direction_y = -1
         player.health_value -= 40
+        group.remove(sprite)
+    def dead(self, group, sprite):
+        smoke = Effect("fumee","frame_",self.rect.centerx, self.rect.centery,(100,100))
+        group.add(smoke)
         group.remove(sprite)
 
 

@@ -206,6 +206,11 @@ class Player(pygame.sprite.Sprite):
         
         self.largeur,self.hauteur = self.screen.get_size()
 
+        #valeur pour le recul
+        self.knockback = False    # Est-ce que l'ennemi est repoussé
+        self.knockback_speed = 0  # Vitesse actuelle du recul
+        self.knockback_direction = 0  # Direction du recul : -1 pour gauche, 1 pour droite
+        self.knockback_direction_y = 0
         
     def start_anim_attack(self,list_mouv,speed,decal):
         '''
