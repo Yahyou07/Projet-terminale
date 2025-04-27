@@ -16,7 +16,8 @@ def generate_tree_positions(max_x, max_y, num_trees, min_distance, max_attempts=
 
 
 #tree_positions = [(216, 860), (1430, 1322), (1026, 1471), (20, 537), (899, 706), (1332, 1150), (1124, 395), (698, 252), (816, 18), (1513, 1237), (327, 119), (479, 1026), (613, 619),(114,1460),(298,1460)]
-tree_positions = [(931, 1390), (383, 1226), (450, 199), (1030, 190),
+tree_positions = [
+                   (931, 1390), (383, 1226), (450, 199), (1030, 190),
                    (9, 341), (83, 49), (1331, 1053), (1522, 1112), 
                    (137, 941), (192, 757), (1182, 897), (1264, 1498), 
                    (297, 705), (550, 705), (585, 1300)
@@ -49,7 +50,7 @@ from dialog_data import *
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 
 # Chargement de la carte Tiled
-tmx_data = load_pygame("maps/maps.tmx")  # Remplace par ton fichier .tmx
+tmx_data = load_pygame("maps/maps.tmx")  
 
 
 collision_rects = []
