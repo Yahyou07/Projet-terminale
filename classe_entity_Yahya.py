@@ -27,9 +27,7 @@ class Entity(pygame.sprite.Sprite):
 
         self.rect.x = x
         self.rect.y = y
-        self.hit_box = self.rect.copy().inflate(-30,0)
-        self.champ_vision = self.rect.copy().inflate(20,20)
-
+        
         self.sprite_index = 0
         
         self.right = True
@@ -87,7 +85,7 @@ class Entity(pygame.sprite.Sprite):
     
 
 class PNJ(Entity):
-    def __init__(self, name, x, y, type, screen):
+    def __init__(self, name, x, y, type, screen,parole):
         """
         Classe PNJ qui hérite de la classe Entity
         Attributs:
@@ -100,6 +98,9 @@ class PNJ(Entity):
             attack_value : valeur d'attaque
         """
         super().__init__(name, x, y, type, screen)
+        self.hit_box = self.rect.copy().inflate(-30,0)
+        self.champ_vision = self.rect.copy().inflate(20,20)
+
         self.dialog_box = pygame.image.load("UI/dialog_box_gris.png")
         self.dialog_box_name = pygame.image.load("UI/dialog_box_nom.png")
         self.portrait = pygame.image.load(f"{type}/{name}/portrait.png")
@@ -117,11 +118,7 @@ class PNJ(Entity):
         self.text_speed = 30      # Millisecondes entre chaque lettre (plus petit = plus rapide)
         self.current_parole_index = 0  # Numéro de la phrase actuelle
     
-        self.parole = [f"Salutations, je suis {name}.",
-                       "Je serais ton guide dans ce monde",
-                       "J'ai besoin de ton aide pour \n sécuriser  cette clairière",
-                       "Des gobelins on pris possesion \n de cette terre tu dois les exterminer",
-                       "Suis le chemin et tu les trouvera,\n bonne chance."]
+        self.parole = parole
         
         self.name_entity = self.font_dialog_box_name.render(self.name,True, (255, 255, 111))
         self.entity_parole = self.font_dialog_box.render(self.parole[3],True, (255, 255, 111))
@@ -183,13 +180,52 @@ class Enemy(Entity):
         self.speed = 1  # Vitesse de déplacement vers le joueur
         self.detected_player = False  # Si le joueur est détecté
 
+        self.hit_box = self.rect.copy().inflate(0,0)
+
+
+        self.max_health = 60  # Vie maximale
+        self.current_health = 60  # Vie actuelle
+        self.health_bar_width = 60  # Largeur de la barre de vie
+        self.health_bar_height = 10   # Hauteur de la barre
+        self.last_dir = "down"
+
+    def draw_health_bar(self, screen, map_layer):
+        """ Dessine la barre de vie arrondie de l'ennemi au-dessus de lui """
+        world_pos = (self.rect.centerx, self.rect.top - 10)
+        screen_pos = map_layer.translate_point(world_pos)
+
+        health_percentage = self.current_health / self.max_health
+
+        # Fond de la barre (rouge clair)
+        bg_rect = pygame.Rect(0, 0, self.health_bar_width, self.health_bar_height)
+        bg_rect.center = screen_pos
+        pygame.draw.rect(screen, (200, 50, 50), bg_rect, border_radius=3)
+
+        # Barre de vie (verte)
+        health_rect = pygame.Rect(0, 0, self.health_bar_width * health_percentage, self.health_bar_height)
+        health_rect.topleft = bg_rect.topleft
+        health_rect.height = self.health_bar_height
+        pygame.draw.rect(screen, (50, 205, 50), health_rect, border_radius=3)
+
+
         
-    def dead(self):
-        self.animation(self.dead_mouve,0.12)
+    def dead(self, group, sprite):
+        if not hasattr(self, "is_dead_anim_started"):
+            self.is_dead_anim_started = True
+            self.sprite_index = 0
+
+        self.sprite_index += 0.12
+        if int(self.sprite_index) >= len(self.dead_mouve):
+            group.remove(sprite)
+        else:
+            self.image = self.dead_mouve[int(self.sprite_index)]
+            self.image = pygame.transform.scale(self.image, (50, 50))
+
+        
     
     def follow_player(self, player):
-        """ Fait bouger l'ennemi vers le joueur en diagonale, mais avec anim gauche/droite seulement """
-        if self.champ_vision_enemy.colliderect(player.rect):
+        """ Fait bouger l'ennemi vers le joueur en diagonale avec bonne animation """
+        if self.champ_vision_enemy.colliderect(player.hit_box):
             self.detected_player = True
         else:
             self.detected_player = False
@@ -198,19 +234,31 @@ class Enemy(Entity):
             dx = player.rect.centerx - self.rect.centerx
             dy = player.rect.centery - self.rect.centery
 
+            # Déplacement en X et Y
             if dx != 0:
                 self.rect.x += self.speed if dx > 0 else -self.speed
             if dy != 0:
                 self.rect.y += self.speed if dy > 0 else -self.speed
 
-            # Maintenant choisir l'animation : droite ou gauche selon dx
-            if dx > 0:
-                self.animation(self.right_move, 0.2)
-            elif dx < 0:
-                self.animation(self.left_move, 0.2)
+            # Animation : choisir la plus grande distance
+            if abs(dx) > abs(dy):
+                if dx > 0:
+                    self.animation(self.right_move, 0.2)
+                    self.last_dir = "right"
+                else:
+                    self.animation(self.left_move, 0.2)
+                    self.last_dir = "left"
+            else:
+                if dy > 0:
+                    self.animation(self.bottom_move, 0.2)
+                    self.last_dir = "down"
+                else:
+                    self.animation(self.top_move, 0.2)
+                    self.last_dir = "up"
 
         else:
             self.idle()
+
 
     '''
     def follow_player(self, player):

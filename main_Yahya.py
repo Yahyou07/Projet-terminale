@@ -43,6 +43,7 @@ from classe_enemy_Yahya import *
 from scripte.pnj import *
 import pygame
 from classe_entity_Yahya import *
+from dialog_data import *
 
 # Définition de la fenêtre
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
@@ -65,8 +66,10 @@ player = Player(player_position.x, player_position.y, screen)  # Positionner le 
 save_menu = Save_game(screen)
 chest_position = tmx_data.get_object_by_name("coffre1")
 
-pnj1 = PNJ("Wizard",200,200,"pnj",screen)
+pnj1 = PNJ("Wizard",200,200,"pnj",screen,pnj1_dialog)
+
 gobelin1 = Enemy("gobelin_epee",250,300,"enemy",screen)
+
 #pnj2 = PNJ("Wizard",200,500,"pnj",screen)
 chest1 = Coffre("chest1",chest_position.x,chest_position.y)
 
@@ -207,15 +210,30 @@ while running:
         
 
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            
-            if show_inventory == False :
+            if show_inventory == False:
+                # Animation attaque
                 if player.last_direction == "right" or player.last_direction == "down":
                     player.start_anim_attack(player.attack_right_mouv, 0.3, 0)
-                
-
                 if player.last_direction == "left" or player.last_direction == "up":
                     player.start_anim_attack(player.attack_left_mouv, 0.3, -0)
-                    
+
+                # Vérifie l'attaque sur les ennemis
+                for sprite in group.sprites():
+                    if isinstance(sprite, Enemy):
+                        # Créer une "zone d'attaque" autour du joueur
+                        attack_zone = player.hit_box.inflate(40, 40)  # Zone légèrement plus grande
+                        if attack_zone.colliderect(sprite.rect):
+                            sprite.current_health -= 10  # Inflige 10 de dégâts
+                            if sprite.last_dir == "right":
+                                sprite.rect.x -=20
+
+                            if sprite.last_dir == "left":
+                                sprite.rect.x +=20
+                            if sprite.current_health < 0:
+                                sprite.current_health = 0
+                            if sprite.current_health == 0:
+                                group.remove(sprite)
+                
             
 
             if player.rect_button_armour.collidepoint(event.pos):
@@ -425,8 +443,12 @@ while running:
         if isinstance(sprite, Enemy):
             sprite.champ_vision_enemy.center = sprite.rect.center  # Toujours mettre à jour le champ de vision
             sprite.follow_player(player)
+                    
+                    
 
-   
+
+        if isinstance(sprite,Enemy):
+            sprite.draw_health_bar(screen,map_layer)
             
 
     # Collision avec la map (rectangles Tiled)
@@ -464,14 +486,14 @@ while running:
     pygame.draw.rect(screen, (255, 255, 0), map_layer.translate_rect(player.feet), 2)
 
     pygame.draw.rect(screen, (255, 125, 56), map_layer.translate_rect(pnj1.rect), 2)
-    
+    pygame.draw.rect(screen, (255, 0, 0), map_layer.translate_rect(player.hit_box), 2)
     pygame.draw.rect(screen, (255, 125, 56), map_layer.translate_rect(pnj1.champ_vision), 2)
-    
+    pygame.draw.rect(screen, (255, 125, 56), map_layer.translate_rect(gobelin1.champ_vision_enemy), 2)
     print(a_proximite)
     '''
-    pygame.draw.rect(screen, (255, 125, 56), map_layer.translate_rect(gobelin1.champ_vision_enemy), 2)
+    
     pnj1.update()
-    pygame.draw.rect(screen, (255, 0, 0), map_layer.translate_rect(player.hit_box), 2)
+    
     save_menu.update()
     chest1.anim_chest()
     
