@@ -24,7 +24,7 @@ class Item(pygame.sprite.Sprite):
         self.flottement_vitesse = 0.1  # Vitesse du flottement
         self.time = 0  # Compteur de temps
     
-    def update(self):
+    def update(self,dt):
         self.time += 1
         self.rect.y = self.base_y + int(self.flottement_amplitude * math.sin(self.time * self.flottement_vitesse))
         

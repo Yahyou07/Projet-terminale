@@ -390,7 +390,11 @@ class Slime(pygame.sprite.Sprite):
             self.idle()   
     def dead(self,sprite,group,player):
         explosion = Effect("explosion","frame",self.rect.centerx, self.rect.centery,(150,150))
+<<<<<<< Updated upstream
         group.add(explosion,layer = 6)
+=======
+        group.add(explosion)
+>>>>>>> Stashed changes
         player.health_value -= 40
         group.remove(sprite)
 

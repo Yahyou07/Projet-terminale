@@ -49,6 +49,9 @@ class Save_game(object):
         font = pygame.font.SysFont(None, 50)
 
         if self.quitte:
+            fond = pygame.Surface((self.screen.get_width(), self.screen.get_height()), pygame.SRCALPHA)
+            fond.fill((40, 40, 40, 200))  # Rouge avec 50% de transparence (128/255)
+            self.screen.blit(fond, (0, 0))
             self.screen.blit(self.image,((self.largeur-768)//2,(self.hauteur-512)//2))
             """pygame.draw.rect(self.screen, (255, 255, 255), self.quit)
             pygame.draw.rect(self.screen, (0, 0, 0), self.quit, 2)

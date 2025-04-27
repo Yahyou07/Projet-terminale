@@ -209,7 +209,7 @@ near_chest = None  # coffre à proximité par défaut à None
 can_talk_to_pnj1 = False
 
 active_pnj = None
-
+can_attack = True
 while running:
     dt = mainClock.tick(60) / 1000  # Temps écoulé en secondes
     
@@ -224,9 +224,9 @@ while running:
                 player.OnArmour = False
                 moving = not moving
         
-
+        
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            if show_inventory == False:
+            if show_inventory == False and player.dead == False and can_attack:
                 # Animation attaque
                 if player.last_direction == "right" or player.last_direction == "down":
                     player.start_anim_attack(player.attack_right_mouv, 0.3, 0)
@@ -240,6 +240,7 @@ while running:
                         attack_zone = player.hit_box.inflate(40, 40)  # Zone légèrement plus grande
                         if attack_zone.colliderect(sprite.rect):
                             sprite.current_health -= 10  # Inflige 10 de dégâts
+                            print(sprite.current_health)
                             if player.last_direction == "right":
                                 sprite.knockback = True
                                 sprite.knockback_speed = 6
@@ -253,7 +254,8 @@ while running:
                             if sprite.current_health < 0:
                                 sprite.current_health = 0
                             if sprite.current_health == 0:
-                                group.remove(sprite)
+                                sprite.dead(group,sprite)
+                                
                 
             
 
@@ -288,7 +290,18 @@ while running:
                 player.page += 2
                 player.page_a_cote = player.page + 1
 
-        if show_inventory:
+            if player.dead:
+                #On gère ici l'appuie sur les boutton du menu de mort
+                if player.rect_reesayer_dead.collidepoint(event.pos):
+                    player = Player(player_position.x, player_position.y, screen)
+                    group.add(player, layer=5)
+                    
+                if player.rect_quiiter_dead.collidepoint(event.pos):
+                    pygame.quit()
+                    sys.exit()
+                    
+
+        if show_inventory and player.dead == False:
             player.handle_mouse_events(event)
 
         player.handle_key_events(event)
@@ -316,7 +329,7 @@ while running:
 
        
     # vérifier si l'on peut marcher
-    if moving:
+    if moving and player.dead == False:
         input()
 
     player.anim_player_full_animation()
@@ -347,11 +360,11 @@ while running:
     keys = pygame.key.get_pressed()
     player.regeneration_endurance(keys)
 
-    group.update()
+    group.update(dt)
     group.center(player.rect.center)  # Centre la caméra sur le joueur
     
     group.draw(screen)
-    player.affiche_ui()
+    
 
     if player.OnBook:
         player.animBook()
@@ -462,6 +475,7 @@ while running:
                     sprite.CanDialog = False   # On FERME la boîte de dialogue
                     active_pnj = None
         if isinstance(sprite, Enemy):
+
             sprite.champ_vision_enemy.center = sprite.rect.center  # Toujours mettre à jour le champ de vision
             sprite.follow_player(player)
 
@@ -474,10 +488,21 @@ while running:
                     sprite.knockback_speed = 0
 
             sprite.draw_health_bar(screen,map_layer)
+        if isinstance(sprite, Enemy) and player.hit_box.colliderect(sprite.rect) :
+            
+            if player.health_value < 0:
+                player.health_value = 0
+            if player.health_value == 0:
+                player.dead = True
+                group.remove(player)
         if isinstance(sprite,Slime):
+            sprite.champ_vision_enemy.center = sprite.rect.center  # Toujours mettre à jour le champ de vision
             sprite.follow_player(player)
-                    
-           
+            
+            sprite.draw_health_bar(screen,map_layer)
+            if sprite.distance_between_player_slime <= 10:
+                sprite.dead(sprite,group,player)      
+
 
 
        
@@ -496,12 +521,14 @@ while running:
     if show_inventory:
         player.display_inventory()  # On appelle la méthode display_inventory pour afficher l'inventaire
 
-    if save_menu.quitte:
+    if save_menu.quitte :
         moving = False
+        can_attack = False
     else: 
         moving = True
+        can_attack = True
 
-    '''
+    
     # Affichage optionnel des hitbox bour le debbugage
     pygame.draw.rect(screen, (255, 0, 0), map_layer.translate_rect(player.hit_box), 2)
 
@@ -522,11 +549,10 @@ while running:
     pygame.draw.rect(screen, (255, 0, 0), map_layer.translate_rect(player.hit_box), 2)
     pygame.draw.rect(screen, (255, 125, 56), map_layer.translate_rect(pnj1.champ_vision), 2)
     pygame.draw.rect(screen, (255, 125, 56), map_layer.translate_rect(gobelin1.champ_vision_enemy), 2)
-    print(a_proximite)
-    '''
-    pygame.draw.rect(screen, (255, 125, 56), map_layer.translate_rect(slime1.champ_vision_enemy), 2)
-
-    pnj1.update()
+    
+    
+    player.affiche_ui()
+    pnj1.update(dt)
     
     save_menu.update()
     chest1.anim_chest()
