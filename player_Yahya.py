@@ -9,7 +9,7 @@ class Player(pygame.sprite.Sprite):
         self.speed = 3
         self.speed_run = 4.5
         self.screen = screen
-        self.health_value = 50
+        self.health_value = 100
         self.mana_value = 0
         self.endurance_value = 100
         self.font = pygame.font.Font("Items/Minecraft.ttf", 14)  # Police par défaut, taille 14
@@ -193,7 +193,17 @@ class Player(pygame.sprite.Sprite):
         self.degats = 10
         # On initialise tous ce qui est en rapport avec la mort du joueur
         self.dead = False
-        #self.dead_image = pygame.image.load("UI/dead.png")
+        self.dead_image = pygame.image.load("UI/dead.png")
+        self.quiiter_dead  = pygame.image.load("UI/quitter.png")
+        self.rect_quiiter_dead =self.quiiter_dead.get_rect()
+        self.rect_quiiter_dead.x = 753 
+        self.rect_quiiter_dead.y = 519
+
+        self.reesayer_dead = pygame.image.load("UI/reesayer.png")
+        self.rect_reesayer_dead = self.reesayer_dead.get_rect()
+        self.rect_reesayer_dead.x = 594
+        self.rect_reesayer_dead.y = 518
+        
         self.largeur,self.hauteur = self.screen.get_size()
 
         
@@ -284,7 +294,7 @@ class Player(pygame.sprite.Sprite):
         self.hit_box.y += dy * speed
 
         # 🔸 3. Mettre à jour les pieds (pour détection collision)
-        self.feet.midbottom = self.rect.midbottom
+        self.feet.midbottom = self.hit_box.midbottom
 
         # 🔸 4. Gérer les animations
         anim_speed = 0.3 if running else 0.15
@@ -430,6 +440,13 @@ class Player(pygame.sprite.Sprite):
 
         
         self.feet.midbottom = self.hit_box.midbottom
+        if self.dead:
+            fond = pygame.Surface((self.screen.get_width(), self.screen.get_height()), pygame.SRCALPHA)
+            fond.fill((196, 6, 6, 128))  # Rouge avec 50% de transparence (128/255)
+            self.screen.blit(fond, (0, 0))
+            self.screen.blit(self.dead_image,(500,200))
+            self.screen.blit(self.reesayer_dead,self.rect_reesayer_dead)
+            self.screen.blit(self.quiiter_dead,self.rect_quiiter_dead)
 
     def is_mouse_on_slot(self, x, y, width, height):
         mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -798,44 +815,4 @@ class Player(pygame.sprite.Sprite):
                     self.stack_text[index] = self.font.render(str(item["quantity"]), True, (255, 255, 255))
                 print(f"Mange {item['object'].name}. Quantite restante: {item['quantity']}")
 
-    def dead(self):
-        """
-            Méthode pour gérer la mort du joueur.
-            On va afficher un écran de mort et on va faire un fade out de l'écran
-            On va également faire un fade in de l'écran de respawn
-
-        """
-        if self.health_value <= 0:
-            self.dead = True
-        
-        if self.dead:
-            # Afficher l'écran de mort
-            self.screen.blit(self.dead_image, ((self.largeur-self.dead_image.get_width())//2, (self.hauteur-self.dead_image.get_height())//2))
-            pygame.display.flip()
-            time.sleep(2)
-            self.respawn()
-            self.dead = False
-
-
     
-    def respawn(self,player_pos):
-        """
-            Méthode pour respawn le joueur
-            On va faire un fade out de l'écran de mort et on va faire un fade in de l'écran de respawn
-        """
-        # Réinitialiser la position du joueur au spawn de base
-        self.rect = self.image.get_rect()
-        self.rect.center = (player_pos.x, player_pos.y)  # Centre le rectangle
-        self.rect.x = player_pos.x
-        self.rect.y = player_pos.y
-        self.hit_box = self.rect.copy().inflate(-53, -53)
-
-        # Réinitialiser les caractéristiques de base
-        self.health_value = 100
-        self.endurance_value = 100
-
-        # Réinitialiser les états
-        self.dragging_item = None
-        self.drag_start_pos = None
-        self.Regen = False
-        self.dead = False

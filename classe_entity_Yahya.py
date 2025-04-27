@@ -1,5 +1,6 @@
 import pygame
-
+from effect import *
+from math import *
 class Entity(pygame.sprite.Sprite):
     """
         Classe Entity qui hérite de la classe Sprite de Pygame
@@ -41,7 +42,7 @@ class Entity(pygame.sprite.Sprite):
         self.sprite_index = 0
         
         self.screen = screen
-       
+        self.distance_between_player_slime = None
 
 
     def animation(self,list_mouv,speed,scale):
@@ -132,10 +133,8 @@ class PNJ(Entity):
         self.name_entity = self.font_dialog_box_name.render(self.name,True, (255, 255, 111))
         self.entity_parole = self.font_dialog_box.render(self.parole[3],True, (255, 255, 111))
         self.pass_message = self.font_dialog_box_pass.render(self.message_passer,True, (255, 255, 255))
-
-        self.speed = 1
         
-    def update(self):
+    def update(self,dt):
         """
             Met à jour l'entité
         """
@@ -188,25 +187,8 @@ class PNJ(Entity):
             self.start_dialog(self.current_parole_index)
         else:
             self.CanDialog = False  # Plus de texte = fermer la boîte
-    """
-    def pattern(self,limx1,limx2,limy1,limy2):
-        
-            Fait bouger le PNJ dans un pattern de type carré
-            Attributs:
-                limx1 : limite x1
-                limx2 : limite x2
-                limy1 : limite y1
-                limy2 : limite y2
-        
-        if self.rect.x >= limx1 and self.rect.x <= limx2 and self.rect.y == limy1:
-            self.droite()
-        if self.rect.x == limx2 and self.rect.y == limy1:
-            self.bas()
-        if self.rect.y == limy2 and self.rect.x == limx2:
-            self.gauche()
-        if self.rect.x == limx1 and self.rect.y == limy2:
-            self.haut()
-    """
+            
+
 
 class Enemy(Entity):
     def __init__(self, name, x, y, type, screen):
@@ -259,27 +241,22 @@ class Enemy(Entity):
 
         
     def dead(self, group, sprite):
-        if not hasattr(self, "is_dead_anim_started"):
-            self.is_dead_anim_started = True
-            self.sprite_index = 0
-
-        self.sprite_index += 0.12
-        if int(self.sprite_index) >= len(self.dead_mouve):
-            group.remove(sprite)
-        else:
-            self.image = self.dead_mouve[int(self.sprite_index)]
-            self.image = pygame.transform.scale(self.image, (50, 50))
+        smoke = Effect("fumee","frame_",self.rect.centerx, self.rect.centery,(100,100))
+        group.add(smoke)
+        group.remove(sprite)
+        
 
         
     
     def follow_player(self, player):
         """ Fait bouger l'ennemi vers le joueur en diagonale avec bonne animation """
+        
         if self.champ_vision_enemy.colliderect(player.hit_box):
             self.detected_player = True
         else:
             self.detected_player = False
 
-        if self.detected_player:
+        if self.detected_player and player.dead == False:
             dx = player.rect.centerx - self.rect.centerx
             dy = player.rect.centery - self.rect.centery
 
@@ -309,30 +286,6 @@ class Enemy(Entity):
             self.idle()
 
 
-    '''
-    def follow_player(self, player):
-        """ Fait bouger l'ennemi vers le joueur s'il est détecté """
-        if self.champ_vision_enemy.colliderect(player.rect):
-            self.detected_player = True
-        else:
-            self.detected_player = False
-
-        if self.detected_player:
-            if self.rect.x < player.rect.x:
-                self.rect.x += self.speed
-                self.animation(self.right_move, 0.2)
-            elif self.rect.x > player.rect.x:
-                self.rect.x -= self.speed
-                self.animation(self.left_move, 0.2)
-            if self.rect.y < player.rect.y:
-                self.rect.y += self.speed
-                self.animation(self.bottom_move, 0.2)
-            elif self.rect.y > player.rect.y:
-                self.rect.y -= self.speed
-                self.animation(self.top_move, 0.2)
-        else:
-            self.idle()
-        '''
 class Slime(pygame.sprite.Sprite):
     def __init__(self,name,type,x,y):
         super().__init__()
@@ -358,6 +311,29 @@ class Slime(pygame.sprite.Sprite):
         self.speed = 1  # Vitesse de déplacement vers le joueur
         self.detected_player = False  # Si le joueur est détecté
 
+        self.max_health = 20  # Vie maximale
+        self.current_health = 20  # Vie actuelle
+        self.health_bar_width = 20  # Largeur de la barre de vie
+        self.health_bar_height = 10   # Hauteur de la barre
+
+    def draw_health_bar(self, screen, map_layer):
+        """ Dessine la barre de vie arrondie de l'ennemi au-dessus de lui """
+        world_pos = (self.rect.centerx, self.rect.top - 10)
+        screen_pos = map_layer.translate_point(world_pos)
+
+        health_percentage = self.current_health / self.max_health
+
+        # Fond de la barre (rouge clair)
+        bg_rect = pygame.Rect(0, 0, self.health_bar_width, self.health_bar_height)
+        bg_rect.center = screen_pos
+        pygame.draw.rect(screen, (200, 50, 50), bg_rect, border_radius=3)
+
+        # Barre de vie (verte)
+        health_rect = pygame.Rect(0, 0, self.health_bar_width * health_percentage, self.health_bar_height)
+        health_rect.topleft = bg_rect.topleft
+        health_rect.height = self.health_bar_height
+        pygame.draw.rect(screen, (50, 205, 50), health_rect, border_radius=3)
+
     def animation(self,list_mouv,speed):
         """
             Animation de l'entité
@@ -376,6 +352,9 @@ class Slime(pygame.sprite.Sprite):
         
     def follow_player(self, player):
         """ Fait bouger l'ennemi vers le joueur en diagonale avec bonne animation """
+
+        self.distance_between_player_slime = sqrt((player.rect.centerx - self.rect.centerx)**2 +(player.rect.centery - self.rect.centery)**2)
+        
         if self.champ_vision_enemy.colliderect(player.hit_box):
             self.detected_player = True
         else:
@@ -409,60 +388,12 @@ class Slime(pygame.sprite.Sprite):
 
         else:
             self.idle()   
+    def dead(self,sprite,group,player):
+        explosion = Effect("explosion","frame",self.rect.centerx, self.rect.centery,(150,150))
+        group.add(explosion,layer = 6)
+        player.health_value -= 40
+        group.remove(sprite)
 
 
 
-class Mob(Entity):
-    """
-        Classe Mob qui hérite de la classe Entity
-        Attributs:
-            name : nom du mob
-            x : position x du mob
-            y : position y du mob
-            collision : collision du mob (booléen)
-            speed : vitesse de déplacement du mob
-            health_value : vie du mob
-            attack_value : valeur d'attaque du mob
-            type : type du mob (string)
-    """
-    def __init__(self, name, x, y):
-        super().__init__(name, x, y)
-        self.collision = False
-        self.speed = 1
-        self.health_value = 10
-        self.attack_value = 1
-        self.type = "mob"
-    
-    def follow_player(self, player):
-        """
-            Fait suivre le joueur au mob.
-            Attributs:
-                player : le joueur à suivre
-        """
-        if self.distance(player) < 50:
-            while self.rect.x != player.rect.x:
-                if self.rect.x < player.rect.x:
-                    self.rect.x += self.speed
-                elif self.rect.x > player.rect.x:
-                    self.rect.x -= self.speed
-            while self.rect.y != player.rect.y:
-                if self.rect.y < player.rect.y:
-                    self.rect.y += self.speed
-                elif self.rect.y > player.rect.y:
-                    self.rect.y -= self.speed
-            if self.distance(player) == 0:
-                self.attack_player(player)
-    
-    def attack_player(self, player):
-        """
-            Fait attaquer le joueur par le mob lorsque la distance est nulle.
-            Attributs:
-                player : le joueur à attaquer
-        """
-        while player.health_value > 0:
-            player.health_value -= self.attack_value
-            print(f"{self.name} attaque {player.name} !")
-            if player.health_value <= 0:
-                print(f"{player.name} est mort !")
-                break
 
