@@ -263,7 +263,6 @@ class Enemy(Entity):
         
     def dead(self, group, sprite):
         smoke = Effect("fumee","frame_",self.rect.centerx, self.rect.centery,(100,100))
-        sprite.kill()
         group.add(smoke)
         group.remove(sprite)
         
