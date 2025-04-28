@@ -88,7 +88,7 @@ class Save_game(object):
         """
         if event.type == pygame.KEYDOWN :
                 if event.key == pygame.K_ESCAPE:
-                    self.quitte = True
+                    self.quitte = not self.quitte  # Inverse l'état de la variable self.quitte
                     #self.parametre_btn_rect = self.parametre_btn.get_rect(topleft=(self.largeur-75, 0))  # Met à jour la position du bouton paramètre
                     
         if event.type == pygame.MOUSEBUTTONDOWN and self.quitte:
