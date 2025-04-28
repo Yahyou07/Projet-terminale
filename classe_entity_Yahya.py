@@ -254,9 +254,10 @@ class Enemy(Entity):
             Animation idle de l'entité
         """
         self.animation(self.idle_move,0.12,(100,100))
+
     def follow_player(self, player):
         """ Fait bouger l'ennemi vers le joueur en diagonale avec bonne animation """
-        self.distance_between_player_enemy = sqrt((player.rect.centerx - self.rect.centerx)**2 +(player.rect.centery - self.rect.centery)**2)
+        self.distance_between_player_enemy = sqrt((player.rect.centerx - self.rect.centerx)**2 + (player.rect.centery - self.rect.centery)**2)
         
         if self.champ_vision_enemy.colliderect(player.hit_box):
             self.detected_player = True
@@ -267,44 +268,54 @@ class Enemy(Entity):
             dx = player.rect.centerx - self.rect.centerx
             dy = player.rect.centery - self.rect.centery
 
-            # Déplacement en X et Y
-            if dx != 0:
-                self.rect.x += self.speed if dx > 0 else -self.speed
-            if dy != 0:
-                self.rect.y += self.speed if dy > 0 else -self.speed
+            if self.distance_between_player_enemy <= 20:
+                # ATTENTION : NE PAS DEPLACER !
+                # Juste jouer l'animation d'attaque
 
-            # Animation : choisir la plus grande distance
-            if abs(dx) > abs(dy):
-                if dx > 0:
-                    if self.distance_between_player_enemy <=20:
-                        self.animation(self.right_attack, 0.2,(100,100))
+                if abs(dx) > abs(dy):
+                    if dx > 0:
+                        # Joueur à droite
+                        self.animation(self.right_attack, 0.15, (100, 100))
                         self.last_dir = "right"
-                    self.animation(self.right_move, 0.2,(100,100))
-                    self.last_dir = "right"
-
-                else:
-                    if self.distance_between_player_enemy <=20:
-                        self.animation(self.left_attack, 0.2,(100,100))
+                    else:
+                        # Joueur à gauche
+                        self.animation(self.left_attack, 0.15, (100, 100))
                         self.last_dir = "left"
-                    self.animation(self.left_move, 0.2,(100,100))
-                    self.last_dir = "left"
-            else:
-                if dy > 0:
-                    if self.distance_between_player_enemy <=20:
-                        self.animation(self.bottom_attack, 0.2,(100,100))
-                        self.last_dir = "down"
-                    self.animation(self.bottom_move, 0.2,(100,100))
-                    self.last_dir = "down"
-
                 else:
-                    if self.distance_between_player_enemy <=20:
-                        self.animation(self.top_attack, 0.2,(100,100))
+                    if dy > 0:
+                        # Joueur en bas
+                        self.animation(self.bottom_attack, 0.15, (100, 100))
+                        self.last_dir = "down"
+                    else:
+                        # Joueur en haut
+                        self.animation(self.top_attack, 0.15, (100, 100))
                         self.last_dir = "up"
-                    self.animation(self.top_move, 0.2,(100,100))
-                    self.last_dir = "up"
+
+            else:
+                # Le joueur est encore loin → déplacement normal
+                if abs(dx) > abs(dy):
+                    if dx > 0:
+                        self.rect.x += self.speed
+                        self.animation(self.right_move, 0.2, (100, 100))
+                        self.last_dir = "right"
+                    else:
+                        self.rect.x -= self.speed
+                        self.animation(self.left_move, 0.2, (100, 100))
+                        self.last_dir = "left"
+                else:
+                    if dy > 0:
+                        self.rect.y += self.speed
+                        self.animation(self.bottom_move, 0.2, (100, 100))
+                        self.last_dir = "down"
+                    else:
+                        self.rect.y -= self.speed
+                        self.animation(self.top_move, 0.2, (100, 100))
+                        self.last_dir = "up"
 
         else:
             self.idle_enemy()
+
+
 
 
 class Slime(pygame.sprite.Sprite):

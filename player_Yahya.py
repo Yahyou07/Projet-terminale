@@ -9,7 +9,7 @@ class Player(pygame.sprite.Sprite):
         self.speed = 3
         self.speed_run = 4.5
         self.screen = screen
-        self.health_value = 100
+        self.health_value = 40
         self.mana_value = 0
         self.endurance_value = 100
         self.font = pygame.font.Font("Items/Minecraft.ttf", 14)  # Police par défaut, taille 14
@@ -604,6 +604,7 @@ class Player(pygame.sprite.Sprite):
 
 
         # Méthode pour mettre à jour la mana en fonction de l'armure
+    
     def update_mana_on_armour_change(self, slot_index, remove=False):
         # Valeurs de mana associées aux armures
         armour_mana_values = {

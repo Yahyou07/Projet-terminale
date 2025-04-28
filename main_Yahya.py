@@ -239,7 +239,7 @@ while running:
                         # Créer une "zone d'attaque" autour du joueur
                         attack_zone = player.hit_box.inflate(40, 40)  # Zone légèrement plus grande
                         if attack_zone.colliderect(sprite.rect):
-                            sprite.current_health -= 10  # Inflige 10 de dégâts
+                            sprite.current_health -= player.degats  # Inflige 10 points de dégâts
                             print(sprite.current_health)
                             if player.last_direction == "right":
                                 sprite.knockback = True
@@ -528,6 +528,13 @@ while running:
             player.move_back()
             
     
+    #On reférifie si la vie est en dessous de 0 
+    if player.health_value < 0:
+        player.health_value = 0 # Si c'est le cas on remet la vie à zéro
+    #On vérifie si la vie est à zéro
+    if player.health_value == 0:
+        player.dead = True # Si c'est le cas on met player.dead à zéro 
+        group.remove(player) # on remove le joueur du group
                 
 
     
@@ -563,9 +570,10 @@ while running:
     pygame.draw.rect(screen, (255, 0, 0), map_layer.translate_rect(player.hit_box), 2)
     pygame.draw.rect(screen, (255, 125, 56), map_layer.translate_rect(pnj1.champ_vision), 2)
     pygame.draw.rect(screen, (255, 125, 56), map_layer.translate_rect(gobelin1.champ_vision_enemy), 2)
-    
-    '''
     pygame.draw.rect(screen, (255, 125, 56), map_layer.translate_rect(gobelin1.rect), 2)
+
+    '''
+    
     player.affiche_ui()
     pnj1.update(dt)
     
