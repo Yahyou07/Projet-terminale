@@ -127,12 +127,12 @@ group.add(chest1,layer = 2)
 group.add(pnj1 , layer = 2 )
 
 #On ajoute ici les gobelins
-group.add(gobelin1,layer = 2)
-group.add(gobelin2,layer = 2)
-group.add(gobelin3, layer = 2)
+group.add(gobelin1,layer = 4)
+group.add(gobelin2,layer = 4)
+group.add(gobelin3, layer = 4)
 #group.add(pnj2, layer = 2)
 
-group.add(slime1 ,layer = 2)
+group.add(slime1 ,layer = 4)
 troncs = []
 for x, y in tree_positions:
     feuillage = Feuillage(x, y)
@@ -210,6 +210,7 @@ can_talk_to_pnj1 = False
 
 active_pnj = None
 can_attack = True
+bois_recolte = 0
 while running:
     dt = mainClock.tick(60) / 1000  # Temps écoulé en secondes
     
@@ -238,9 +239,15 @@ while running:
                     if isinstance(sprite, Enemy) or isinstance(sprite, Slime):
                         # Créer une "zone d'attaque" autour du joueur
                         attack_zone = player.hit_box.inflate(40, 40)  # Zone légèrement plus grande
+                        
                         if attack_zone.colliderect(sprite.rect):
                             sprite.current_health -= player.degats  # Inflige 10 points de dégâts
-                            print(sprite.current_health)
+                            world_pos = (attack_zone.x, attack_zone.y)
+                            screen_pos = map_layer.translate_point(world_pos)
+                            rect_to_draw = pygame.Rect(screen_pos[0], screen_pos[1], attack_zone.width, attack_zone.height)
+
+                            pygame.draw.rect(screen, (255, 0, 0), rect_to_draw, 2)  # en rouge
+                            
                             if player.last_direction == "right":
                                 sprite.knockback = True
                                 sprite.knockback_speed = 6
@@ -480,7 +487,7 @@ while running:
         if isinstance(sprite, Enemy):
 
             sprite.champ_vision_enemy.center = sprite.rect.center  # Toujours mettre à jour le champ de vision
-            sprite.follow_player(player)
+            sprite.follow_player(player,[gobelin1,gobelin2,gobelin3])
             if sprite.distance_between_player_enemy <=20:
                 sprite.animation(sprite.right_attack,0.12,(100,100))
             # Si knockback est actif
@@ -511,6 +518,7 @@ while running:
     # Si knockback est actif
     if player.knockback:
         player.rect.x += player.knockback_direction * player.knockback_speed
+        player.hit_box.x += player.knockback_direction * player.knockback_speed
         player.rect.y += player.knockback_direction_y * player.knockback_speed
         
         player.knockback_speed -= 0.5  # on ralentit progressivement
@@ -548,7 +556,7 @@ while running:
         moving = True
         can_attack = True
     
-    '''
+    
     
     # Affichage optionnel des hitbox bour le debbugage
     pygame.draw.rect(screen, (255, 0, 0), map_layer.translate_rect(player.hit_box), 2)
@@ -570,9 +578,12 @@ while running:
     pygame.draw.rect(screen, (255, 0, 0), map_layer.translate_rect(player.hit_box), 2)
     pygame.draw.rect(screen, (255, 125, 56), map_layer.translate_rect(pnj1.champ_vision), 2)
     pygame.draw.rect(screen, (255, 125, 56), map_layer.translate_rect(gobelin1.champ_vision_enemy), 2)
-    pygame.draw.rect(screen, (255, 125, 56), map_layer.translate_rect(gobelin1.rect), 2)
-
-    '''
+    pygame.draw.rect(screen, (255, 125, 56), map_layer.translate_rect(gobelin1.hitbox), 2)
+    pygame.draw.rect(screen, (255, 50, 56), map_layer.translate_rect(gobelin2.hitbox), 2)
+    pygame.draw.rect(screen, (255, 190, 56), map_layer.translate_rect(gobelin3.hitbox), 2)
+    
+    
+                
     
     player.affiche_ui()
     pnj1.update(dt)

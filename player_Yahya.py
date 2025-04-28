@@ -9,7 +9,7 @@ class Player(pygame.sprite.Sprite):
         self.speed = 3
         self.speed_run = 4.5
         self.screen = screen
-        self.health_value = 40
+        self.health_value = 100
         self.mana_value = 0
         self.endurance_value = 100
         self.font = pygame.font.Font("Items/Minecraft.ttf", 14)  # Police par défaut, taille 14
@@ -445,6 +445,7 @@ class Player(pygame.sprite.Sprite):
 
         
         self.feet.midbottom = self.hit_box.midbottom
+        self.hit_box.center = self.rect.center
         if self.dead:
             fond = pygame.Surface((self.screen.get_width(), self.screen.get_height()), pygame.SRCALPHA)
             fond.fill((196, 6, 6, 128))  # Rouge avec 50% de transparence (128/255)
