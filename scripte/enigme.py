@@ -22,24 +22,22 @@ class Enigme(object):
         self.largeur, self.hauteur = self.screen.get_size() #récuparation de la taille de l'écran
         self.image = pygame.image.load("enigme.png")    # chargement de l'image où il y a l'énigme
         self.witdh, self.height = self.image.get_size() #récupération de la taille de l'image
-        self.percent = 790 // self.height # pour réduire l'image à la taille de l'écran
-        self.image = pygame.transform.scale(self.image,(559,790)) # rétrécit l'image
         self.Loose = False
         self.Perdu = False
         self.running = True
         self.Win = False
 
         #initialisation des cases à cocher
-        self.case_A = pygame.Rect(350, 470, 20, 20)
+        self.case_A = pygame.Rect((self.largeur - self.image.get_width()) // 2 + 99, (self.hauteur - self.image.get_height()) // 2 + 564, 20, 20)
         self.checked_A = False
 
-        self.case_B = pygame.Rect(700, 470, 20, 20)
+        self.case_B = pygame.Rect((self.largeur - self.image.get_width())//2 + 304, (self.hauteur - self.image.get_height()) // 2 + 564, 20, 20)
         self.checked_B = False
 
-        self.case_C = pygame.Rect(350, 650, 20, 20)
+        self.case_C = pygame.Rect((self.largeur - self.image.get_width()) // 2 + 99, (self.hauteur - self.image.get_height()) // 2 + 650, 20, 20)
         self.checked_C = False
 
-        self.case_D = pygame.Rect(700, 650, 20, 20)
+        self.case_D = pygame.Rect((self.largeur - self.image.get_width()) // 2 + 304, (self.hauteur - self.image.get_height()) // 2 + 650, 20, 20)
         self.checked_D = False
 
         self.reponse_joueur = ""
@@ -160,16 +158,16 @@ class Enigme(object):
         
         
         # polices de textes à afficher
-        fontc = pygame.font.Font(None, 60)
+        fontc = pygame.font.Font(None, 40)
         fontreponse = pygame.font.Font(None, 30)
         font_time = pygame.font.Font(None, 40)
         font_lose = pygame.font.Font(None, 50)
         
-        questionn = fontc.render(self.question, True, (0, 0, 0))
-        reponseA = fontreponse.render(self.reponsess[0], True, (0, 0, 0))
-        reponseB = fontreponse.render(self.reponsess[1], True, (0, 0, 0))
-        reponseC = fontreponse.render(self.reponsess[2], True, (0, 0, 0))
-        reponseD = fontreponse.render(self.reponsess[3], True, (0, 0, 0))
+        questionn = fontc.render(self.question, True, (219, 154, 53))
+        reponseA = fontreponse.render(self.reponsess[0], True, (219, 154, 53))
+        reponseB = fontreponse.render(self.reponsess[1], True, (219, 154, 53))
+        reponseC = fontreponse.render(self.reponsess[2], True, (219, 154, 53))
+        reponseD = fontreponse.render(self.reponsess[3], True, (219, 154, 53))
         
         
         start_time = pygame.time.get_ticks()
@@ -178,25 +176,27 @@ class Enigme(object):
             
             if not self.Loose : 
                 self.screen.blit(self.image, ((self.largeur - self.image.get_width()) // 2, (self.hauteur - self.image.get_height()) // 2))
-                self.screen.blit(questionn, (300, 50))
-                self.screen.blit(reponseA, (350, 500))
-                self.screen.blit(reponseB, (750, 500))
-                self.screen.blit(reponseC, (350, 600))
-                self.screen.blit(reponseD, (750, 600))
+                self.screen.blit(questionn, ((self.largeur - self.image.get_width()) // 2 + 90, (self.hauteur - self.image.get_height()) // 2 + 400))
+                self.screen.blit(reponseA, ((self.largeur - self.image.get_width()) // 2 + 124, (self.hauteur - self.image.get_height()) // 2 + 564))
+                self.screen.blit(reponseB, ((self.largeur - self.image.get_width()) // 2 + 334, (self.hauteur - self.image.get_height()) // 2 + 564))
+                self.screen.blit(reponseC, ((self.largeur - self.image.get_width()) // 2 + 124, (self.hauteur - self.image.get_height()) // 2 + 650))
+                self.screen.blit(reponseD, ((self.largeur - self.image.get_width()) // 2 + 334, (self.hauteur - self.image.get_height()) // 2 + 650))
 
                 # checkboxs
-                pygame.draw.rect(self.screen, (0, 0, 0), self.case_A, 2)
-                pygame.draw.rect(self.screen, (0, 0, 0), self.case_B, 2)
-                pygame.draw.rect(self.screen, (0, 0, 0), self.case_C, 2)
-                pygame.draw.rect(self.screen, (0, 0, 0), self.case_D, 2)
+                '''
+                pygame.draw.rect(self.screen, (219, 154, 53), self.case_A, 2)
+                pygame.draw.rect(self.screen, (219, 154, 53), self.case_B, 2)
+                pygame.draw.rect(self.screen, (219, 154, 53), self.case_C, 2)
+                pygame.draw.rect(self.screen, (219, 154, 53), self.case_D, 2)
+                '''
 
                 # si on clique sur une des cases
 
                 if self.checked_A:
                     self.reponse_joueur = self.reponsess[0]
-                    pygame.draw.line(self.screen, (0, 0, 0), (self.case_A.left + 4, self.case_A.centery),
+                    pygame.draw.line(self.screen, (219, 154, 53), (self.case_A.left + 4, self.case_A.centery),
                          (self.case_A.centerx, self.case_A.bottom - 4), 2)
-                    pygame.draw.line(self.screen, (0, 0, 0), (self.case_A.centerx, self.case_A.bottom - 4),
+                    pygame.draw.line(self.screen, (219, 154, 53), (self.case_A.centerx, self.case_A.bottom - 4),
                                     (self.case_A.right - 4, self.case_A.top + 4), 2)
                     if self.verification(self.question,self.reponse_joueur):
                         self.Win = True
@@ -204,9 +204,9 @@ class Enigme(object):
 
                 if self.checked_B:
                     self.reponse_joueur = self.reponsess[1]
-                    pygame.draw.line(self.screen, (0, 0, 0), (self.case_B.left + 4, self.case_B.centery),
+                    pygame.draw.line(self.screen, (219, 154, 53), (self.case_B.left + 4, self.case_B.centery),
                          (self.case_B.centerx, self.case_B.bottom - 4), 2)
-                    pygame.draw.line(self.screen, (0, 0, 0), (self.case_B.centerx, self.case_B.bottom - 4),
+                    pygame.draw.line(self.screen, (219, 154, 53), (self.case_B.centerx, self.case_B.bottom - 4),
                                     (self.case_B.right - 4, self.case_B.top + 4), 2)
                     if self.verification(self.question,self.reponse_joueur):
                         self.Win = True
@@ -214,9 +214,9 @@ class Enigme(object):
                 
                 if self.checked_C:
                     self.reponse_joueur = self.reponsess[2]
-                    pygame.draw.line(self.screen, (0, 0, 0), (self.case_C.left + 4, self.case_C.centery),
+                    pygame.draw.line(self.screen, (219, 154, 53), (self.case_C.left + 4, self.case_C.centery),
                          (self.case_C.centerx, self.case_C.bottom - 4), 2)
-                    pygame.draw.line(self.screen, (0, 0, 0), (self.case_C.centerx, self.case_C.bottom - 4),
+                    pygame.draw.line(self.screen, (219, 154, 53), (self.case_C.centerx, self.case_C.bottom - 4),
                                     (self.case_C.right - 4, self.case_C.top + 4), 2)
                     if self.verification(self.question,self.reponse_joueur):
                         self.Win = True
@@ -224,9 +224,9 @@ class Enigme(object):
                     
                 if self.checked_D:
                     self.reponse_joueur = self.reponsess[3]
-                    pygame.draw.line(self.screen, (0, 0, 0), (self.case_D.left + 4, self.case_D.centery),
+                    pygame.draw.line(self.screen, (219, 154, 53), (self.case_D.left + 4, self.case_D.centery),
                          (self.case_D.centerx, self.case_D.bottom - 4), 2)
-                    pygame.draw.line(self.screen, (0, 0, 0), (self.case_D.centerx, self.case_D.bottom - 4),
+                    pygame.draw.line(self.screen, (219, 154, 53), (self.case_D.centerx, self.case_D.bottom - 4),
                                     (self.case_D.right - 4, self.case_D.top + 4), 2)
                     if self.verification(self.question,self.reponse_joueur):
                         self.Win = True
@@ -238,7 +238,7 @@ class Enigme(object):
             
             if self.Perdu:
                 lose_text = font_lose.render("Vous avez perdu.", True, (255, 0, 0))
-                self.screen.blit(lose_text, (250, 400))
+                self.screen.blit(lose_text, ((self.largeur - self.image.get_width()) // 2 + 125 , (self.hauteur - self.image.get_height()) // 2 + 470))
                 pygame.display.update()
                 time.sleep(3)
                 pygame.display.update()
@@ -248,8 +248,8 @@ class Enigme(object):
             ## il faudrait concevoir le fait que les questions peuvent être clicables afin de récupérer la réponse du joueur afin de la comparer à la bonne réponse 
                 
             if self.Win:
-                win_text = font_lose.render("Vous avez la bonne réponse.",True,(0,255,0))
-                self.screen.blit(win_text,(250,400))
+                win_text = font_lose.render("Vous avez gagné.",True,(0,255,0))
+                self.screen.blit(win_text,((self.largeur - self.image.get_width()) // 2 + 125 , (self.hauteur - self.image.get_height()) // 2 + 470))
                 pygame.display.update()
                 time.sleep(3)
                 pygame.display.update()
