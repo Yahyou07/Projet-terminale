@@ -177,7 +177,7 @@ class Enigme(object):
         while self.running :
             
             if not self.Loose : 
-                self.screen.blit(self.image, ((self.largeur-self.witdh)//2, (self.hauteur-self.height)//2))
+                self.screen.blit(self.image, ((self.largeur - self.image.get_width()) // 2, (self.hauteur - self.image.get_height()) // 2))
                 self.screen.blit(questionn, (300, 50))
                 self.screen.blit(reponseA, (350, 500))
                 self.screen.blit(reponseB, (750, 500))
