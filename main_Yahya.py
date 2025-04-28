@@ -151,6 +151,8 @@ def quit():
 
 # Fonction input pour gérer les entrées clavier
 def input():
+    if player.is_attacking:
+        return  # ← NE RIEN FAIRE SI ATTAQUE EN COURS
     pressed = pygame.key.get_pressed()
     dx, dy = 0, 0
 
@@ -233,12 +235,12 @@ while running:
                     player.start_anim_attack(player.attack_right_mouv, 0.3, 0)
                 if player.last_direction == "left" or player.last_direction == "up":
                     player.start_anim_attack(player.attack_left_mouv, 0.3, -0)
-
+                player.is_attacking = True
                 # Vérifie l'attaque sur les ennemis
                 for sprite in group.sprites():
                     if isinstance(sprite, Enemy) or isinstance(sprite, Slime):
                         # Créer une "zone d'attaque" autour du joueur
-                        attack_zone = player.hit_box.inflate(40, 40)  # Zone légèrement plus grande
+                        attack_zone = player.hit_box.inflate(30, -43)  # Zone légèrement plus grande
                         
                         if attack_zone.colliderect(sprite.rect):
                             sprite.current_health -= player.degats  # Inflige 10 points de dégâts
@@ -500,7 +502,6 @@ while running:
 
             sprite.draw_health_bar(screen,map_layer)
         if isinstance(sprite, Enemy) and player.hit_box.colliderect(sprite.rect) :
-            
             if player.health_value < 0:
                 player.health_value = 0
             if player.health_value == 0:

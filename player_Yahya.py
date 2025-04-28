@@ -16,6 +16,8 @@ class Player(pygame.sprite.Sprite):
         self.font_book = pygame.font.Font("Items/Minecraft.ttf", 20)  # Police par défaut, taille 20
         self.font_fantasy = pygame.font.Font("Items/Minecraft.ttf", 45)  # Police par défaut, taille 20
         self.Regen = False
+        #Booleen permettant gerer l'attaque du joueur
+        self.is_attacking = False
         
         # Chargement des images de l'inventaire
         self.inventory_image = pygame.image.load("UI/Inventories/inventaire_bag.png")
@@ -275,6 +277,7 @@ class Player(pygame.sprite.Sprite):
                 
                 self.player_attack_anim = False # Alors on arrete le processus en mettant le booleen a False
                 self.player_index_anim = len(self.anim_move_player) - 1  #Et on desincrémente l'index pour ne pas être out of range
+                self.is_attacking = False
 
             # Si l'index est négatif     
             elif self.player_index_anim < 0: 

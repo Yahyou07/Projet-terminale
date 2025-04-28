@@ -265,6 +265,9 @@ class Enemy(Entity):
         smoke = Effect("fumee","frame_",self.rect.centerx, self.rect.centery,(100,100))
         group.add(smoke)
         group.remove(sprite)
+        sprite.kill()         # détruit le sprite Pygame correctement
+        sprite.rect = pygame.Rect(0, 0, 0, 0)  # met rect à 0
+        sprite.hitbox = pygame.Rect(0, 0, 0, 0)  # met hitbox à 0
         
 
         
