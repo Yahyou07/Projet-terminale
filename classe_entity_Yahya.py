@@ -206,7 +206,7 @@ class Enemy(Entity):
         self.speed = 1  # Vitesse de déplacement vers le joueur
         self.detected_player = False  # Si le joueur est détecté
         
-        self.hitbox = self.rect.copy().inflate(-80, -80)
+        self.hitbox = self.rect.copy().inflate(-70, -70)
         
         self.hit_box = self.rect.copy().inflate(0,0)
 
@@ -224,6 +224,8 @@ class Enemy(Entity):
         self.distance_between_player_enemy = None
         self.attack_cooldown = 1000  # 1000 ms = 1 seconde entre 2 attaques
         self.last_attack_time = 0  # Dernier moment où l'ennemi a attaqué
+
+        self.degats = 15
     def animation_attack(self,list_mouv,speed,scale,player,dirx,diry):
         """
             Animation de l'entité
@@ -235,7 +237,7 @@ class Enemy(Entity):
         if self.sprite_index >=len(list_mouv):
             self.sprite_index = 0
             player.knockback = True
-            player.knockback_speed = 5
+            player.knockback_speed = 7
             player.knockback_direction = dirx
             player.knockback_direction_y = diry
         self.image = list_mouv[int(self.sprite_index)]
@@ -263,7 +265,7 @@ class Enemy(Entity):
         
     def dead(self, group, sprite):
         smoke = Effect("fumee","frame_",self.rect.centerx, self.rect.centery,(100,100))
-        group.add(smoke)
+        group.add(smoke,layer = 6)
         group.remove(sprite)
         sprite.kill()         # détruit le sprite Pygame correctement
         sprite.rect = pygame.Rect(0, 0, 0, 0)  # met rect à 0
@@ -278,12 +280,11 @@ class Enemy(Entity):
         self.animation(self.idle_move,0.12,(100,100))
 
     def follow_player(self, player, all_enemies):
-        """ Fait bouger l'ennemi vers le joueur en diagonale avec évitement basé sur hitbox """
-        self.distance_between_player_enemy = sqrt((player.rect.centerx - self.rect.centerx)**2 +(player.rect.centery - self.rect.centery)**2)
-        
-        # Met à jour la hitbox
+        """ Fait bouger l'ennemi vers le joueur avec diagonale et évitement """
+        self.distance_between_player_enemy = sqrt((player.rect.centerx - self.rect.centerx)**2 + (player.rect.centery - self.rect.centery)**2)
+
         self.hitbox.center = self.rect.center
-        
+
         if self.champ_vision_enemy.colliderect(player.hit_box):
             self.detected_player = True
         else:
@@ -297,21 +298,26 @@ class Enemy(Entity):
                 now = pygame.time.get_ticks()
                 if abs(dx) > abs(dy):
                     if dx > 0:
-                        self.animation_attack(self.right_attack, 0.15, (100, 100),player,1,0)
+                        self.animation_attack(self.right_attack, 0.15, (100, 100), player, 1, 0)
                         self.last_dir = "right"
                     else:
-                        self.animation_attack(self.left_attack, 0.15, (100, 100),player,-1,0)
+                        self.animation_attack(self.left_attack, 0.15, (100, 100), player, -1, 0)
                         self.last_dir = "left"
                 else:
                     if dy > 0:
-                        self.animation_attack(self.bottom_attack, 0.15, (100, 100),player,0,1)
+                        self.animation_attack(self.bottom_attack, 0.15, (100, 100), player, 0, 1)
                         self.last_dir = "down"
                     else:
-                        self.animation_attack(self.top_attack, 0.15, (100, 100),player,0,-1)
+                        self.animation_attack(self.top_attack, 0.15, (100, 100), player, 0, -1)
                         self.last_dir = "up"
 
                 if now - self.last_attack_time > self.attack_cooldown:
-                    player.health_value -= 15
+                    if player.mana_value >= self.degats:
+                        player.mana_value -= self.degats
+                    else:
+                        player.health_value += player.mana_value - self.degats
+                        player.mana_value -= self.degats
+                    
                     if player.health_value < 0:
                         player.health_value = 0
                     self.last_attack_time = now
@@ -330,25 +336,33 @@ class Enemy(Entity):
                         else:
                             self.rect.y += 1
 
-                # DEPLACEMENT NORMAL
+                # --- DEPLACEMENT EN DIAGONALE ---
+                if dx > 0:
+                    self.rect.x += self.speed
+                elif dx < 0:
+                    self.rect.x -= self.speed
+
+                if dy > 0:
+                    self.rect.y += self.speed
+                elif dy < 0:
+                    self.rect.y -= self.speed
+
+                # --- ANIMATION : prioriser le mouvement principal ---
                 if abs(dx) > abs(dy):
                     if dx > 0:
-                        self.rect.x += self.speed
                         self.animation(self.right_move, 0.2, (100, 100))
                         self.last_dir = "right"
                     else:
-                        self.rect.x -= self.speed
                         self.animation(self.left_move, 0.2, (100, 100))
                         self.last_dir = "left"
                 else:
                     if dy > 0:
-                        self.rect.y += self.speed
                         self.animation(self.bottom_move, 0.2, (100, 100))
                         self.last_dir = "down"
                     else:
-                        self.rect.y -= self.speed
                         self.animation(self.top_move, 0.2, (100, 100))
                         self.last_dir = "up"
+
         else:
             self.idle_enemy()
 
@@ -386,7 +400,7 @@ class Slime(pygame.sprite.Sprite):
         self.health_bar_width = 20  # Largeur de la barre de vie
         self.health_bar_height = 10   # Hauteur de la barre
 
-
+        self.degats = 40
     def draw_health_bar(self, screen, map_layer):
         """ Dessine la barre de vie arrondie de l'ennemi au-dessus de lui """
         world_pos = (self.rect.centerx, self.rect.top - 10)
@@ -459,6 +473,7 @@ class Slime(pygame.sprite.Sprite):
 
         else:
             self.idle()   
+
     def kamikaze(self,sprite,group,player):
         explosion = Effect("explosion","frame",self.rect.centerx, self.rect.centery,(150,150))
         crater = Crater("crater",self.rect.centerx-40,self.rect.centery)
@@ -486,11 +501,19 @@ class Slime(pygame.sprite.Sprite):
             player.knockback = True
             player.knockback_speed = 10
             player.knockback_direction_y = -1
-        player.health_value -= 40
+
+        if player.mana_value >= self.degats:
+            player.mana_value -= self.degats
+        else:
+            player.health_value += player.mana_value - self.degats
+            player.mana_value -= self.degats
+
+            
+
         group.remove(sprite)
     def dead(self, group, sprite):
         smoke = Effect("fumee","frame_",self.rect.centerx, self.rect.centery,(100,100))
-        group.add(smoke)
+        group.add(smoke,layer = 6)
         group.remove(sprite)
 
 

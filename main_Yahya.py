@@ -139,7 +139,7 @@ for x, y in tree_positions:
     tronc = Tronc(x, y)
     tronc.feuillage = feuillage  # ← On associe le feuillage au tronc
     group.add(tronc, layer=2)
-    group.add(feuillage, layer=6)
+    group.add(feuillage, layer=7)
     troncs.append(tronc)  # ← On garde une liste de tous les troncs si besoin
 
 # Fonction quit
@@ -233,9 +233,13 @@ while running:
                 # Animation attaque
                 if player.last_direction == "right" or player.last_direction == "down":
                     player.start_anim_attack(player.attack_right_mouv, 0.3, 0)
+                    
                 if player.last_direction == "left" or player.last_direction == "up":
                     player.start_anim_attack(player.attack_left_mouv, 0.3, -0)
+
+                #Le joueur peut attaquer
                 player.is_attacking = True
+
                 # Vérifie l'attaque sur les ennemis
                 for sprite in group.sprites():
                     if isinstance(sprite, Enemy) or isinstance(sprite, Slime):
@@ -540,6 +544,11 @@ while running:
     #On reférifie si la vie est en dessous de 0 
     if player.health_value < 0:
         player.health_value = 0 # Si c'est le cas on remet la vie à zéro
+
+    #On reférifie si le mana est en dessous de 0 
+    if player.mana_value < 0:
+        player.mana_value = 0 # Si c'est le cas on remet la vie à zéro
+
     #On vérifie si la vie est à zéro
     if player.health_value == 0:
         player.dead = True # Si c'est le cas on met player.dead à zéro 
@@ -558,7 +567,7 @@ while running:
         can_attack = True
     
     
-    
+    '''
     # Affichage optionnel des hitbox bour le debbugage
     pygame.draw.rect(screen, (255, 0, 0), map_layer.translate_rect(player.hit_box), 2)
 
@@ -579,16 +588,17 @@ while running:
     pygame.draw.rect(screen, (255, 0, 0), map_layer.translate_rect(player.hit_box), 2)
     pygame.draw.rect(screen, (255, 125, 56), map_layer.translate_rect(pnj1.champ_vision), 2)
     pygame.draw.rect(screen, (255, 125, 56), map_layer.translate_rect(gobelin1.champ_vision_enemy), 2)
+    
+    '''
     pygame.draw.rect(screen, (255, 125, 56), map_layer.translate_rect(gobelin1.hitbox), 2)
     pygame.draw.rect(screen, (255, 50, 56), map_layer.translate_rect(gobelin2.hitbox), 2)
     pygame.draw.rect(screen, (255, 190, 56), map_layer.translate_rect(gobelin3.hitbox), 2)
-    
     
                 
     
     player.affiche_ui()
     pnj1.update(dt)
-    
+    print(player.health_value,player.mana_value)
     save_menu.update()
     chest1.anim_chest()
     
