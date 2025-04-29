@@ -598,7 +598,7 @@ while running:
     
     player.affiche_ui()
     pnj1.update(dt)
-    print(player.health_value,player.mana_value)
+    
     save_menu.update()
     chest1.anim_chest()
     

@@ -566,7 +566,7 @@
   <object id="38" name="collision" x="647.11" y="1128.92" width="14.6893" height="21.9849"/>
   <object id="39" name="collision" x="612.655" y="1128.46" width="12.8711" height="21.4394"/>
   <object id="40" name="collision" x="646.837" y="1150.83" width="14.6893" height="8.16672"/>
-  <object id="41" name="collision" x="835.655" y="378.008" width="24.6893" height="49.9849"/>
+  <object id="41" name="collision" x="832.746" y="375.826" width="31.4166" height="52.1667"/>
   <object id="42" name="collision" x="9.5" y="-31.5" width="1584" height="66"/>
   <object id="44" name="collision" x="42.2727" y="1075.18" width="11.8182" height="16.1818"/>
   <object id="45" name="collision" x="37.9091" y="1091.64" width="16" height="7.63635"/>

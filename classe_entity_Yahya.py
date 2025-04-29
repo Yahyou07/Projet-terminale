@@ -235,11 +235,12 @@ class Enemy(Entity):
         """
         self.sprite_index += speed
         if self.sprite_index >=len(list_mouv):
-            self.sprite_index = 0
             player.knockback = True
             player.knockback_speed = 7
             player.knockback_direction = dirx
             player.knockback_direction_y = diry
+            self.sprite_index = 0
+           
         self.image = list_mouv[int(self.sprite_index)]
         self.image = pygame.transform.scale(self.image,scale)
 
@@ -476,7 +477,7 @@ class Slime(pygame.sprite.Sprite):
 
     def kamikaze(self,sprite,group,player):
         explosion = Effect("explosion","frame",self.rect.centerx, self.rect.centery,(150,150))
-        crater = Crater("crater",self.rect.centerx-40,self.rect.centery)
+        crater = Crater("crater",self.rect.centerx-30,self.rect.centery)
         
         group.add(crater,layer = 3)
         group.add(explosion,layer = 6)
