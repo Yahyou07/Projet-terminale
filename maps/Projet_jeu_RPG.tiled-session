@@ -17,11 +17,11 @@
             "scaleInEditor": 1
         },
         "maps.tmx": {
-            "scale": 1,
+            "scale": 3,
             "selectedLayer": 5,
             "viewCenter": {
-                "x": 694.5,
-                "y": 399.5
+                "x": 713.8333333333333,
+                "y": 591.5
             }
         },
         "murs.tsx": {
