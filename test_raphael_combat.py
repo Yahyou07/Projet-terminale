@@ -26,16 +26,18 @@ tmx_data = load_pygame("maps/maps.tmx")  # Remplace par ton fichier .tmx
 player_position = tmx_data.get_object_by_name("Player")
 player = Player(player_position.x,player_position.y, screen)  # Positionner le joueur
 
-item = Item("apple",1,10,352,350)
-item2 = Item("plastron",1,10,352,450)
-item3 = Item("apple",1,10,352,290)
-item4 = Item("apple",1,10,352,270)
-item5 = Item("hache",1,10,352,500)
-item6 = Item("apple",1,10,352,530)
-item7 = Item("apple",1,10,352,560)
-item8 = Item("hache",1,10,352,230)
-item9 = Item("pioche",1,10,352,700)
-item10 = Item("hache",1,10,352,350)
+item = Item("pain",24,10,352,350,"Food")
+item2 = Item("plastron",1,10,352,450,"Plastron")
+item3 = Item("apple",24,10,352,290,"Food")
+item4 = Item("bottes",24,10,352,270,"Bottes")
+item5 = Item("fromage",1,10,352,500,"Food")
+item6 = Item("rubis",24,10,352,530,"Food")
+item7 = Item("casque",24,10,352,560,"Casque")
+item8 = Item("jambiere",1,10,352,230,"Jambiere")
+item9 = Item("pain",1,10,352,700,"Food")
+item10 = Item("fish",24,10,352,710,"Food")
+item11 = Item("fromage",24,10,352,130,"Food")
+item12 = Item("fromage",1,10,352,130,"Food")
 
 map_data = pyscroll.data.TiledMapData(tmx_data)
 
@@ -74,8 +76,6 @@ def quit():
                 pygame.quit()
                 sys.exit()
     
-
-
 #Fonction input pour gerer les entrée clavier
 def input():
     pressed = pygame.key.get_pressed()
@@ -97,12 +97,13 @@ def input():
         attacking = 1
         dx = 0
         dy = 0
+        if attacking == 1:
+            player.move(dx, dy, attacking, sprinting)
 
     if dx != 0 or dy != 0:
         player.move(dx, dy, attacking, sprinting)  # Passe la variable sprinting
 
-    if attacking == 1:
-        player.move(dx, dy, attacking, sprinting)
+    
 
     else:
         # Animation idle quand le joueur ne bouge pas

@@ -86,16 +86,12 @@ class Player(pygame.sprite.Sprite):
     
     def animation(self,liste_mouv,speed):
         self.current_sprite += speed
+        #print(self.current_sprite, len(liste_mouv))
         if self.current_sprite >=len(liste_mouv):
             self.current_sprite = 0
-        self.image = liste_mouv[int(self.current_sprite)]
+        self.image = liste_mouv[int(self.current_sprite)]     
 
-    #def attack(self, attacking=True):
-        #animation d'attaque
-        #attaque_speed = 0.3
-        
-
-    def move(self, dx, dy, attacking, running=False, ):
+    def move(self, dx, dy, attacking, running=False):
         pygame.draw.rect(self.screen, (255, 0, 0), self.rect, 2)
         speed = self.speed_run if running else self.speed
         if dx != 0 and dy != 0:
@@ -106,13 +102,13 @@ class Player(pygame.sprite.Sprite):
 
         # Gestion des animations
         attaque_speed = 0.3
-        anim_speed = 0.3 if running else 0.15
+        anim_speed = 0.1 if running else 0.15
         if dx > 0:
             self.animation(self.right, anim_speed)
             self.last_direction = "right"
-            print(dx)
         elif dx < 0:
             self.animation(self.left, anim_speed)
+            print("déplace à gauche")
             self.last_direction = "left"
         elif dy > 0:
             self.animation(self.down, anim_speed)
@@ -121,9 +117,10 @@ class Player(pygame.sprite.Sprite):
             self.animation(self.up, anim_speed)
             self.last_direction = "up"
 
-        elif attacking == 1:
+        if attacking == 1:
             self.animation(self.attack_right_mouv, attaque_speed)
             self.last_direction = "right"
+            print("il attaque")
 
         
 
