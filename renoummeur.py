@@ -1,7 +1,7 @@
 import os
 
 # Dossier contenant les fichiers
-folder_path = "enemy/slime/walk/walk6"
+folder_path = "enemy/slime1/walk/walk1"
 
 # Nouveau préfixe
 new_prefix = "right"

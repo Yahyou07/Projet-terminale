@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="16" tileheight="16" infinite="0" nextlayerid="8" nextobjectid="52">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="16" tileheight="16" infinite="0" nextlayerid="8" nextobjectid="57">
  <tileset firstgid="1" source="grass.tsx"/>
  <tileset firstgid="257" source="escaliers.tsx"/>
  <tileset firstgid="1281" source="murs.tsx"/>
@@ -576,5 +576,10 @@
   <object id="49" name="collision" x="38.3636" y="1080.55" width="3.72729" height="10.7273"/>
   <object id="50" name="collision" x="40.2818" y="1077.37" width="1.90855" height="3.05204"/>
   <object id="51" name="collision" x="34.1779" y="1085.21" width="3.90516" height="10.7035"/>
+  <object id="52" name="collision" x="396.11" y="1479.01" width="4.78025" height="17.0758"/>
+  <object id="53" name="collision" x="391.246" y="1483.78" width="4.78025" height="9.80307"/>
+  <object id="54" name="collision" x="401.428" y="1480.37" width="4.78025" height="16.894"/>
+  <object id="55" name="collision" x="406.155" y="1485.01" width="4.78025" height="8.71216"/>
+  <object id="56" name="collision" x="388.337" y="1485.73" width="3.05298" height="6.25761"/>
  </objectgroup>
 </map>

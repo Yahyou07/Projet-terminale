@@ -260,12 +260,12 @@ class Player(pygame.sprite.Sprite):
                 self.book_animating = False
                 self.IsOpen = True
                 self.book_anim_index = len(self.book_animation_list) - 1  # Assurez-vous que l'index est dans les limites
-                print('en train d animer')
+               
                 self.Affiche_texte_page = True
             elif self.book_anim_index < 0:
                 self.book_anim_index = 0  # Assurez-vous que l'index n'est pas négatif
             self.current_book = self.book_animation_list[int(self.book_anim_index)]
-            print(self.current_book)
+            
             self.current_book = pygame.transform.scale(self.current_book, (800, 750))  # Appliquez l'échelle ici
 
     def anim_player_full_animation(self):
@@ -627,7 +627,7 @@ class Player(pygame.sprite.Sprite):
 
         # On s'assure que la mana ne devienne pas négative
         self.mana_value = max(self.mana_value, 0)
-        print(f"Mana Value: {self.mana_value}")  # Pour vérifier
+        
 
     def handle_mouse_events(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -769,34 +769,34 @@ class Player(pygame.sprite.Sprite):
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_1:
                 self.inventory_index = 0
-                print(self.current_item)
+                
             elif event.key == pygame.K_2:
                 self.inventory_index = 1
-                print(self.current_item)
+                
             elif event.key == pygame.K_3:
                 self.inventory_index = 2
-                print(self.current_item)
+                
             elif event.key == pygame.K_4:
                 self.inventory_index = 3
-                print(self.current_item)
+                
             elif event.key == pygame.K_5:
                 self.inventory_index = 4
-                print(self.current_item)
+                
             elif event.key == pygame.K_6:
                 self.inventory_index = 5
-                print(self.current_item)
+                
             elif event.key == pygame.K_7:
                 self.inventory_index = 6
-                print(self.current_item)
+                
             elif event.key == pygame.K_8:
                 self.inventory_index = 7
-                print(self.current_item)
+                
             elif event.key == pygame.K_9:
                 self.inventory_index = 8
-                print(self.current_item)
+                
             elif event.key == pygame.K_0:
                 self.inventory_index = 9
-                print(self.current_item)
+                
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 4:  # Molette vers le haut

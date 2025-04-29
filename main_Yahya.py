@@ -76,7 +76,7 @@ gobelin2 = Enemy("gobelin_epee",350,250,"enemy",screen,(100,100))
 
 gobelin3 = Enemy("gobelin_epee",350,400,"enemy",screen,(100,100))
 
-slime1 = Slime("slime","enemy",600,100)
+slime1 = Slime("slime1","enemy",600,100)
 #pnj2 = PNJ("Wizard",200,500,"pnj",screen)
 chest1 = Coffre("chest1",chest_position.x,chest_position.y)
 
@@ -138,6 +138,7 @@ for x, y in tree_positions:
     feuillage = Feuillage(x, y)
     tronc = Tronc(x, y)
     tronc.feuillage = feuillage  # ← On associe le feuillage au tronc
+    feuillage.tronc = tronc # ← On associe le tronc au feuillage
     group.add(tronc, layer=2)
     group.add(feuillage, layer=7)
     troncs.append(tronc)  # ← On garde une liste de tous les troncs si besoin
@@ -269,10 +270,6 @@ while running:
                             if sprite.current_health == 0:
                                 sprite.dead(group,sprite)
 
-
-                                
-                
-            
 
             if player.rect_button_armour.collidepoint(event.pos):
                 player.OnArmour = True
@@ -456,9 +453,14 @@ while running:
             
         if isinstance(sprite, Tronc) and player.feet.colliderect(sprite.hitbox):
             player.move_back()
+        
+        if isinstance(sprite, Feuillage) and player.hit_box.colliderect(sprite.hitbox):
+            sprite.image.set_alpha(100)  # Rendre le feuillage transparent
+            sprite.tronc.image.set_alpha(100)  # Rendre le tronc transparent
 
-    
-
+        elif isinstance(sprite, Feuillage):
+            sprite.image.set_alpha(255)  # Restaurer l'opacité si le joueur ne collisionne plus
+            sprite.tronc.image.set_alpha(255)
     #On gere ici les collision aves les objets de type "Coffre"
         if isinstance(sprite, Coffre) and player.feet.colliderect(sprite.rect):
             
@@ -539,6 +541,7 @@ while running:
     for rect in collision_rects:
         if player.feet.colliderect(rect):
             player.move_back()
+            print("Singe en approche !")
             
     
     #On reférifie si la vie est en dessous de 0 
@@ -589,11 +592,14 @@ while running:
     pygame.draw.rect(screen, (255, 125, 56), map_layer.translate_rect(pnj1.champ_vision), 2)
     pygame.draw.rect(screen, (255, 125, 56), map_layer.translate_rect(gobelin1.champ_vision_enemy), 2)
     
-    '''
+    
+
+    for i in troncs:
+        pygame.draw.rect(screen, (255, 0, 255), map_layer.translate_rect(i.feuillage.hitbox), 2)
     pygame.draw.rect(screen, (255, 125, 56), map_layer.translate_rect(gobelin1.hitbox), 2)
     pygame.draw.rect(screen, (255, 50, 56), map_layer.translate_rect(gobelin2.hitbox), 2)
     pygame.draw.rect(screen, (255, 190, 56), map_layer.translate_rect(gobelin3.hitbox), 2)
-    
+    '''
                 
     
     player.affiche_ui()

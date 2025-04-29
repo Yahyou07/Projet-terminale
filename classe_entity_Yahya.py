@@ -379,21 +379,21 @@ class Slime(pygame.sprite.Sprite):
         self.image = pygame.image.load(f"{type}/{name}/walk/walk4/bottom1.png")
         
         #mouvement basique du slime walk
-        self.right_move = [pygame.image.load(f"{type}/{name}/walk/walk1/right{i}.png")for i in range(1,25)]
-        self.left_move = [pygame.image.load(f"{type}/{name}/walk/walk2/left{i}.png")for i in range(1,25)]
-        self.top_move = [pygame.image.load(f"{type}/{name}/walk/walk3/top{i}.png")for i in range(1,25)]
-        self.bottom_move = [pygame.image.load(f"{type}/{name}/walk/walk4/bottom{i}.png")for i in range(1,25)]
+        self.right_move = [pygame.image.load(f"{type}/{name}/walk/walk1/right{i}.png")for i in range(1,9)]
+        self.left_move = [pygame.image.load(f"{type}/{name}/walk/walk2/left{i}.png")for i in range(1,9)]
+        self.top_move = [pygame.image.load(f"{type}/{name}/walk/walk3/top{i}.png")for i in range(1,9)]
+        self.bottom_move = [pygame.image.load(f"{type}/{name}/walk/walk4/bottom{i}.png")for i in range(1,9)]
         
 
-        self.idle_move = [pygame.image.load(f"{type}/{name}/walk/walk4/bottom{i}.png")for i in range(1,25)]
-        self.image = pygame.transform.scale(self.image,(40,40))
+        self.idle_move = [pygame.image.load(f"{type}/{name}/idle/idle{i}.png")for i in range(1,7)]
+        self.image = pygame.transform.scale(self.image,(64,64))
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
         
         self.sprite_index = 0
         self.champ_vision_enemy = self.rect.copy().inflate(500, 500)  # Champ de vision agrandi autour de l'ennemi
-        self.speed = 1.3  # Vitesse de déplacement vers le joueur
+        self.speed = 1.5  # Vitesse de déplacement vers le joueur
         self.detected_player = False  # Si le joueur est détecté
 
         self.max_health = 20  # Vie maximale
@@ -431,10 +431,10 @@ class Slime(pygame.sprite.Sprite):
         if self.sprite_index >=len(list_mouv):
             self.sprite_index = 0
         self.image = list_mouv[int(self.sprite_index)]
-        self.image = pygame.transform.scale(self.image,(40,40))
+        self.image = pygame.transform.scale(self.image,(64,64))
 
     def idle(self):
-        self.animation(self.bottom_move,1)
+        self.animation(self.idle_move,0.3)
         
     def follow_player(self, player):
         """ Fait bouger l'ennemi vers le joueur en diagonale avec bonne animation """
@@ -459,17 +459,17 @@ class Slime(pygame.sprite.Sprite):
             # Animation : choisir la plus grande distance
             if abs(dx) > abs(dy):
                 if dx > 0:
-                    self.animation(self.right_move, 1)
+                    self.animation(self.right_move, 0.3)
                     self.last_dir = "right"
                 else:
-                    self.animation(self.left_move, 1)
+                    self.animation(self.left_move, 0.3)
                     self.last_dir = "left"
             else:
                 if dy > 0:
-                    self.animation(self.bottom_move, 1)
+                    self.animation(self.bottom_move, 0.3)
                     self.last_dir = "down"
                 else:
-                    self.animation(self.top_move, 1)
+                    self.animation(self.top_move, 0.3)
                     self.last_dir = "up"
 
         else:

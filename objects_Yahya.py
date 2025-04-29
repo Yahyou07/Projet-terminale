@@ -38,7 +38,8 @@ class Feuillage(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-
+        self.hitbox = self.rect.copy().inflate(0, -47) 
+        self.hitbox.y -= 25
 class Coffre(pygame.sprite.Sprite):
     def __init__(self, name, x,y):
         super().__init__()
