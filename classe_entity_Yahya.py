@@ -225,6 +225,8 @@ class Enemy(Entity):
         self.attack_cooldown = 1000  # 1000 ms = 1 seconde entre 2 attaques
         self.last_attack_time = 0  # Dernier moment où l'ennemi a attaqué
 
+       
+
         self.degats = 15
     def animation_attack(self,list_mouv,speed,scale,player,dirx,diry):
         """
@@ -235,11 +237,12 @@ class Enemy(Entity):
         """
         self.sprite_index += speed
         if self.sprite_index >=len(list_mouv):
+            self.sprite_index = 0
+        if self.sprite_index >=len(list_mouv)-3:
             player.knockback = True
             player.knockback_speed = 7
             player.knockback_direction = dirx
             player.knockback_direction_y = diry
-            self.sprite_index = 0
            
         self.image = list_mouv[int(self.sprite_index)]
         self.image = pygame.transform.scale(self.image,scale)
@@ -372,27 +375,35 @@ class Enemy(Entity):
 
 
 class Slime(pygame.sprite.Sprite):
-    def __init__(self,name,type,x,y):
+    def __init__(self,name,type,x,y,category,screen):
         super().__init__()
         
         self.name = name
         self.image = pygame.image.load(f"{type}/{name}/walk/walk4/bottom1.png")
-        
+        self.category = category
+        self.screen = screen
         #mouvement basique du slime walk
         self.right_move = [pygame.image.load(f"{type}/{name}/walk/walk1/right{i}.png")for i in range(1,9)]
         self.left_move = [pygame.image.load(f"{type}/{name}/walk/walk2/left{i}.png")for i in range(1,9)]
         self.top_move = [pygame.image.load(f"{type}/{name}/walk/walk3/top{i}.png")for i in range(1,9)]
         self.bottom_move = [pygame.image.load(f"{type}/{name}/walk/walk4/bottom{i}.png")for i in range(1,9)]
         
+        
+        #mouvements d'attaque de l'ennemi 
+        self.right_attack = [pygame.image.load(f"{type}/{name}/attack/attack1/right{i}.png")for i in range(1,11)]
+        self.left_attack = [pygame.image.load(f"{type}/{name}/attack/attack2/left{i}.png")for i in range(1,11)]
+        self.top_attack = [pygame.image.load(f"{type}/{name}/attack/attack3/top{i}.png")for i in range(1,11)]
+        self.bottom_attack =[pygame.image.load(f"{type}/{name}/attack/attack4/bottom{i}.png")for i in range(1,11)]
 
+        #mouvement d'idle du slime
         self.idle_move = [pygame.image.load(f"{type}/{name}/idle/idle{i}.png")for i in range(1,7)]
         self.image = pygame.transform.scale(self.image,(64,64))
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-        
+        self.hitbox = self.rect.copy().inflate(0,0)
         self.sprite_index = 0
-        self.champ_vision_enemy = self.rect.copy().inflate(500, 500)  # Champ de vision agrandi autour de l'ennemi
+        self.champ_vision_enemy = self.rect.copy().inflate(300, 300)  # Champ de vision agrandi autour de l'ennemi
         self.speed = 1.5  # Vitesse de déplacement vers le joueur
         self.detected_player = False  # Si le joueur est détecté
 
@@ -401,7 +412,16 @@ class Slime(pygame.sprite.Sprite):
         self.health_bar_width = 20  # Largeur de la barre de vie
         self.health_bar_height = 10   # Hauteur de la barre
 
-        self.degats = 40
+        self.degats = 20
+        
+        self.attack_cooldown = 1000  # 1000 ms = 1 seconde entre 2 attaques
+        self.last_attack_time = 0  # Dernier moment où l'ennemi a attaqué
+
+        self.distance_between_player_slime = 9999
+
+        self.last_shot_time = 0
+        self.projectile_cooldown = 2000  # ms
+
     def draw_health_bar(self, screen, map_layer):
         """ Dessine la barre de vie arrondie de l'ennemi au-dessus de lui """
         world_pos = (self.rect.centerx, self.rect.top - 10)
@@ -419,6 +439,33 @@ class Slime(pygame.sprite.Sprite):
         health_rect.topleft = bg_rect.topleft
         health_rect.height = self.health_bar_height
         pygame.draw.rect(screen, (50, 205, 50), health_rect, border_radius=3)
+    
+    def animation_attack(self,list_mouv,speed,scale,player,dirx,diry):
+        """
+            Animation de l'entité
+            Attributs:
+                list_mouv : liste des images de l'animation
+                speed : vitesse de l'animation
+        """
+        self.sprite_index += speed
+        if self.sprite_index >=len(list_mouv):
+
+            if player.mana_value >= self.degats:
+                player.mana_value -= self.degats
+            else:
+                player.health_value += player.mana_value - self.degats
+                player.mana_value -= self.degats
+                    
+            if player.health_value < 0:
+                player.health_value = 0
+            self.sprite_index = 0
+        if self.sprite_index >=len(list_mouv)-3:
+            player.knockback = True
+            player.knockback_speed = 7
+            player.knockback_direction = dirx
+            player.knockback_direction_y = diry
+        self.image = list_mouv[int(self.sprite_index)]
+        self.image = pygame.transform.scale(self.image,scale)
 
     def animation(self,list_mouv,speed):
         """
@@ -435,11 +482,89 @@ class Slime(pygame.sprite.Sprite):
 
     def idle(self):
         self.animation(self.idle_move,0.3)
-        
-    def follow_player(self, player):
+
+    def follow_player(self, player, all_enemies):
+        """ Fait bouger l'ennemi vers le joueur avec diagonale et évitement """
+        self.distance_between_player_slime = sqrt((player.rect.centerx - self.rect.centerx)**2 +(player.rect.centery - self.rect.centery)**2)
+
+        self.hitbox.center = self.rect.center
+
+        if self.champ_vision_enemy.colliderect(player.hit_box):
+            self.detected_player = True
+        else:
+            self.detected_player = False
+
+        if self.detected_player and not player.dead:
+            dx = player.rect.centerx - self.rect.centerx
+            dy = player.rect.centery - self.rect.centery
+
+            if self.distance_between_player_slime <= 30:
+                now = pygame.time.get_ticks()
+                if abs(dx) > abs(dy):
+                    if dx > 0:
+                        self.animation_attack(self.right_attack, 0.15, (64, 64), player, 1, 0)
+                        self.last_dir = "right"
+                    else:
+                        self.animation_attack(self.left_attack, 0.15, (64, 64), player, -1, 0)
+                        self.last_dir = "left"
+                else:
+                    if dy > 0:
+                        self.animation_attack(self.bottom_attack, 0.15, (64, 64), player, 0, 1)
+                        self.last_dir = "down"
+                    else:
+                        self.animation_attack(self.top_attack, 0.15, (64, 64), player, 0, -1)
+                        self.last_dir = "up"
+
+                
+
+            else:
+                # EVITEMENT avec hitbox
+                for other in all_enemies:
+                    if other is not self and self.hitbox.colliderect(other.hitbox):
+                        if self.rect.centerx < other.rect.centerx:
+                            self.rect.x -= 1
+                        else:
+                            self.rect.x += 1
+
+                        if self.rect.centery < other.rect.centery:
+                            self.rect.y -= 1
+                        else:
+                            self.rect.y += 1
+
+                # --- DEPLACEMENT EN DIAGONALE ---
+                if dx > 0:
+                    self.rect.x += self.speed
+                elif dx < 0:
+                    self.rect.x -= self.speed
+
+                if dy > 0:
+                    self.rect.y += self.speed
+                elif dy < 0:
+                    self.rect.y -= self.speed
+
+                # --- ANIMATION : prioriser le mouvement principal ---
+                if abs(dx) > abs(dy):
+                    if dx > 0:
+                        self.animation(self.right_move, 0.2)
+                        self.last_dir = "right"
+                    else:
+                        self.animation(self.left_move, 0.2)
+                        self.last_dir = "left"
+                else:
+                    if dy > 0:
+                        self.animation(self.bottom_move, 0.2)
+                        self.last_dir = "down"
+                    else:
+                        self.animation(self.top_move, 0.2)
+                        self.last_dir = "up"
+
+        else:
+            self.idle()  
+    def follow_player_optional(self, player):
         """ Fait bouger l'ennemi vers le joueur en diagonale avec bonne animation """
 
         self.distance_between_player_slime = sqrt((player.rect.centerx - self.rect.centerx)**2 +(player.rect.centery - self.rect.centery)**2)
+
         
         if self.champ_vision_enemy.colliderect(player.hit_box):
             self.detected_player = True
@@ -509,9 +634,11 @@ class Slime(pygame.sprite.Sprite):
             player.health_value += player.mana_value - self.degats
             player.mana_value -= self.degats
 
-            
 
         group.remove(sprite)
+
+    
+
     def dead(self, group, sprite):
         smoke = Effect("fumee","frame_",self.rect.centerx, self.rect.centery,(100,100))
         group.add(smoke,layer = 6)

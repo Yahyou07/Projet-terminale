@@ -76,21 +76,15 @@ gobelin2 = Enemy("gobelin_epee",350,250,"enemy",screen,(100,100))
 
 gobelin3 = Enemy("gobelin_epee",350,400,"enemy",screen,(100,100))
 
-slime1 = Slime("slime1","enemy",600,100)
+slime1 = Slime("slime1","enemy",600,100,"suiveur",screen)
 #pnj2 = PNJ("Wizard",200,500,"pnj",screen)
 chest1 = Coffre("chest1",chest_position.x,chest_position.y)
 
 item = Item("pain", 24, 30, 352, 350, "Food")
 item2 = Item("plastron", 1, 10, 300, 450, "Plastron")
-item3 = Item("apple", 24, 10, 352, 290, "Food")
-item4 = Item("bottes", 1, 10, 500, 270, "Bottes")
-item5 = Item("rubis", 24, 10, 352, 530, "Artefact")
-item6 = Item("casque", 1, 10, 180, 560, "Casque")
-item7 = Item("jambiere", 1, 10, 352, 230, "Jambiere")
+item3 = Item("bottes", 1, 10, 500, 270, "Bottes")
 
-item8 = Item("fish", 24, 10, 352, 710, "Food")
-item9 = Item("pioche1", 24, 10, 352, 130, "Pioche")
-item10 = Item("hache", 24, 10, 400, 130, "Hache")
+
 
 
 
@@ -102,7 +96,7 @@ map_data = pyscroll.data.TiledMapData(tmx_data)
 
 # Créer un groupe de rendu pour pyscroll
 map_layer = pyscroll.orthographic.BufferedRenderer(map_data, screen.get_size())
-map_layer.zoom = 2  # Facteur de zoom (1 = taille normale, 2 = zoomé x2)
+map_layer.zoom = 2.2  # Facteur de zoom (1 = taille normale, 2 = zoomé x2)
 
 # Créer un groupe de sprites avec caméra centrée
 group = pyscroll.PyscrollGroup(map_layer=map_layer, default_layer=1)
@@ -112,13 +106,7 @@ group.add(player, layer=5)
 group.add(item)
 group.add(item2)
 group.add(item3)
-group.add(item4)
-group.add(item5)
-group.add(item6)
-group.add(item7)
-group.add(item8)
-group.add(item9)
-group.add(item10)
+
 
 #On ajoute ici le coffre
 group.add(chest1,layer = 2)
@@ -142,6 +130,8 @@ for x, y in tree_positions:
     group.add(tronc, layer=2)
     group.add(feuillage, layer=7)
     troncs.append(tronc)  # ← On garde une liste de tous les troncs si besoin
+
+
 
 # Fonction quit
 def quit():
@@ -214,6 +204,10 @@ can_talk_to_pnj1 = False
 active_pnj = None
 can_attack = True
 bois_recolte = 0
+
+
+projectile_group = pygame.sprite.Group()  # ou pygame.sprite.Group() si pas besoin de caméra
+
 while running:
     dt = mainClock.tick(60) / 1000  # Temps écoulé en secondes
     
@@ -324,6 +318,7 @@ while running:
             if event.key == pygame.K_i:
                 if near_chest and near_chest.Can_open:
                     near_chest.start_animation_coffre(near_chest.coffre_open_list, 0.3)
+                    
                 elif active_pnj:  # ← Si on a un PNJ actif
                     active_pnj.CanDialog = not active_pnj.CanDialog
                     if active_pnj.CanDialog:
@@ -371,6 +366,9 @@ while running:
 
     keys = pygame.key.get_pressed()
     player.regeneration_endurance(keys)
+
+    
+
 
     group.update(dt)
     group.center(player.rect.center)  # Centre la caméra sur le joueur
@@ -473,7 +471,7 @@ while running:
                 screen_pos = map_layer.translate_point(world_pos)
                 screen.blit(player.key_board_I, (screen_pos[0]-23, screen_pos[1]+10))
 
-        if isinstance(sprite, Item) and player.hit_box.colliderect(sprite.rect):
+        if isinstance(sprite, Item) and player.hit_box.colliderect(sprite.rect) and sprite.en_animation_sortie == False:
             group.remove(sprite)  # Supprime l'objet du groupe
             player.add_to_inventory(sprite)
 
@@ -516,11 +514,23 @@ while running:
 
         if isinstance(sprite,Slime):
             sprite.champ_vision_enemy.center = sprite.rect.center  # Toujours mettre à jour le champ de vision
-            sprite.follow_player(player)
+            
+            if sprite.category == "suiveur":
+                sprite.follow_player(player,[slime1])
+                
+                
+            if sprite.category == "kamikaze":
+                
+                sprite.follow_player_optional(player)
+                
+                if sprite.distance_between_player_slime <= 10 and sprite.category == "kamikaze":
+                    sprite.kamikaze(sprite,group,player)
+                
+                
             
             sprite.draw_health_bar(screen,map_layer)
-            if sprite.distance_between_player_slime <= 10:
-                sprite.kamikaze(sprite,group,player) 
+
+        
 
     # Si knockback est actif
     if player.knockback:
@@ -541,7 +551,7 @@ while running:
     for rect in collision_rects:
         if player.feet.colliderect(rect):
             player.move_back()
-            print("Singe en approche !")
+            
             
     
     #On reférifie si la vie est en dessous de 0 
@@ -606,7 +616,7 @@ while running:
     pnj1.update(dt)
     
     save_menu.update()
-    chest1.anim_chest()
+    chest1.anim_chest(group,near_chest)
     
     
     pnj1.idle()

@@ -1,10 +1,10 @@
 import os
 
 # Dossier contenant les fichiers
-folder_path = "enemy/slime1/walk/walk1"
+folder_path = "enemy/slime1/attack/attack4"
 
 # Nouveau préfixe
-new_prefix = "right"
+new_prefix = "bottom"
 
 # Récupérer et trier les fichiers concernés
 files = sorted([f for f in os.listdir(folder_path) if f.endswith((".png", ".jpg", ".jpeg"))])

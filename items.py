@@ -23,8 +23,38 @@ class Item(pygame.sprite.Sprite):
         self.flottement_amplitude = 5  # Hauteur du flottement
         self.flottement_vitesse = 0.1  # Vitesse du flottement
         self.time = 0  # Compteur de temps
-    
-    def update(self,dt):
-        self.time += 1
-        self.rect.y = self.base_y + int(self.flottement_amplitude * math.sin(self.time * self.flottement_vitesse))
+
+        # Animation de sortie de coffre
+        self.en_animation_sortie = False
+        self.vitesse_x = 0
+        self.vitesse_y = 0
+        self.gravite = 0.5  # Accélération due à la gravité
+
+    def lancer_depuis_coffre(self, direction='droite'):
+        self.en_animation_sortie = True
+        force = 5
+        self.vitesse_y = -force  # vers le haut
+
+        if direction == 'droite':
+            self.vitesse_x = 2
+        else:
+            self.vitesse_x = -2
+
+    def update(self, dt):
+        if self.en_animation_sortie:
+            self.vitesse_y += self.gravite
+            self.rect.x += int(self.vitesse_x)
+            self.rect.y += int(self.vitesse_y)
+
+            # Stopper l’animation quand l’objet touche le sol
+            if self.rect.y >= self.base_y:
+                self.rect.y = self.base_y
+                self.en_animation_sortie = False
+                self.vitesse_x = 0
+                self.vitesse_y = 0
+        else:
+            # Flottement classique
+            self.time += 1
+            self.rect.y = self.base_y + int(self.flottement_amplitude * math.sin(self.time * self.flottement_vitesse))
+
         

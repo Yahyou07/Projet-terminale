@@ -120,7 +120,7 @@ class Player(pygame.sprite.Sprite):
         self.button_book = pygame.image.load("UI/boutton_book.png")
         self.rect_button_book = self.button_book.get_rect()
         self.rect_button_book.x = 1510
-        self.rect_button_book.y = 100
+        self.rect_button_book.y = 200
 
         self.button_quete = pygame.image.load("UI/boouton_q.png")
         self.rect_button_quete = self.button_quete.get_rect()
@@ -426,9 +426,9 @@ class Player(pygame.sprite.Sprite):
         self.current_item = self.inventory_bar_list[self.inventory_index]
 
         # Affichage des bouttons sur le cote
-        self.screen.blit(self.button_book,(1520,100))
-        self.screen.blit(self.button_quete,(1538,200))
-        self.screen.blit(self.button_map,(1538,300))
+        self.screen.blit(self.button_book,(1520,200))
+        self.screen.blit(self.button_quete,(1538,300))
+        self.screen.blit(self.button_map,(1538,400))
 
         if self.OnBook:
             self.screen.blit(self.fond_table, (0, 0))
