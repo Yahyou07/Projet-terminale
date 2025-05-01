@@ -101,7 +101,9 @@ class Player(pygame.sprite.Sprite):
         self.rect.x = pos_x
         self.rect.y = pos_y
         self.hit_box = self.rect.copy().inflate(-53, -53)
-
+        self.attack_box = self.rect.copy().inflate(-60,-83)
+        self.attack_box.x -=20
+        self.attack_box.y += 3
         self.old_position = self.rect.copy()
         # Variable qui stocke la dernière direction du personnage, par défaut on la met à down
         self.last_direction = "down"
@@ -241,6 +243,13 @@ class Player(pygame.sprite.Sprite):
             self.current_sprite = 0
         self.image = liste_mouv[int(self.current_sprite)]
 
+    def animation_for_the_menu(self,liste_mouv,speed):
+        self.current_sprite += speed
+        if self.current_sprite >=len(liste_mouv):
+            self.current_sprite = 0
+        self.image = liste_mouv[int(self.current_sprite)]
+        self.image = pygame.transform.scale(self.image,(400,400))
+
     def move_back(self):
         self.rect = self.old_position
         self.hit_box = self.rect.copy().inflate(-53, -53)
@@ -330,6 +339,8 @@ class Player(pygame.sprite.Sprite):
         
     def idle_down(self):
         self.animation(self.idle_down_mouv,0.15)
+    def idle_for_acceuil(self):
+        self.animation_for_the_menu(self.idle_right_mouv,0.3)
 
     def idle_left(self):
         self.animation(self.idle_left_mouv,0.15)
