@@ -419,12 +419,13 @@ class Player(pygame.sprite.Sprite):
         self.screen.blit(self.current_endurance,(20,120))
         self.screen.blit(self.inventory_bar,(450,self.screen.get_height()-0.15*self.screen.get_height()))
         
-        x = self.screen.get_width()-0.696875*self.screen.get_width()
+        x = 485
         for icon in self.inventory_icons:
             self.screen.blit(icon,(x,self.screen.get_height()-0.09*self.screen.get_height()))
             x += 60
         
-        x_stack = self.screen.get_width()-0.675*self.screen.get_width()
+        x_stack = 520
+        print(x_stack)
         for stack in self.stack_text:
             self.screen.blit(stack,(x_stack,self.screen.get_height()-0.07*self.screen.get_height()))
             x_stack += 60
