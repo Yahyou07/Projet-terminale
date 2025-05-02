@@ -121,7 +121,7 @@ class Player(pygame.sprite.Sprite):
         #On charge ici les images des bouttons pour les quete, livre ...
         self.button_book = pygame.image.load("UI/boutton_book.png")
         self.rect_button_book = self.button_book.get_rect()
-        self.rect_button_book.x = 1510
+        self.rect_button_book.x = self.screen.get_width()-62
         self.rect_button_book.y = 200
 
         self.button_quete = pygame.image.load("UI/boouton_q.png")
