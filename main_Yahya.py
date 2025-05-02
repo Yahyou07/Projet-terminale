@@ -82,7 +82,8 @@ def login():
                 if event.key == pygame.K_ESCAPE:
                     pygame.quit()
                     sys.exit()
-
+                elif event.key == pygame.K_RETURN:
+                    return
             username_box.handle_event(event)
             password_box.handle_event(event)
             login_button.handle_event(event)
@@ -196,9 +197,20 @@ def main_menu():
         credits_text = button_font.render("CREDITS", True, credits_color)
         quit_text = button_font.render("EXIT", True, quit_color)
         
+        # Ombre
+        shadow_offset = (5, 2)
+        play_shadow = button_font.render("LAUNCH GAME", True, (0, 0, 0))  # ombre noire
+        screen.blit(play_shadow, (play_rect.x + shadow_offset[0], play_rect.y + shadow_offset[1]))
         screen.blit(play_text, play_rect)
+        #Affichage bouton quitter avec ombre
+        quit_shadow = button_font.render("EXIT", True, (0, 0, 0))
+        screen.blit(quit_shadow, (quit_rect.x + shadow_offset[0], quit_rect.y + shadow_offset[1]))
         screen.blit(quit_text, quit_rect)
-        screen.blit(credits_text,credits_rect)
+
+        #Affichage bouton credits avec ombre
+        credits_shadow = button_font.render("CREDITS", True, (0, 0, 0))
+        screen.blit(credits_shadow, (credits_rect.x + shadow_offset[0], credits_rect.y + shadow_offset[1]))
+        screen.blit(credits_text, credits_rect)
 
         player_idle.idle_for_acceuil()
         screen.blit(player_idle.image, player_idle.rect)
@@ -364,7 +376,7 @@ def launch_game():
     active_pnj = None
     can_attack = True
     bois_recolte = 0
-
+    fps_font = pygame.font.SysFont("arial", 20)
     while running:
         dt = mainClock.tick(60) / 1000  # Temps écoulé en secondes
         
@@ -791,7 +803,10 @@ def launch_game():
         pnj1.idle()
         
         print(screen.get_size())
-
+        
+        fps = int(mainClock.get_fps())
+        fps_text = fps_font.render(f"FPS : {fps}", True, (255, 255, 0))
+        screen.blit(fps_text, (800, 10))
         pygame.display.update()
 
 if __name__ == "__main__":
