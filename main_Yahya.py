@@ -38,6 +38,7 @@ import time
 from objects_Yahya import *
 from random import *
 pygame.init()
+pygame.key.set_repeat(400, 40)  # délai initial 400ms, puis 40ms entre répétitions
 pygame.display.set_caption("Jeu")
 from scripte.save_game import*
 from classe_enemy_Yahya import *
@@ -46,11 +47,29 @@ import pygame
 from classe_entity_Yahya import *
 from dialog_data import *
 
+from login_class import *
 
 
-
+def on_login():
+    print("hey")
 
 def login():
+    logo_image = pygame.image.load("UI/Logo.png")
+    logo_image = pygame.transform.scale(logo_image, (600, 600))
+    
+    background_image = pygame.image.load("UI/bg_menu.png")
+    background_image = pygame.transform.scale(background_image, screen.get_size())
+    
+    x =screen.get_width()//2 -220
+    y= screen.get_height()//2 - 47
+    pannel = pygame.image.load("UI/loginv2.png.png")
+    rect_pannel = pannel.get_rect()
+    rect_pannel.x = x
+    rect_pannel.y = y
+    # Création des éléments
+    username_box = InputBox(x + 93, y + 123, 200, 30)
+    password_box = InputBox(x + 93, y + 200, 200, 30, is_password=True)
+    login_button = Button(250, 250, 100, 40, "Se connecter", on_login)
 
     running = True
     while running:
@@ -59,18 +78,28 @@ def login():
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    return
+                
                 if event.key == pygame.K_ESCAPE:
                     pygame.quit()
                     sys.exit()
 
+            username_box.handle_event(event)
+            password_box.handle_event(event)
+            login_button.handle_event(event)
+
+            
+       
         # Affichage de l'écran de connexion
-        screen.fill((0, 0, 0))
+        screen.blit(background_image, (0, 0))
+        
+        screen.blit(logo_image, (screen.get_width() // 2 - logo_image.get_width() // 2,-80))
+        screen.blit(pannel,rect_pannel)
         font = pygame.font.Font(None, 74)
-        text = font.render("WELCOME TO THE GAME", True, (255, 255, 255))
-        text_rect = text.get_rect(center=(screen.get_width() // 2, screen.get_height() // 2))
-        screen.blit(text, text_rect)
+        username_box.draw(screen)
+        username_box.update_cursor()
+        password_box.draw(screen)
+        password_box.update_cursor()
+        login_button.draw(screen)
         pygame.display.flip()
 
 
@@ -589,7 +618,11 @@ def launch_game():
             
             if isinstance(sprite, Feuillage) and player.hit_box.colliderect(sprite.hitbox):
                 sprite.image.set_alpha(100)  # Rendre le feuillage transparent
-                sprite.tronc.image.set_alpha(100)  # Rendre le tronc transparent
+                if sprite.tronc.Can_cut:
+                    sprite.tronc.image.set_alpha(100)
+                else:
+                    sprite.tronc.image.set_alpha(255)
+                
 
             elif isinstance(sprite, Feuillage):
                 sprite.image.set_alpha(255)  # Restaurer l'opacité si le joueur ne collisionne plus
