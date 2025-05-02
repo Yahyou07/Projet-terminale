@@ -47,6 +47,33 @@ from classe_entity_Yahya import *
 from dialog_data import *
 
 
+
+
+
+def login():
+
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
+                if event.key == pygame.K_RETURN:
+                    running = False
+
+        # Affichage de l'écran de connexion
+        screen.fill((0, 0, 0))
+        font = pygame.font.Font(None, 74)
+        text = font.render("WELCOME TO THE GAME", True, (255, 255, 255))
+        text_rect = text.get_rect(center=(screen.get_width() // 2, screen.get_height() // 2))
+        screen.blit(text, text_rect)
+        pygame.display.flip()
+
+
+
 # Définition de la fenêtre
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN) 
 
@@ -57,7 +84,7 @@ def main_menu():
     global run
     
     WHITE = (255, 255, 255)
-    GRAY = (180, 180, 180)
+    GRAY = (100, 100, 100)
     background_image = pygame.image.load("UI/bg_menu.png")
     background_image = pygame.transform.scale(background_image, screen.get_size())
     button_bg = pygame.image.load("UI/button_play.png")
@@ -66,7 +93,7 @@ def main_menu():
     game_logo = pygame.image.load("UI/Logo.png")
     game_logo = pygame.transform.scale(game_logo,(600,600))
     #Police d'écriture
-    button_font = pygame.font.Font("UI/DejaVuSerifCondensed-Bold.ttf", 45)
+    button_font = pygame.font.Font("UI/dialog_font.ttf", 45)
 
     #création des textes
     play_text = button_font.render("LAUNCH GAME", True, WHITE)
@@ -81,7 +108,7 @@ def main_menu():
 
     # Calculer la position pour placer le texte en bas à droite
     x = 100
-    y = 0 + logo_height -85  # 70 pixels de marge en bas 
+    y = 0 + logo_height -100  # 70 pixels de marge en bas 
 
     # Obtenir les dimensions du texte
     quit_width, quit_height = play_text.get_size()
@@ -687,8 +714,8 @@ def launch_game():
             moving = True
             can_attack = True
         
-        
         '''
+        
         # Affichage optionnel des hitbox bour le debbugage
         pygame.draw.rect(screen, (255, 0, 0), map_layer.translate_rect(player.hit_box), 2)
 
@@ -733,6 +760,7 @@ def launch_game():
         pygame.display.update()
 
 if __name__ == "__main__":
+    login()
     main_menu()       # Montre le menu, attend que l'utilisateur clique sur "Jouer"
     # Vider les événements restants pour éviter le double-clic
     pygame.event.clear()

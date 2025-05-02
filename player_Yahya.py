@@ -340,7 +340,7 @@ class Player(pygame.sprite.Sprite):
     def idle_down(self):
         self.animation(self.idle_down_mouv,0.15)
     def idle_for_acceuil(self):
-        self.animation_for_the_menu(self.idle_right_mouv,0.3)
+        self.animation_for_the_menu(self.idle_right_mouv,0.4)
 
     def idle_left(self):
         self.animation(self.idle_left_mouv,0.15)
