@@ -757,6 +757,7 @@ def launch_game():
         
         pnj1.idle()
         
+        print(screen.get_size())
 
         pygame.display.update()
 

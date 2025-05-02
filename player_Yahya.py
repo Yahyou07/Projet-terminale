@@ -438,9 +438,9 @@ class Player(pygame.sprite.Sprite):
         self.current_item = self.inventory_bar_list[self.inventory_index]
 
         # Affichage des bouttons sur le cote
-        self.screen.blit(self.button_book,(1520,200))
-        self.screen.blit(self.button_quete,(1538,300))
-        self.screen.blit(self.button_map,(1538,400))
+        self.screen.blit(self.button_book,(self.screen.get_width()-80,200))
+        self.screen.blit(self.button_quete,(self.screen.get_width()-62,300))
+        self.screen.blit(self.button_map,(self.screen.get_width()-62,400))
 
         if self.OnBook:
             self.screen.blit(self.fond_table, (0, 0))
@@ -481,8 +481,8 @@ class Player(pygame.sprite.Sprite):
             y = self.screen.get_height() // 2 - self.inventory_image.get_height() // 2
             self.screen.blit(self.inventory_image, (x, y))
 
-            start_x =  x+291  # Position X de la première cellule
-            start_y = y+59 # Position Y de la première cellule
+            start_x =  x + 291  # Position X de la première cellule
+            start_y = y + 59 # Position Y de la première cellule
             for row in range(5):  # 5 lignes
                 for col in range(6):  # 6 colonnes
                     slot_x = start_x + col * (self.CELL_SIZE + self.CELL_SPACING)-10
@@ -521,7 +521,7 @@ class Player(pygame.sprite.Sprite):
                 # Afficher l'icône de l'item au-dessus de la souris
                 self.screen.blit(self.dragging_item['icon'], (mouse_x - self.CELL_SIZE // 2, mouse_y - self.CELL_SIZE // 2))
 
-
+        
         self.screen.blit(self.button_armour,(1045,408))
         
         self.screen.blit(self.button_bag,(1045,315))
