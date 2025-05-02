@@ -59,10 +59,11 @@ def login():
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    return
                 if event.key == pygame.K_ESCAPE:
-                    running = False
-                if event.key == pygame.K_RETURN:
-                    running = False
+                    pygame.quit()
+                    sys.exit()
 
         # Affichage de l'écran de connexion
         screen.fill((0, 0, 0))
@@ -761,6 +762,7 @@ def launch_game():
 
 if __name__ == "__main__":
     login()
+    pygame.event.clear()
     main_menu()       # Montre le menu, attend que l'utilisateur clique sur "Jouer"
     # Vider les événements restants pour éviter le double-clic
     pygame.event.clear()

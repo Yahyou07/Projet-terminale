@@ -481,8 +481,8 @@ class Player(pygame.sprite.Sprite):
             y = self.screen.get_height() // 2 - self.inventory_image.get_height() // 2
             self.screen.blit(self.inventory_image, (x, y))
 
-            start_x =  self.screen.get_width()-self.screen.get_width()*0.628125  # Position X de la première cellule
-            start_y = self.screen.get_height()-self.screen.get_height()*0.6777777  # Position Y de la première cellule
+            start_x =  x+291  # Position X de la première cellule
+            start_y = y+59 # Position Y de la première cellule
             for row in range(5):  # 5 lignes
                 for col in range(6):  # 6 colonnes
                     slot_x = start_x + col * (self.CELL_SIZE + self.CELL_SPACING)-10
