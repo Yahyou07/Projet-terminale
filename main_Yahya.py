@@ -49,14 +49,14 @@ from dialog_data import *
 
 from login_class import *
 
-
+username = ""
 def on_login():
     print("hey")
 
 def login():
     
-
-
+    
+    global username
     logo_image = pygame.image.load("UI/Logo.png")
     logo_image = pygame.transform.scale(logo_image, (600, 600))
     
@@ -105,6 +105,7 @@ def login():
                     pygame.quit()
                     sys.exit()
                 if rect.collidepoint(event.pos):
+                    username = username_box.text
                     return
             username_box.handle_event(event)
             password_box.handle_event(event)
@@ -134,7 +135,7 @@ run = False
 
 # fonction pour afficher le menu principal
 def main_menu():
-    global run
+    global run,username
     
     WHITE = (255, 255, 255)
     GRAY = (100, 100, 100)
@@ -147,6 +148,7 @@ def main_menu():
     game_logo = pygame.transform.scale(game_logo,(600,600))
     #Police d'écriture
     button_font = pygame.font.Font("UI/dialog_font.ttf", 45)
+    username_font = pygame.font.Font("UI/dialog_font.ttf", 25)
 
     #création des textes
     play_text = button_font.render("LAUNCH GAME", True, WHITE)
@@ -168,7 +170,9 @@ def main_menu():
     
     #On charge ici l'image du profil 
     profile_image = pygame.image.load("UI/profile_white2.png")
-    #on créer ici
+    #on créer ici le texte du username
+    username_text = username_font.render(username, True, WHITE)
+
     # Calculer la position pour placer le texte en bas à droite
     x_quit = screen.get_width() - quit_width - 10  # 10 pixels de marge à droite
     y_quit = 0 + quit_height - 10  # 10 pixels de marge en bas
@@ -239,7 +243,9 @@ def main_menu():
         player_idle.idle_for_acceuil()
         screen.blit(player_idle.image, player_idle.rect)
 
-        screen.blit(profile_image,(screen.get_width() - profile_image.get_width() - 200, 20))
+        screen.blit(profile_image,(screen.get_width() - profile_image.get_width() - 250, 20))
+        # Affichage du texte du nom d'utilisateur
+        screen.blit(username_text,(screen.get_width() - profile_image.get_width() - 150, profile_image.get_height()//2 +15))
         pygame.display.update()
 
 # Fonction pour lancer le jeu 
@@ -276,7 +282,7 @@ def launch_game():
 
     gobelin3 = Enemy("gobelin_epee",350,400,"enemy",screen,(100,100))
 
-    slime1 = Slime("slime1","enemy",600,100,"suiveur",screen)
+    slime1 = Slime("slime1","enemy",600,100,"kamikaze",screen)
     #pnj2 = PNJ("Wizard",200,500,"pnj",screen)
     chest1 = Coffre("chest1",chest_position.x,chest_position.y)
 
