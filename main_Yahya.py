@@ -54,6 +54,9 @@ def on_login():
     print("hey")
 
 def login():
+    
+
+
     logo_image = pygame.image.load("UI/Logo.png")
     logo_image = pygame.transform.scale(logo_image, (600, 600))
     
@@ -62,10 +65,31 @@ def login():
     
     x =screen.get_width()//2 -220
     y= screen.get_height()//2 - 47
+
+    rect = pygame.Rect(x + 122, y + 247, 181, 52)
     pannel = pygame.image.load("UI/loginv2.png.png")
     rect_pannel = pannel.get_rect()
     rect_pannel.x = x
     rect_pannel.y = y
+    
+    #panneau création de compte
+    pannel_create = pygame.image.load("UI/creer_compte_pannel.png")
+    
+    #bouton de création de compte 
+    btn_creation = pygame.image.load("UI/btn_cr.png")
+    btn_creation = pygame.transform.scale(btn_creation,(250,65))
+    rect_btn_creation = btn_creation.get_rect()
+    x_btn_creation = x + 80
+    y_btn_creation = y+ pannel.get_height()  +15
+    rect_btn_creation.x = x_btn_creation
+    rect_btn_creation.y = y_btn_creation
+    quit_button = pygame.image.load("UI/quitter_account.png.png")
+    
+    rect_quit_button = quit_button.get_rect()
+    x_quit = screen.get_width()-rect_quit_button.width - 10 # 10 pixels de marge à droite
+    y_quit = 0 + rect_quit_button.height - 10 # 10 pixels de marge en bas
+    rect_quit_button.x = x_quit
+    rect_quit_button.y = y_quit
     # Création des éléments
     username_box = InputBox(x + 93, y + 123, 200, 30)
     password_box = InputBox(x + 93, y + 200, 200, 30, is_password=True)
@@ -76,24 +100,23 @@ def login():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            if event.type == pygame.KEYDOWN:
-                
-                if event.key == pygame.K_ESCAPE:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if rect_quit_button.collidepoint(event.pos):
                     pygame.quit()
                     sys.exit()
-                elif event.key == pygame.K_RETURN:
+                if rect.collidepoint(event.pos):
                     return
             username_box.handle_event(event)
             password_box.handle_event(event)
-            
-
-            
-       
+     
         # Affichage de l'écran de connexion
         screen.blit(background_image, (0, 0))
         
         screen.blit(logo_image, (screen.get_width() // 2 - logo_image.get_width() // 2,-80))
         screen.blit(pannel,rect_pannel)
+        screen.blit(quit_button, rect_quit_button)
+        #screen.blit(pannel_create, (x + 50, y+ pannel.get_height()))
+        screen.blit(btn_creation, rect_btn_creation)
         font = pygame.font.Font(None, 74)
         username_box.draw(screen)
         username_box.update_cursor()
@@ -132,7 +155,7 @@ def main_menu():
 
     # Obtenir les dimensions du texte
     play_width, play_height = play_text.get_size()
-    print(play_width)
+    
     #Obtention des dimensions du logo
     logo_width,logo_height = game_logo.get_size()
 
@@ -143,7 +166,9 @@ def main_menu():
     # Obtenir les dimensions du texte
     quit_width, quit_height = play_text.get_size()
     
-
+    #On charge ici l'image du profil 
+    profile_image = pygame.image.load("UI/profile_white2.png")
+    #on créer ici
     # Calculer la position pour placer le texte en bas à droite
     x_quit = screen.get_width() - quit_width - 10  # 10 pixels de marge à droite
     y_quit = 0 + quit_height - 10  # 10 pixels de marge en bas
@@ -171,7 +196,7 @@ def main_menu():
     while running_menu:
         mouse_pos = pygame.mouse.get_pos()
         
-        print(run)
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -213,6 +238,8 @@ def main_menu():
 
         player_idle.idle_for_acceuil()
         screen.blit(player_idle.image, player_idle.rect)
+
+        screen.blit(profile_image,(screen.get_width() - profile_image.get_width() - 200, 20))
         pygame.display.update()
 
 # Fonction pour lancer le jeu 
@@ -233,7 +260,9 @@ def launch_game():
 
 
     player_position = tmx_data.get_object_by_name("Player")
-    player = Player(player_position.x, player_position.y, screen)  # Positionner le joueur
+    x_tmp = player_position.x
+    y_tmp = player_position.y
+    player = Player(x_tmp, y_tmp, screen)  # Positionner le joueur
 
     save_menu = Save_game(screen)
     chest_position = tmx_data.get_object_by_name("coffre1")
@@ -801,7 +830,7 @@ def launch_game():
         
         pnj1.idle()
         
-        print(screen.get_size())
+        
         
         if Show_stats:
             fps = int(mainClock.get_fps())

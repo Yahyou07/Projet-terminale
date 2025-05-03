@@ -2,7 +2,16 @@ import pygame
 import sys
 from login_class import *
 pygame.init()
- 
+
+import json
+
+# Supposons que row[9] vienne de la base et contient :
+row = [{}, {}, '[[3, 2], [1, 5]]']
+
+stacks_principal = json.loads(row[2])
+
+print(stacks_principal)  # Résultat : [[3, 2], [1, 5]] (type : list de list)
+'''
 # Fonction de connexion simulée
 def on_login():
     print("Nom d'utilisateur:", username_box.text)
@@ -47,3 +56,4 @@ while running:
  
 pygame.quit()
 sys.exit()
+'''
