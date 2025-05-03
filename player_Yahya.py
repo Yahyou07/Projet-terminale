@@ -101,7 +101,9 @@ class Player(pygame.sprite.Sprite):
         self.rect.x = pos_x
         self.rect.y = pos_y
         self.hit_box = self.rect.copy().inflate(-53, -53)
-
+        self.attack_box = self.rect.copy().inflate(-60,-83)
+        self.attack_box.x -=20
+        self.attack_box.y += 3
         self.old_position = self.rect.copy()
         # Variable qui stocke la dernière direction du personnage, par défaut on la met à down
         self.last_direction = "down"
@@ -119,7 +121,7 @@ class Player(pygame.sprite.Sprite):
         #On charge ici les images des bouttons pour les quete, livre ...
         self.button_book = pygame.image.load("UI/boutton_book.png")
         self.rect_button_book = self.button_book.get_rect()
-        self.rect_button_book.x = 1510
+        self.rect_button_book.x = self.screen.get_width()-62
         self.rect_button_book.y = 200
 
         self.button_quete = pygame.image.load("UI/boouton_q.png")
@@ -241,6 +243,13 @@ class Player(pygame.sprite.Sprite):
             self.current_sprite = 0
         self.image = liste_mouv[int(self.current_sprite)]
 
+    def animation_for_the_menu(self,liste_mouv,speed):
+        self.current_sprite += speed
+        if self.current_sprite >=len(liste_mouv):
+            self.current_sprite = 0
+        self.image = liste_mouv[int(self.current_sprite)]
+        self.image = pygame.transform.scale(self.image,(400,400))
+
     def move_back(self):
         self.rect = self.old_position
         self.hit_box = self.rect.copy().inflate(-53, -53)
@@ -330,6 +339,8 @@ class Player(pygame.sprite.Sprite):
         
     def idle_down(self):
         self.animation(self.idle_down_mouv,0.15)
+    def idle_for_acceuil(self):
+        self.animation_for_the_menu(self.idle_right_mouv,0.4)
 
     def idle_left(self):
         self.animation(self.idle_left_mouv,0.15)
@@ -408,12 +419,13 @@ class Player(pygame.sprite.Sprite):
         self.screen.blit(self.current_endurance,(20,120))
         self.screen.blit(self.inventory_bar,(450,self.screen.get_height()-0.15*self.screen.get_height()))
         
-        x = self.screen.get_width()-0.696875*self.screen.get_width()
+        x = 485
         for icon in self.inventory_icons:
             self.screen.blit(icon,(x,self.screen.get_height()-0.09*self.screen.get_height()))
             x += 60
         
-        x_stack = self.screen.get_width()-0.675*self.screen.get_width()
+        x_stack = 520
+        print(x_stack)
         for stack in self.stack_text:
             self.screen.blit(stack,(x_stack,self.screen.get_height()-0.07*self.screen.get_height()))
             x_stack += 60
@@ -426,9 +438,9 @@ class Player(pygame.sprite.Sprite):
         self.current_item = self.inventory_bar_list[self.inventory_index]
 
         # Affichage des bouttons sur le cote
-        self.screen.blit(self.button_book,(1520,200))
-        self.screen.blit(self.button_quete,(1538,300))
-        self.screen.blit(self.button_map,(1538,400))
+        self.screen.blit(self.button_book,(self.screen.get_width()-80,200))
+        self.screen.blit(self.button_quete,(self.screen.get_width()-62,300))
+        self.screen.blit(self.button_map,(self.screen.get_width()-62,400))
 
         if self.OnBook:
             self.screen.blit(self.fond_table, (0, 0))
@@ -469,8 +481,8 @@ class Player(pygame.sprite.Sprite):
             y = self.screen.get_height() // 2 - self.inventory_image.get_height() // 2
             self.screen.blit(self.inventory_image, (x, y))
 
-            start_x =  self.screen.get_width()-self.screen.get_width()*0.628125  # Position X de la première cellule
-            start_y = self.screen.get_height()-self.screen.get_height()*0.6777777  # Position Y de la première cellule
+            start_x =  x + 291  # Position X de la première cellule
+            start_y = y + 59 # Position Y de la première cellule
             for row in range(5):  # 5 lignes
                 for col in range(6):  # 6 colonnes
                     slot_x = start_x + col * (self.CELL_SIZE + self.CELL_SPACING)-10
@@ -509,7 +521,7 @@ class Player(pygame.sprite.Sprite):
                 # Afficher l'icône de l'item au-dessus de la souris
                 self.screen.blit(self.dragging_item['icon'], (mouse_x - self.CELL_SIZE // 2, mouse_y - self.CELL_SIZE // 2))
 
-
+        
         self.screen.blit(self.button_armour,(1045,408))
         
         self.screen.blit(self.button_bag,(1045,315))

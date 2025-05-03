@@ -238,7 +238,7 @@ class Enemy(Entity):
         self.sprite_index += speed
         if self.sprite_index >=len(list_mouv):
             self.sprite_index = 0
-        if self.sprite_index >=len(list_mouv)-3:
+        if self.sprite_index >=len(list_mouv)-2:
             player.knockback = True
             player.knockback_speed = 7
             player.knockback_direction = dirx

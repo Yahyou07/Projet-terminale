@@ -79,7 +79,7 @@ class Coffre(pygame.sprite.Sprite):
           # On fait sortir les item du coffre
                 nouvel_item = Item("apple", 24, 10, near_chest.rect.centerx, near_chest.rect.centery, "Food")
                 nouvel_item2 = Item("pain", 24, 10, near_chest.rect.centerx, near_chest.rect.centery, "Food")
-                nouvel_item3 = Item("casque", 1, 10, near_chest.rect.centerx+10, near_chest.rect.centery, "Casque") 
+                nouvel_item3 = Item("hache", 1, 10, near_chest.rect.centerx+10, near_chest.rect.centery, "Hache") 
                 nouvel_item4 = Item("plastron", 1, 10, near_chest.rect.centerx-10, near_chest.rect.centery, "Plastron") 
                 group.add(nouvel_item,layer = 4)
                 group.add(nouvel_item2,layer = 4)
