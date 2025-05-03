@@ -69,7 +69,6 @@ def login():
     # Création des éléments
     username_box = InputBox(x + 93, y + 123, 200, 30)
     password_box = InputBox(x + 93, y + 200, 200, 30, is_password=True)
-    login_button = Button(250, 250, 100, 40, "Se connecter", on_login)
 
     running = True
     while running:
@@ -86,7 +85,7 @@ def login():
                     return
             username_box.handle_event(event)
             password_box.handle_event(event)
-            login_button.handle_event(event)
+            
 
             
        
@@ -100,7 +99,7 @@ def login():
         username_box.update_cursor()
         password_box.draw(screen)
         password_box.update_cursor()
-        login_button.draw(screen)
+        
         pygame.display.flip()
 
 
@@ -370,7 +369,7 @@ def launch_game():
     near_chest = None  # coffre à proximité par défaut à None
 
 
-
+    Show_stats = False
     can_talk_to_pnj1 = False
 
     active_pnj = None
@@ -379,8 +378,6 @@ def launch_game():
     fps_font = pygame.font.SysFont("arial", 20)
     while running:
         dt = mainClock.tick(60) / 1000  # Temps écoulé en secondes
-        
-        
 
         for event in pygame.event.get():
             quit()
@@ -390,6 +387,8 @@ def launch_game():
                     player.OnBag = True
                     player.OnArmour = False
                     moving = not moving
+                elif event.key == pygame.K_F3:
+                    Show_stats = not Show_stats
             
             
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
@@ -804,9 +803,14 @@ def launch_game():
         
         print(screen.get_size())
         
-        fps = int(mainClock.get_fps())
-        fps_text = fps_font.render(f"FPS : {fps}", True, (255, 255, 0))
-        screen.blit(fps_text, (800, 10))
+        if Show_stats:
+            fps = int(mainClock.get_fps())
+            fps_text = fps_font.render(f"FPS : {fps}", True, (255, 255, 0))
+            x_position = fps_font.render(f"X : {player.rect.x}", True, (255, 255, 0))
+            y_position = fps_font.render(f"Y : {player.rect.y}", True, (255, 255, 0))
+            screen.blit(fps_text, (800, 10))
+            screen.blit(x_position,(900,10))
+            screen.blit(y_position,(900,50))
         pygame.display.update()
 
 if __name__ == "__main__":
