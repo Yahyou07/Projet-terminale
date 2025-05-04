@@ -1,6 +1,6 @@
 import pygame
 import sys
- 
+import pygame.locals
 pygame.init()
  
 # Constantes
@@ -44,6 +44,13 @@ class InputBox:
 
     def handle_event(self, event):
         if event.type == pygame.KEYDOWN and self.active:
+            
+            ''' Affichage du nom symbolique de la touche pressée 
+            for name in dir(pygame.locals):
+                if name.startswith("K_") and getattr(pygame.locals, name) == event.key:
+                    print("Nom symbolique :", name)
+                    break
+            '''
             if event.key == pygame.K_BACKSPACE:
                 if self.cursor_position > 0:
                     self.text = self.text[:self.cursor_position - 1] + self.text[self.cursor_position:]
@@ -57,11 +64,17 @@ class InputBox:
             elif event.key == pygame.K_RIGHT:
                 if self.cursor_position < len(self.text):
                     self.cursor_position += 1
-            elif event.key == pygame.K_RETURN:
-                pass
+            elif event.key in [
+                pygame.K_RETURN, pygame.K_LSHIFT, pygame.K_RSHIFT,
+                pygame.K_CAPSLOCK, pygame.K_LCTRL, pygame.K_RCTRL,
+                pygame.K_LALT, pygame.K_RALT, pygame.K_TAB,pygame.K_KP_ENTER
+                ]:
+                pass  # Ignorer ces touches
             else:
-                self.text = self.text[:self.cursor_position] + event.unicode + self.text[self.cursor_position:]
-                self.cursor_position += 1
+                if event.unicode:  # Vérifie que c'est un caractère imprimable
+                    self.text = self.text[:self.cursor_position] + event.unicode + self.text[self.cursor_position:]
+                    self.cursor_position += 1
+
 
             self.update_text_surface()
 
@@ -87,7 +100,7 @@ class InputBox:
  
     def draw(self, screen):
         screen.blit(self.txt_surface, (self.rect.x+5, self.rect.y))
-        pygame.draw.rect(screen, self.color, self.rect, 1)
+        #pygame.draw.rect(screen, self.color, self.rect, 1)
         if self.active and self.cursor_visible:
             display_text = "*" * self.cursor_position if self.is_password else self.text[:self.cursor_position]
             cursor_x = self.rect.x + 5 + FONT.size(display_text)[0]
@@ -96,7 +109,9 @@ class InputBox:
             pygame.draw.line(screen, TEXT_COLOR, (cursor_x, cursor_y), (cursor_x, cursor_y + cursor_height), 2)
 
         
- 
+    def set_password_mode(self, is_password):
+        self.is_password = is_password
+        self.update_text_surface()
 # Bouton
 class Button:
     def __init__(self, x, y, w, h, text, callback):

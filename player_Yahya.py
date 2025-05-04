@@ -515,6 +515,7 @@ class Player(pygame.sprite.Sprite):
             for i in self.armour_icon_list:
                 self.screen.blit(i,(x_icon,y_icon))
                 y_icon +=73
+                
 
             # Si un objet est en cours de glisser-déposer, afficher l'icône à la position de la souris
             if self.dragging_item and 'icon' in self.dragging_item:

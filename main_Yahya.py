@@ -38,7 +38,7 @@ import time
 from objects_Yahya import *
 from random import *
 pygame.init()
-pygame.key.set_repeat(400, 40)  # délai initial 400ms, puis 40ms entre répétitions
+pygame.key.set_repeat(400, 20)  # délai initial 400ms, puis 40ms entre répétitions
 pygame.display.set_caption("Jeu")
 from scripte.save_game import*
 from classe_enemy_Yahya import *
@@ -73,6 +73,7 @@ def login():
     y_quit = 0 + rect_quit_button.height - 10 # 10 pixels de marge en bas
     rect_quit_button.x = x_quit
     rect_quit_button.y = y_quit
+    #coordonnée de bases
     x =screen.get_width()//2 -220
     y= screen.get_height()//2 - 47
 
@@ -85,6 +86,23 @@ def login():
     username_box = InputBox(x + 93, y + 123, 200, 30)
     password_box = InputBox(x + 93, y + 200, 200, 30, is_password=True)
 
+    #ajout icone pour le mot de passe oeuil ouvert oeil fermé
+    oeil_ouvert1 = pygame.image.load("UI/oeil_ouvert.png")
+    oeil_ouvert1 = pygame.transform.scale(oeil_ouvert1,(50,50))
+    rect_oeil_ouvert1 = oeil_ouvert1.get_rect(topleft=(x + 333, y + 190))
+    
+    oeil_ouvert2 = pygame.image.load("UI/oeil_ouvert.png")
+    oeil_ouvert2 = pygame.transform.scale(oeil_ouvert2,(50,50))
+    rect_oeil_ouvert2 = oeil_ouvert2.get_rect(topleft=(x_pannel_create_an_account + 400, y_pannel_create_an_account+213))
+    
+    oeil_ouvert3 = pygame.image.load("UI/oeil_ouvert.png")
+    oeil_ouvert3 = pygame.transform.scale(oeil_ouvert3,(50,50))
+    rect_oeil_ouvert3 = oeil_ouvert3.get_rect(topleft=(x_pannel_create_an_account + 400, y_pannel_create_an_account+303))
+
+    oeil_ferme = pygame.image.load("UI/oeil_fermé.png")
+    oeil_ferme = pygame.transform.scale(oeil_ferme,(50,50))
+
+    Can_see_password = False
     if Login:
         logo_image = pygame.transform.scale(logo_image, (600, 600))
         
@@ -134,6 +152,38 @@ def login():
                     if rect_creer_compte.collidepoint(event.pos):
                         Login = False
                         Confirm = True
+                    if rect_oeil_ouvert1.collidepoint(event.pos):
+                        if Can_see_password == False:
+                            password_box.set_password_mode(False)  # ou False
+                            Can_see_password = True
+                            oeil_ouvert1 = oeil_ferme
+                        else:
+                            password_box.set_password_mode(True)
+                            Can_see_password = False
+                            oeil_ouvert1 = pygame.image.load("UI/oeil_ouvert.png")
+                            oeil_ouvert1 = pygame.transform.scale(oeil_ouvert1,(50,50))
+                if Confirm:
+                    if rect_oeil_ouvert2.collidepoint(event.pos):
+                        print("oeil cliqué")
+                        if Can_see_password == False:
+                            password_box1.set_password_mode(False)  # ou False
+                            Can_see_password = True
+                            oeil_ouvert2 = oeil_ferme
+                        else:
+                            password_box1.set_password_mode(True)
+                            Can_see_password = False
+                            oeil_ouvert2 = pygame.image.load("UI/oeil_ouvert.png")
+                            oeil_ouvert2 = pygame.transform.scale(oeil_ouvert1,(50,50)) 
+                    if rect_oeil_ouvert3.collidepoint(event.pos):
+                        if Can_see_password == False:
+                            confirm_password_box1.set_password_mode(False)  # ou False
+                            Can_see_password = True
+                            oeil_ouvert3 = oeil_ferme
+                        else:
+                            confirm_password_box1.set_password_mode(True)
+                            Can_see_password = False
+                            oeil_ouvert3 = pygame.image.load("UI/oeil_ouvert.png")
+                            oeil_ouvert3 = pygame.transform.scale(oeil_ouvert1,(50,50))
             if Login:
                 username_box.handle_event(event)
                 password_box.handle_event(event)
@@ -147,6 +197,9 @@ def login():
         screen.blit(background_image, (0, 0))
         screen.blit(quit_button, rect_quit_button)
         if Login:
+            
+            
+
             screen.blit(logo_image, (screen.get_width() // 2 - logo_image.get_width() // 2,-80))
             screen.blit(pannel,rect_pannel)
             
@@ -156,8 +209,8 @@ def login():
             username_box.update_cursor()
             password_box.draw(screen)
             password_box.update_cursor()
+            screen.blit(oeil_ouvert1, rect_oeil_ouvert1)    
             
-            pygame.draw.rect(screen, (255, 255, 255), rect_creer_compte, 2)  # Bordure blanche   
         if Confirm:
             logo_image = pygame.transform.scale(logo_image, (300, 300))
             screen.blit(logo_image, (screen.get_width() // 2 - logo_image.get_width() // 2,-50))
@@ -168,6 +221,10 @@ def login():
             password_box1.update_cursor()
             confirm_password_box1.draw(screen)
             confirm_password_box1.update_cursor()
+
+            screen.blit(oeil_ouvert2, rect_oeil_ouvert2)
+            screen.blit(oeil_ouvert3, rect_oeil_ouvert3)
+            
         pygame.display.flip()
 
 

@@ -118,7 +118,7 @@ class PNJ(Entity):
         self.font_dialog_box_name = pygame.font.Font("UI/dialog_font.ttf", 20)
         self.font_dialog_box = pygame.font.Font("UI/dialog_font.ttf", 15)
         self.font_dialog_box_pass = pygame.font.Font("UI/dialog_font.ttf", 13)
-        self.CanDialog = False
+        self.CanDialog = False # Si le joueur peut parler au PNJ
         
 
         self.current_text = ""    # Le texte affiché progressivement
