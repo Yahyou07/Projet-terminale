@@ -25,13 +25,14 @@ class Player(pygame.sprite.Sprite):
         
         self.button_armour  = pygame.image.load("UI/Inventories/armour.png")
         self.rect_button_armour = self.button_armour.get_rect()
-        self.rect_button_armour.x = 1045
-        self.rect_button_armour.y = 408
+        self.rect_button_armour.x = self.screen.get_width() // 2 - self.inventory_image.get_width() // 2 - 50 + 745
+        
+        self.rect_button_armour.y = self.screen.get_height() // 2 - self.inventory_image.get_height() // 2 + 172 
 
         self.button_bag  = pygame.image.load("UI/Inventories/bag.png")
         self.rect_button_bag = self.button_bag.get_rect()
-        self.rect_button_bag.x = 1045
-        self.rect_button_bag.y = 315
+        self.rect_button_bag.x = self.screen.get_width() // 2 - self.inventory_image.get_width() // 2 - 50 + 745
+        self.rect_button_bag.y = self.screen.get_height() // 2 - self.inventory_image.get_height() // 2 + 85
         # Booléen pour gérer l'affichage du sac ou de l'inventaire de l'armure
         self.OnBag = True
         self.OnArmour = False
@@ -314,7 +315,7 @@ class Player(pygame.sprite.Sprite):
         self.feet.midbottom = self.hit_box.midbottom
 
         # 🔸 4. Gérer les animations
-        anim_speed = 0.3 if running else 0.15
+        anim_speed = 0.3 if running else 0.2
         if dx > 0:
             self.animation(self.right, anim_speed)
             self.last_direction = "right"
@@ -474,11 +475,11 @@ class Player(pygame.sprite.Sprite):
         return x <= mouse_x <= x + width and y <= mouse_y <= y + height
     
     def display_inventory(self):
-        
+        x = self.screen.get_width() // 2 - self.inventory_image.get_width() // 2 - 50
+        y = self.screen.get_height() // 2 - self.inventory_image.get_height() // 2
         if self.OnBag:
             # Affichage de l'image de l'inventaire
-            x = self.screen.get_width() // 2 - self.inventory_image.get_width() // 2 - 50
-            y = self.screen.get_height() // 2 - self.inventory_image.get_height() // 2
+            
             self.screen.blit(self.inventory_image, (x, y))
 
             start_x =  x + 291  # Position X de la première cellule
@@ -521,10 +522,12 @@ class Player(pygame.sprite.Sprite):
                 # Afficher l'icône de l'item au-dessus de la souris
                 self.screen.blit(self.dragging_item['icon'], (mouse_x - self.CELL_SIZE // 2, mouse_y - self.CELL_SIZE // 2))
 
+        x_btn_armour = x + 745
+        y_btn_armour = y + 172 
+        y_btn_bag = y + 85
+        self.screen.blit(self.button_armour,(x_btn_armour,y_btn_armour))
         
-        self.screen.blit(self.button_armour,(1045,408))
-        
-        self.screen.blit(self.button_bag,(1045,315))
+        self.screen.blit(self.button_bag,(x_btn_armour,y_btn_bag))
 
 
     def regeneration_endurance(self,keys):
