@@ -46,6 +46,7 @@ import pygame
 from classe_entity_Yahya import *
 from dialog_data import *
 from quete1_classe import *
+from gestionnaire_quete import *
 
 # Définition de la fenêtre
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
@@ -61,6 +62,8 @@ for obj in tmx_data.objects:
         rect = pygame.Rect(obj.x, obj.y, obj.width, obj.height)
         collision_rects.append(rect)
 
+quete1 = Quete1()
+gestionnaire_quete = GestionnaireQuete(quete1)
 
 player_position = tmx_data.get_object_by_name("Player")
 player = Player(player_position.x, player_position.y, screen)  # Positionner le joueur
@@ -69,6 +72,7 @@ save_menu = Save_game(screen)
 chest_position = tmx_data.get_object_by_name("coffre1")
 
 pnj1 = PNJ("Wizard",200,200,"pnj",screen,(50,50),pnj1_dialog)
+pnj1.assigner_quete(quete1)
 
 #Création des gobelins
 gobelin1 = Enemy("gobelin_epee",250,300,"enemy",screen,(100,100))
@@ -83,18 +87,9 @@ chest1 = Coffre("chest1",chest_position.x,chest_position.y)
 
 item = Item("pain", 24, 30, 352, 350, "Food")
 item2 = Item("plastron", 1, 10, 300, 450, "Plastron")
-item3 = Item("apple", 24, 10, 352, 290, "Food")
-item4 = Item("bottes", 1, 10, 500, 270, "Bottes")
-item5 = Item("rubis", 24, 10, 352, 530, "Artefact")
-item6 = Item("casque", 1, 10, 180, 560, "Casque")
-item7 = Item("jambiere", 1, 10, 352, 230, "Jambiere")
+item3 = Item("bottes", 1, 10, 500, 270, "Bottes")
 
-item8 = Item("fish", 24, 10, 352, 710, "Food")
-item9 = Item("pioche1", 24, 10, 352, 130, "Pioche")
-item10 = Item("hache", 24, 10, 400, 130, "Hache")
 
-quete = Quete1()
-gestionnaire_quete = GestionnaireQuete(quete)
 
 # Création des arbres et ajout au groupe
 trees = [Arbre("arbre", x, y) for x, y in tree_positions]
@@ -104,7 +99,7 @@ map_data = pyscroll.data.TiledMapData(tmx_data)
 
 # Créer un groupe de rendu pour pyscroll
 map_layer = pyscroll.orthographic.BufferedRenderer(map_data, screen.get_size())
-map_layer.zoom = 2  # Facteur de zoom (1 = taille normale, 2 = zoomé x2)
+map_layer.zoom = 2.2  # Facteur de zoom (1 = taille normale, 2 = zoomé x2)
 
 # Créer un groupe de sprites avec caméra centrée
 group = pyscroll.PyscrollGroup(map_layer=map_layer, default_layer=1)
@@ -114,13 +109,7 @@ group.add(player, layer=5)
 group.add(item)
 group.add(item2)
 group.add(item3)
-group.add(item4)
-group.add(item5)
-group.add(item6)
-group.add(item7)
-group.add(item8)
-group.add(item9)
-group.add(item10)
+
 
 #On ajoute ici le coffre
 group.add(chest1,layer = 2)
@@ -144,6 +133,8 @@ for x, y in tree_positions:
     group.add(tronc, layer=2)
     group.add(feuillage, layer=7)
     troncs.append(tronc)  # ← On garde une liste de tous les troncs si besoin
+
+
 
 # Fonction quit
 def quit():
@@ -216,6 +207,10 @@ can_talk_to_pnj1 = False
 active_pnj = None
 can_attack = True
 bois_recolte = 0
+
+
+projectile_group = pygame.sprite.Group()  # ou pygame.sprite.Group() si pas besoin de caméra
+
 while running:
     dt = mainClock.tick(60) / 1000  # Temps écoulé en secondes
     
@@ -223,12 +218,15 @@ while running:
 
     for event in pygame.event.get():
         quit()
+        
+
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_e:
                 show_inventory = not show_inventory  # On inverse l'état de l'inventaire
                 player.OnBag = True
                 player.OnArmour = False
                 moving = not moving
+        
         
         
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
@@ -326,20 +324,27 @@ while running:
             if event.key == pygame.K_i:
                 if near_chest and near_chest.Can_open:
                     near_chest.start_animation_coffre(near_chest.coffre_open_list, 0.3)
+                    
                 elif active_pnj:  # ← Si on a un PNJ actif
                     active_pnj.CanDialog = not active_pnj.CanDialog
                     if active_pnj.CanDialog:
                         active_pnj.start_dialog(0)  # ← Lancer le texte de ce PNJ
+
             if event.key == pygame.K_SPACE:
                 if active_pnj and active_pnj.CanDialog:
                     active_pnj.next_dialog()
-
-
-
-
-
-
                     
+        events = pygame.event.get() 
+        gestionnaire_quete.gerer_evenements(events)
+
+        gestionnaire_quete.afficher(screen)
+        gestionnaire_quete.verifier_et_afficher_quete(event, pnj1, quete1)
+     
+
+    
+
+    #if quete1.active:
+        #quete1.afficher_quete(screen)
 
        
     # vérifier si l'on peut marcher
@@ -373,6 +378,9 @@ while running:
 
     keys = pygame.key.get_pressed()
     player.regeneration_endurance(keys)
+
+    
+
 
     group.update(dt)
     group.center(player.rect.center)  # Centre la caméra sur le joueur
@@ -475,7 +483,7 @@ while running:
                 screen_pos = map_layer.translate_point(world_pos)
                 screen.blit(player.key_board_I, (screen_pos[0]-23, screen_pos[1]+10))
 
-        if isinstance(sprite, Item) and player.hit_box.colliderect(sprite.rect):
+        if isinstance(sprite, Item) and player.hit_box.colliderect(sprite.rect) and sprite.en_animation_sortie == False:
             group.remove(sprite)  # Supprime l'objet du groupe
             player.add_to_inventory(sprite)
 
@@ -518,11 +526,23 @@ while running:
 
         if isinstance(sprite,Slime):
             sprite.champ_vision_enemy.center = sprite.rect.center  # Toujours mettre à jour le champ de vision
-            sprite.follow_player(player, [slime1])
+            
+            if sprite.category == "suiveur":
+                sprite.follow_player(player,[slime1])
+                
+                
+            if sprite.category == "kamikaze":
+                
+                sprite.follow_player_optional(player)
+                
+                if sprite.distance_between_player_slime <= 10 and sprite.category == "kamikaze":
+                    sprite.kamikaze(sprite,group,player)
+                
+                
             
             sprite.draw_health_bar(screen,map_layer)
-            if sprite.distance_between_player_slime <= 10:
-                sprite.kamikaze(sprite,group,player) 
+
+        
 
     # Si knockback est actif
     if player.knockback:
@@ -543,7 +563,7 @@ while running:
     for rect in collision_rects:
         if player.feet.colliderect(rect):
             player.move_back()
-            print("Singe en approche !")
+            
             
     
     #On reférifie si la vie est en dessous de 0 
@@ -571,11 +591,10 @@ while running:
         moving = True
         can_attack = True
     
-    events = pygame.event.get()
-    gestionnaire_quete.gerer_evenements(events)
-
-    gestionnaire_quete.afficher(screen)
     
+
+     
+
     '''
     # Affichage optionnel des hitbox bour le debbugage
     pygame.draw.rect(screen, (255, 0, 0), map_layer.translate_rect(player.hit_box), 2)
@@ -606,16 +625,27 @@ while running:
     pygame.draw.rect(screen, (255, 50, 56), map_layer.translate_rect(gobelin2.hitbox), 2)
     pygame.draw.rect(screen, (255, 190, 56), map_layer.translate_rect(gobelin3.hitbox), 2)
     '''
-                
+            
     
+    
+
     player.affiche_ui()
     pnj1.update(dt)
+
+    pnj1.idle()
+
+        # Affichage de la quête après le dialogue
+    if pnj1.dialogue_termine and not quete1.active:
+        gestionnaire_quete.demarrer_quete(quete1)
+        pnj1.dialogue_termine = False  # Réinitialise le flag
+
+        
     
     save_menu.update()
-    chest1.anim_chest()
+    chest1.anim_chest(group,near_chest)
     
     
-    pnj1.idle()
     
+
 
     pygame.display.update()
