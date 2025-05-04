@@ -54,45 +54,68 @@ def on_login():
     print("hey")
 
 def login():
-    
-    
+
     global username
-    logo_image = pygame.image.load("UI/Logo.png")
-    logo_image = pygame.transform.scale(logo_image, (600, 600))
-    
+
+    Login = True
+    Confirm = False
     background_image = pygame.image.load("UI/bg_menu.png")
     background_image = pygame.transform.scale(background_image, screen.get_size())
-    
-    x =screen.get_width()//2 -220
-    y= screen.get_height()//2 - 47
+    logo_image = pygame.image.load("UI/Logo.png")
 
-    rect = pygame.Rect(x + 122, y + 247, 181, 52)
-    pannel = pygame.image.load("UI/loginv2.png.png")
-    rect_pannel = pannel.get_rect()
-    rect_pannel.x = x
-    rect_pannel.y = y
-    
-    #panneau création de compte
-    pannel_create = pygame.image.load("UI/creer_compte_pannel.png")
-    
-    #bouton de création de compte 
-    btn_creation = pygame.image.load("UI/btn_cr.png")
-    btn_creation = pygame.transform.scale(btn_creation,(250,65))
-    rect_btn_creation = btn_creation.get_rect()
-    x_btn_creation = x + 80
-    y_btn_creation = y+ pannel.get_height()  +15
-    rect_btn_creation.x = x_btn_creation
-    rect_btn_creation.y = y_btn_creation
+    pannel_create_an_account = pygame.image.load("UI/create_account.png")
+    x_pannel_create_an_account = screen.get_width() // 2 - pannel_create_an_account.get_width() // 2
+    y_pannel_create_an_account = screen.get_height()//2 - pannel_create_an_account.get_height()//2
+    #Ajout du boutton quitter
     quit_button = pygame.image.load("UI/quitter_account.png.png")
-    
     rect_quit_button = quit_button.get_rect()
     x_quit = screen.get_width()-rect_quit_button.width - 10 # 10 pixels de marge à droite
     y_quit = 0 + rect_quit_button.height - 10 # 10 pixels de marge en bas
     rect_quit_button.x = x_quit
     rect_quit_button.y = y_quit
-    # Création des éléments
+    x =screen.get_width()//2 -220
+    y= screen.get_height()//2 - 47
+
+    #définition des input box de la création 
+    username_box1 = InputBox(x_pannel_create_an_account + 125, y_pannel_create_an_account+128, 270, 30)
+    password_box1 = InputBox(x_pannel_create_an_account + 125, y_pannel_create_an_account+223, 270, 30, is_password=True)
+    confirm_password_box1 = InputBox(x_pannel_create_an_account + 125, y_pannel_create_an_account+313, 270, 30, is_password=True)
+
+    #définitions des input box du login 
     username_box = InputBox(x + 93, y + 123, 200, 30)
     password_box = InputBox(x + 93, y + 200, 200, 30, is_password=True)
+
+    if Login:
+        logo_image = pygame.transform.scale(logo_image, (600, 600))
+        
+        
+
+        rect = pygame.Rect(x + 122, y + 247, 181, 52)
+        
+        pannel = pygame.image.load("UI/loginv2.png.png")
+        rect_pannel = pannel.get_rect()
+        rect_pannel.x = x
+        rect_pannel.y = y
+        
+        #panneau création de compte
+        pannel_create = pygame.image.load("UI/creer_compte_pannel.png")
+        
+        #bouton de création de compte 
+        btn_creation = pygame.image.load("UI/btn_cr.png")
+        btn_creation = pygame.transform.scale(btn_creation,(250,65))
+        rect_btn_creation = btn_creation.get_rect()
+        x_btn_creation = x + 80
+        y_btn_creation = y+ pannel.get_height()  +15
+        rect_btn_creation.x = x_btn_creation
+        rect_btn_creation.y = y_btn_creation
+        rect_creer_compte = pygame.Rect(rect_btn_creation.x,rect_btn_creation.y,rect_btn_creation.width,rect_btn_creation.height)
+        
+        
+    if Confirm:
+        logo_image = pygame.transform.scale(logo_image, (300, 300))
+
+        
+        
 
     running = True
     while running:
@@ -102,28 +125,49 @@ def login():
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if rect_quit_button.collidepoint(event.pos):
-                    pygame.quit()
-                    sys.exit()
-                if rect.collidepoint(event.pos):
-                    username = username_box.text
-                    return
-            username_box.handle_event(event)
-            password_box.handle_event(event)
-     
-        # Affichage de l'écran de connexion
+                        pygame.quit()
+                        sys.exit()
+                if Login:
+                    if rect.collidepoint(event.pos):
+                        username = username_box.text
+                        return
+                    if rect_creer_compte.collidepoint(event.pos):
+                        Login = False
+                        Confirm = True
+            if Login:
+                username_box.handle_event(event)
+                password_box.handle_event(event)
+            if Confirm:
+                username_box1.handle_event(event)
+                password_box1.handle_event(event)
+                confirm_password_box1.handle_event(event)
+
+
+        # Affichage du background
         screen.blit(background_image, (0, 0))
-        
-        screen.blit(logo_image, (screen.get_width() // 2 - logo_image.get_width() // 2,-80))
-        screen.blit(pannel,rect_pannel)
         screen.blit(quit_button, rect_quit_button)
-        #screen.blit(pannel_create, (x + 50, y+ pannel.get_height()))
-        screen.blit(btn_creation, rect_btn_creation)
-        font = pygame.font.Font(None, 74)
-        username_box.draw(screen)
-        username_box.update_cursor()
-        password_box.draw(screen)
-        password_box.update_cursor()
-        
+        if Login:
+            screen.blit(logo_image, (screen.get_width() // 2 - logo_image.get_width() // 2,-80))
+            screen.blit(pannel,rect_pannel)
+            
+            screen.blit(btn_creation, rect_btn_creation)
+            
+            username_box.draw(screen)
+            username_box.update_cursor()
+            password_box.draw(screen)
+            password_box.update_cursor()
+            
+            pygame.draw.rect(screen, (255, 255, 255), rect_creer_compte, 2)  # Bordure blanche   
+        if Confirm:
+            logo_image = pygame.transform.scale(logo_image, (300, 300))
+            screen.blit(logo_image, (screen.get_width() // 2 - logo_image.get_width() // 2,-50))
+            screen.blit(pannel_create_an_account, (x_pannel_create_an_account,y_pannel_create_an_account))
+            username_box1.draw(screen)
+            username_box1.update_cursor()
+            password_box1.draw(screen)
+            password_box1.update_cursor()
+            confirm_password_box1.draw(screen)
+            confirm_password_box1.update_cursor()
         pygame.display.flip()
 
 

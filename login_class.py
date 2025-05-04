@@ -87,7 +87,7 @@ class InputBox:
  
     def draw(self, screen):
         screen.blit(self.txt_surface, (self.rect.x+5, self.rect.y))
-        #pygame.draw.rect(screen, self.color, self.rect, 1)
+        pygame.draw.rect(screen, self.color, self.rect, 1)
         if self.active and self.cursor_visible:
             display_text = "*" * self.cursor_position if self.is_password else self.text[:self.cursor_position]
             cursor_x = self.rect.x + 5 + FONT.size(display_text)[0]
