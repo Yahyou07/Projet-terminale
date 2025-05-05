@@ -394,7 +394,7 @@ def launch_game():
 
     item = Item("pain", 24, 30, 352, 350, "Food")
     item2 = Item("plastron", 1, 10, 300, 450, "Plastron")
-    item3 = Item("bottes", 1, 10, 500, 270, "Bottes")
+    item3 = Item("casque", 1, 10, 500, 270, "Casque")
 
 
 

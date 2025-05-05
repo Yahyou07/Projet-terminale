@@ -475,8 +475,11 @@ class Player(pygame.sprite.Sprite):
         return x <= mouse_x <= x + width and y <= mouse_y <= y + height
     
     def display_inventory(self):
-        x = self.screen.get_width() // 2 - self.inventory_image.get_width() // 2 - 50
-        y = self.screen.get_height() // 2 - self.inventory_image.get_height() // 2
+        x = self.screen.get_width() // 2 - self.inventory_image.get_width() // 2 - 50 
+        
+        y = self.screen.get_height() // 2 - self.inventory_image.get_height() // 2 
+
+        print(x,y)
         if self.OnBag:
             # Affichage de l'image de l'inventaire
             
@@ -510,9 +513,13 @@ class Player(pygame.sprite.Sprite):
             y_armour = self.screen.get_height() // 2 - self.inventory_amour.get_height() // 2
             self.screen.blit(self.inventory_amour, (x_armour, y_armour))
             
-            x_icon = self.screen.get_width()-0.49375*self.screen.get_width()
-            y_icon =  self.screen.get_height()- self.screen.get_height()*0.6777777
+            x_icon = x_armour + 502
+            y_icon =  y_armour + 53
             for i in self.armour_icon_list:
+                # Si l'objet est glissé sur ce slot, afficher un contour
+                if self.is_mouse_on_slot(x_icon, y_icon, self.CELL_SIZE, self.CELL_SIZE):
+                    pygame.draw.rect(self.screen, (0, 255, 0), (x_icon, y_icon, self.CELL_SIZE, self.CELL_SIZE), 3)
+                
                 self.screen.blit(i,(x_icon,y_icon))
                 y_icon +=73
                 
@@ -664,8 +671,8 @@ class Player(pygame.sprite.Sprite):
             if self.OnBag:
                 for row in range(5):
                     for col in range(6):
-                        if self.is_mouse_on_slot(595 + col * (self.CELL_SIZE + self.CELL_SPACING),
-                                                290 + row * (self.CELL_SIZE + self.CELL_SPACING),
+                        if self.is_mouse_on_slot((self.screen.get_width() // 2 - self.inventory_image.get_width() // 2 - 50 + 291) + col * (self.CELL_SIZE + self.CELL_SPACING),
+                                                (self.screen.get_height() // 2 - self.inventory_image.get_height() // 2 + 59) + row * (self.CELL_SIZE + self.CELL_SPACING),
                                                 self.CELL_SIZE, self.CELL_SIZE):
                             if self.inventory_list[row][col]:
                                 self.dragging_item = self.inventory_list[row][col]
