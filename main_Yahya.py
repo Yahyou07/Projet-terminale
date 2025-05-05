@@ -102,6 +102,8 @@ def login():
     oeil_ferme = pygame.image.load("UI/oeil_fermé.png")
     oeil_ferme = pygame.transform.scale(oeil_ferme,(50,50))
 
+    retour_image = pygame.image.load("UI/retour_account.png")
+    rect_retour_image = retour_image.get_rect(topleft=(20,rect_quit_button.height - 10))
     Can_see_password = False
     if Login:
         logo_image = pygame.transform.scale(logo_image, (600, 600))
@@ -164,7 +166,6 @@ def login():
                             oeil_ouvert1 = pygame.transform.scale(oeil_ouvert1,(50,50))
                 if Confirm:
                     if rect_oeil_ouvert2.collidepoint(event.pos):
-                        print("oeil cliqué")
                         if Can_see_password == False:
                             password_box1.set_password_mode(False)  # ou False
                             Can_see_password = True
@@ -184,6 +185,9 @@ def login():
                             Can_see_password = False
                             oeil_ouvert3 = pygame.image.load("UI/oeil_ouvert.png")
                             oeil_ouvert3 = pygame.transform.scale(oeil_ouvert1,(50,50))
+                    if rect_retour_image.collidepoint(event.pos):
+                        Login = True
+                        Confirm = False
             if Login:
                 username_box.handle_event(event)
                 password_box.handle_event(event)
@@ -198,7 +202,7 @@ def login():
         screen.blit(quit_button, rect_quit_button)
         if Login:
             
-            
+            logo_image = pygame.transform.scale(logo_image, (600, 600))
 
             screen.blit(logo_image, (screen.get_width() // 2 - logo_image.get_width() // 2,-80))
             screen.blit(pannel,rect_pannel)
@@ -224,6 +228,7 @@ def login():
 
             screen.blit(oeil_ouvert2, rect_oeil_ouvert2)
             screen.blit(oeil_ouvert3, rect_oeil_ouvert3)
+            screen.blit(retour_image, rect_retour_image)
             
         pygame.display.flip()
 
