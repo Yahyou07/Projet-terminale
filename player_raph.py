@@ -426,7 +426,7 @@ class Player(pygame.sprite.Sprite):
             x += 60
         
         x_stack = 520
-        print(x_stack)
+        #print(x_stack)
         for stack in self.stack_text:
             self.screen.blit(stack,(x_stack,self.screen.get_height()-0.07*self.screen.get_height()))
             x_stack += 60

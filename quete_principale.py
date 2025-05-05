@@ -18,10 +18,8 @@ class QuetePrincipale:
     def _initialiser_quete(self):
         # Création des étapes
         self.etapes = {
-            "1": EtapeQuete("1", "Trouver du plastron dans la forêt", ["2"]),
-            "2": EtapeQuete("2", "Apporter le plastron à la bibliothèque", ["3"]),
-            "3": EtapeQuete("3", "Déchiffrer le message caché", ["4"]),
-            "4": EtapeQuete("4", "Battre le gardien du sanctuaire", [])
+            "1": EtapeQuete("1", "Aller couper des arbres", ["2"]),
+            "2": EtapeQuete("2", "Récolter du bois", []),
         }
         self.etape_courante_id = "1"
 
@@ -46,4 +44,4 @@ class QuetePrincipale:
         if etape:
             print(f"[Quête principale] Étape actuelle : {etape.description}")
         elif self.quete_terminee:
-            print("[Quête principale] La quête est terminée !")
+            print("[Quête principale] La quête est terminée ! Retourne parler au PNJ")

@@ -35,7 +35,7 @@ from pygame.locals import *
 import pyscroll
 import pyscroll.data
 import time
-from objects_Yahya import *
+from objects_raph import *
 from random import *
 pygame.init()
 pygame.key.set_repeat(400, 40)  # délai initial 400ms, puis 40ms entre répétitions
@@ -139,15 +139,18 @@ screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 
 run = False
 
-gestionnaire = GestionnairePrincipale(map_actuelle="foret")
+quete_principale = QuetePrincipale(
+    map_associee="forêt",
+    recompenses=["20 XP", "10 pièces d’or"]
+) 
 
-# Exemple d’appel dans la boucle principale si le joueur progresse
-#gestionnaire.etape_suivante()
+# instanciation du gestionnaire avec juste la quête principale
+gestionnaire = GestionnairePrincipale("foret")
 
-# Afficher état actuel
-#gestionnaire.etat_actuel()
 
 police_quete = pygame.font.Font("UI/dialog_font.ttf", 16)
+
+
 
 # fonction pour afficher le menu principal
 def main_menu():
@@ -267,7 +270,13 @@ def main_menu():
 # Fonction pour lancer le jeu 
 def launch_game():
     global tree_positions
-    
+
+    en_attente_reponse = False  #variable pour désactiver la touche espace lors du choix d'accepter ou refuser
+
+    quete_offerte = False    # pour savoir si on vient juste de proposer la quête
+
+    quete_offerte_accepte = False   # pour mémoriser la réponse du joueur
+
     mainClock = pygame.time.Clock()
     # Chargement de la carte Tiled
     tmx_data = load_pygame("maps/maps.tmx")  
@@ -418,7 +427,8 @@ def launch_game():
 
     running = True
     near_chest = None  # coffre à proximité par défaut à None
-
+    
+    
 
     Show_stats = False
     can_talk_to_pnj1 = False
@@ -545,26 +555,74 @@ def launch_game():
                     if near_chest and near_chest.Can_open:
                         near_chest.start_animation_coffre(near_chest.coffre_open_list, 0.3)
                         
-                    elif active_pnj:  # ← Si on a un PNJ actif
-                        active_pnj.CanDialog = not active_pnj.CanDialog
-                        if active_pnj.CanDialog:
-                            active_pnj.start_dialog(0)  # ← Lancer le texte de ce PNJ
+                    if event.type == pygame.KEYDOWN and event.key == pygame.K_i:
 
-                    #if not gestionnaire.active:
-                       # gestionnaire.lancer_quete()
+                        if active_pnj:
+                            # 1) Choix du bon tableau de phrases
+                            if (gestionnaire.quete_principale and gestionnaire.quete_principale.est_terminee()):
+                                active_pnj.parole = pnj1_dialog_après
+                            else:
+                                active_pnj.parole = pnj1_dialog
+
+                            # 2) On ouvre ou ferme la boîte de dialogue
+                            active_pnj.CanDialog = not active_pnj.CanDialog
+                            if active_pnj.CanDialog:
+                                active_pnj.start_dialog(0)
+
+                            # si la quête n'est pas encore active, on va la proposer
+                            if not gestionnaire.active and not quete_offerte:
+                            # on se prépare à proposer la quête à la fin du dialogue
+                                quete_offerte = True
+
+                if event.type == pygame.KEYDOWN and active_pnj and active_pnj.CanDialog:
+                    # À l’invite O/N, on regarde la touche
+                    if event.key == pygame.K_o:
+                        # Le joueur accepte
+                        gestionnaire.lancer_quete()
+                        en_attente_reponse = False #on réactive la touche espace dès qu'il a fait un choix
+                        active_pnj.parole = [
+                            "Merci ! Ramassez 10 bûches\net revenez me voir."
+                        ]
+                        active_pnj.start_dialog(0)
+                    elif event.key == pygame.K_n:
+                        # Le joueur refuse
+                        en_attente_reponse = False
+                        active_pnj.parole = [
+                            "Très bien. Revenez\nlorsque vous serez prêt."
+                        ]
+                        active_pnj.start_dialog(0)
                         
                 if event.key == pygame.K_SPACE:
+                    if en_attente_reponse:
+                    # on ne fait rien, on ignore la frappe
+                        continue
                     #Pour savoir si on est train de dialoguer
                     if active_pnj and active_pnj.CanDialog:
                         #Passe à la phrase suivante
                         active_pnj.next_dialog()
 
-                        #Si le dialogue vient de se terminer on lancer la quête
-                        if not active_pnj.CanDialog and not gestionnaire.active:
+                         # si on vient de passer la dernière phrase ET qu'on doit proposer la quête
+                         # À la fin du dialogue initial, proposer la quête
+                        if (not active_pnj.CanDialog
+                            and not gestionnaire.active
+                            and active_pnj.parole is pnj1_dialog):
+
+                            # Préparer l’invite « O » / « N » dans le dialogue
+                            active_pnj.parole = [
+                                "Voulez-vous accepter la quête ? \n [O]ui / [N]on"
+                            ]
+                            active_pnj.CanDialog = True
+                            active_pnj.start_dialog(0)
+
+                            #on désactive la touche espace pour ne laisser le choix que oui ou non
+                            en_attente_reponse = True
+
+                        #Si le dialogue vient de se terminer on lance la quête
+                        if not active_pnj.CanDialog and not gestionnaire.active and quete_offerte_accepte==True:
                             gestionnaire.lancer_quete()
 
 
-
+                
 
 
 
@@ -660,6 +718,7 @@ def launch_game():
                                     group.add(Item("buche1", 24, 10, sprite.rect.x + 50, sprite.rect.y + 50, "Food"))
                                     group.add(Item("buche1", 24, 10, sprite.rect.x + 30, sprite.rect.y + 30, "Food"))
                                     group.add(Item("buche1", 24, 10, sprite.rect.x + 20, sprite.rect.y + 50, "Food"))
+                                    gestionnaire.couper_arbre()
                                     if choice([1,2,3,4,5,6,7,8,9,10]) == 1:
                                         group.add(Item("apple", 24, 10, sprite.rect.x + 20, sprite.rect.y + 10, "Food"))
                                         
@@ -715,10 +774,15 @@ def launch_game():
                     screen.blit(player.key_board_I, (screen_pos[0]-23, screen_pos[1]+10))
 
             if isinstance(sprite, Item) and player.hit_box.colliderect(sprite.rect) and sprite.en_animation_sortie == False:
-                group.remove(sprite)  # Supprime l'objet du groupe
+
+    
+                group.remove(sprite)
                 player.add_to_inventory(sprite)
-                # Option A : passer directement par le gestionnaire
-                gestionnaire.etape_suivante()
+
+                 # déclencher l’avancement seulement pour le bois "buche1"
+                if sprite.name == "buche1":
+                    print("Ramassé :", sprite.name)
+                    gestionnaire.collecter_objet(sprite)
 
 
             if isinstance(sprite, Entity) and player.feet.colliderect(sprite.hit_box):
