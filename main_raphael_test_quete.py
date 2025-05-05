@@ -549,6 +549,9 @@ def launch_game():
                         active_pnj.CanDialog = not active_pnj.CanDialog
                         if active_pnj.CanDialog:
                             active_pnj.start_dialog(0)  # ← Lancer le texte de ce PNJ
+
+                    #if not gestionnaire.active:
+                       # gestionnaire.lancer_quete()
                         
                 if event.key == pygame.K_SPACE:
                     #Pour savoir si on est train de dialoguer
@@ -556,7 +559,7 @@ def launch_game():
                         #Passe à la phrase suivante
                         active_pnj.next_dialog()
 
-                        #Si le dialogue vient de se terminer on lance la quête
+                        #Si le dialogue vient de se terminer on lancer la quête
                         if not active_pnj.CanDialog and not gestionnaire.active:
                             gestionnaire.lancer_quete()
 
