@@ -67,6 +67,10 @@ class Coffre(pygame.sprite.Sprite):
         self.coffre_anim = True
 
     def anim_chest(self,group,near_chest):
+
+        if near_chest is None:
+            return
+        
         if self.coffre_anim:
             self.coffre_anim_index += self.coffre_anim_speed
            

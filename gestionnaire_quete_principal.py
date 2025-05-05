@@ -12,6 +12,8 @@ class GestionnairePrincipale:
         self.compteur_buches = 0
         self.buches_requises = 10
 
+        self.recompense_donnee = False
+
 
     def lancer_quete(self):
         if not self.active:
@@ -115,3 +117,30 @@ class GestionnairePrincipale:
         # 2) On passe à l'étape suivante
         self.quete_principale.avancer()
         print("Étape 1 accomplie : vous avez coupé un arbre, passez à l'étape 2 !")
+
+
+    def donner_recompense(self, player):
+        """
+        Restaure la vie du joueur à 100 % si la quête est terminée et que la 
+        récompense n’a pas encore été donnée.
+        """
+        """
+        Restaure la vie du joueur à 100 % si la quête est terminée
+        ET que la récompense n'a pas encore été donnée.
+        """
+        # 1) Vérifier que la quête est bien active
+        if not self.active:
+            return
+
+        # 2) Vérifier qu'il existe une quête et qu'elle est terminée
+        if not (self.quete_principale and self.quete_principale.est_terminee()):
+            return
+
+        # 3) Vérifier qu'on n'a pas déjà donné la récompense
+        if self.recompense_donnee:
+            return
+
+        # → Tous les tests sont passés : on donne la récompense
+        player.health_value = 100
+        self.recompense_donnee = True
+        print("[Gestionnaire] Vie restaurée à 100 % !")

@@ -558,16 +558,18 @@ def launch_game():
                     if event.type == pygame.KEYDOWN and event.key == pygame.K_i:
 
                         if active_pnj:
-                            # 1) Choix du bon tableau de phrases
+                            #Choix du bon tableau de phrases
                             if (gestionnaire.quete_principale and gestionnaire.quete_principale.est_terminee()):
                                 active_pnj.parole = pnj1_dialog_après
                             else:
                                 active_pnj.parole = pnj1_dialog
 
-                            # 2) On ouvre ou ferme la boîte de dialogue
+                            #On ouvre ou ferme la boîte de dialogue
                             active_pnj.CanDialog = not active_pnj.CanDialog
                             if active_pnj.CanDialog:
                                 active_pnj.start_dialog(0)
+                            else:
+                                gestionnaire.donner_recompense(player)
 
                             # si la quête n'est pas encore active, on va la proposer
                             if not gestionnaire.active and not quete_offerte:
