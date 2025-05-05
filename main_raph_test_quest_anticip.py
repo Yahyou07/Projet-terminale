@@ -333,12 +333,14 @@ while running:
             if event.key == pygame.K_SPACE:
                 if active_pnj and active_pnj.CanDialog:
                     active_pnj.next_dialog()
-                    
-        events = pygame.event.get() 
-        gestionnaire_quete.gerer_evenements(events)
 
-        gestionnaire_quete.afficher(screen)
         gestionnaire_quete.verifier_et_afficher_quete(event, pnj1, quete1)
+
+    events = pygame.event.get() 
+    gestionnaire_quete.gerer_evenements(events)
+
+    gestionnaire_quete.afficher(screen)
+        
      
 
     
