@@ -154,6 +154,7 @@ def login():
                     if rect_creer_compte.collidepoint(event.pos):
                         Login = False
                         Confirm = True
+                        
                     if rect_oeil_ouvert1.collidepoint(event.pos):
                         if Can_see_password == False:
                             password_box.set_password_mode(False)  # ou False
@@ -165,6 +166,7 @@ def login():
                             oeil_ouvert1 = pygame.image.load("UI/oeil_ouvert.png")
                             oeil_ouvert1 = pygame.transform.scale(oeil_ouvert1,(50,50))
                 if Confirm:
+
                     if rect_oeil_ouvert2.collidepoint(event.pos):
                         if Can_see_password == False:
                             password_box1.set_password_mode(False)  # ou False
@@ -188,6 +190,7 @@ def login():
                     if rect_retour_image.collidepoint(event.pos):
                         Login = True
                         Confirm = False
+                        
             if Login:
                 username_box.handle_event(event)
                 password_box.handle_event(event)
