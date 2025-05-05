@@ -174,15 +174,7 @@ class Player(pygame.sprite.Sprite):
         self.max_page = 20
         self.pages_text = self.font_fantasy.render(f"{str(self.page)} - {self.page_a_cote}",True, (255, 174, 111))
 
-        self.pages = [self.font_book .render("Salut chef",True, (255, 255, 111)),
-                      self.font_book .render("Salut le singe",True, (255, 255, 111)), 
-                      self.font_book .render("Salut l'arabe",True, (255, 255, 111)),
-                      self.font_book .render("Salut Michel",True, (255, 255, 111)),
-                      self.font_book .render("Salut Roger",True, (255, 255, 111)),
-                      self.font_book .render("Salut Renoisanseaux",True, (255, 255, 111)),
-                      self.font_book .render("Salut Janny",True, (255, 255, 111)),
-                      self.font_book .render("Salut Gros",True, (255, 255, 111))
-                      ]
+        self.pages = [self.font_book .render("Salut chef",True, (255, 255, 111)) for i in range(self.max_page)]
 
         self.book_animation_list = []
         self.book_anim_speed = 0
@@ -224,36 +216,6 @@ class Player(pygame.sprite.Sprite):
         self.knockback_speed = 0  # Vitesse actuelle du recul
         self.knockback_direction = 0  # Direction du recul : -1 pour gauche, 1 pour droite
         self.knockback_direction_y = 0
-        
-    def generer_pages_quete(self):
-
-        if self.quete_principale:
-            texte_principale = [
-                f"--- Quête Principale ---",
-                f"Map : {self.quete_principale.map_name}",
-                f"Objectif : {self.quete_principale.objectif}",
-                f"Récompenses : {', '.join(self.quete_principale.recompenses)}"
-            ]
-            for ligne in texte_principale:
-                surf = self.font_book.render(ligne, True, (255, 255, 111))
-                self.pages.append(surf)
-
-        if self.quetes_secondaires:
-            for i, quete in enumerate(self.quetes_secondaires):
-                texte_quete = [
-                    f"--- Quête Secondaire {i+1} ---",
-                    f"Map : {quete.map_name}",
-                    f"Objectif : {quete.objectif}",
-                    f"Récompenses : {', '.join(quete.recompenses)}"
-                ]
-                for ligne in texte_quete:
-                    surf = self.font_book.render(ligne, True, (200, 255, 150))
-                    self.pages.append(surf)
-
-    def lancer_quete(self, nom_book):
-        if self.nom_book == "quete":
-            self.generer_pages_quete()
-            GestionnairePrincipale.afficher_interface_quete(self.screen, self.font_book, self.quete_principale)
 
     def start_anim_attack(self,list_mouv,speed,decal):
         '''

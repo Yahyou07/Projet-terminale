@@ -37,23 +37,44 @@ class GestionnairePrincipale:
         else:
             print("[Gestionnaire] Aucune quête principale active.")
 
-    def afficher_interface_quete(screen, police, quete):
-        """Affiche l'étape actuelle de la quête sur l'écran du jeu"""
-        if quete and not quete.quete_terminee:
-            # Récupère l'étape actuelle
+    def afficher_interface_quete(self, screen, police):
+        """Affiche un petit panneau de la quête, adapté à n'importe quelle résolution."""
+        if not (self.active and self.quete_principale):
+            return
+
+        sw, sh = screen.get_width(), screen.get_height()
+
+        # Marges dynamiques : 2% de l'écran
+        margin_x = int(sw * 0.02)
+        margin_y = int(sh * 0.02)
+
+        # Largeur du panneau = 30% de la largeur d'écran
+        panel_width = int(sw * 0.30)
+
+        # Position en haut à droite
+        x = sw - panel_width - margin_x
+        y = margin_y
+
+        # Espacement entre lignes = 1.2 * hauteur d'une ligne de police
+        line_height = int(police.get_linesize() * 1.2)
+
+        # --- Titre ---
+        titre_surf = police.render("Quête principale", True, (255, 255, 255))
+        screen.blit(titre_surf, (x, y))
+        y += line_height
+
+        # --- Contenu ---
+        quete = self.quete_principale
+        if not quete.quete_terminee:
             etape = quete.get_etape_courante()
-            if etape:
-                # Texte à afficher
-                titre = f"Quête principale"
-                description = f"- {etape.description}"
-
-                # Rendu du texte
-                titre_texte = police.render(titre, True, (255, 255, 255))  # Jaune
-                description_texte = police.render(description, True, (255, 255, 255))  # Blanc
-
-                # Affichage à l'écran (coin haut gauche)
-                screen.blit(titre_texte, (600, 600))
-                screen.blit(description_texte, (600, 600))
-        elif quete and quete.quete_terminee:
-            fin_texte = police.render("Quête principale terminée !", True, (0, 255, 0))
-            screen.blit(fin_texte, (600, 600))
+            desc = etape.description if etape else "<Aucune étape>"
+            # On pourrait découper si desc est trop long :
+            max_chars = int(panel_width / (police.size("M")[0] or 1))  # approx cols
+            lines = [desc[i:i+max_chars] for i in range(0, len(desc), max_chars)]
+            for line in lines:
+                surf = police.render(f"- {line}", True, (200, 200, 200))
+                screen.blit(surf, (x, y))
+                y += line_height
+        else:
+            fin_surf = police.render("✓ Terminée !", True, (100, 255, 100))
+            screen.blit(fin_surf, (x, y))

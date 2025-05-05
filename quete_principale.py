@@ -18,8 +18,8 @@ class QuetePrincipale:
     def _initialiser_quete(self):
         # Création des étapes
         self.etapes = {
-            "1": EtapeQuete("1", "Trouver le vieux parchemin dans la forêt", ["2"]),
-            "2": EtapeQuete("2", "Apporter le parchemin à la bibliothèque", ["3"]),
+            "1": EtapeQuete("1", "Trouver du plastron dans la forêt", ["2"]),
+            "2": EtapeQuete("2", "Apporter le plastron à la bibliothèque", ["3"]),
             "3": EtapeQuete("3", "Déchiffrer le message caché", ["4"]),
             "4": EtapeQuete("4", "Battre le gardien du sanctuaire", [])
         }

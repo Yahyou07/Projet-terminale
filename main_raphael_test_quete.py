@@ -49,18 +49,10 @@ from dialog_data import *
 
 from login_class import *
 
-from gestionnaire_quete_principal import *
+from gestionnaire_quete_principal import GestionnairePrincipale
+from quete_principale import*
 
-gestionnaire = GestionnairePrincipale(map_actuelle="foret")
 
-# Lancement automatique
-gestionnaire.lancer_quete()
-
-# Exemple d’appel dans la boucle principale si le joueur progresse
-gestionnaire.etape_suivante()
-
-# Afficher état actuel
-gestionnaire.etat_actuel()
 
 
 username = ""
@@ -146,6 +138,16 @@ def login():
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN) 
 
 run = False
+
+gestionnaire = GestionnairePrincipale(map_actuelle="foret")
+
+# Exemple d’appel dans la boucle principale si le joueur progresse
+#gestionnaire.etape_suivante()
+
+# Afficher état actuel
+#gestionnaire.etat_actuel()
+
+police_quete = pygame.font.Font("UI/dialog_font.ttf", 16)
 
 # fonction pour afficher le menu principal
 def main_menu():
@@ -499,8 +501,6 @@ def launch_game():
                     show_inventory = False
                     player.OnBook = True
                     player.startBookAnimation(player.open_book, 0.3)  
-                    nom_book="quete"
-                    player.lancer_quete(nom_book)
 
                 if player.rect_button_back_book.collidepoint(event.pos):
                     player.OnBook = False
@@ -549,9 +549,16 @@ def launch_game():
                         active_pnj.CanDialog = not active_pnj.CanDialog
                         if active_pnj.CanDialog:
                             active_pnj.start_dialog(0)  # ← Lancer le texte de ce PNJ
+                        
                 if event.key == pygame.K_SPACE:
+                    #Pour savoir si on est train de dialoguer
                     if active_pnj and active_pnj.CanDialog:
+                        #Passe à la phrase suivante
                         active_pnj.next_dialog()
+
+                        #Si le dialogue vient de se terminer on lance la quête
+                        if not active_pnj.CanDialog and not gestionnaire.active:
+                            gestionnaire.lancer_quete()
 
 
 
@@ -601,6 +608,9 @@ def launch_game():
         
         group.draw(screen)
         
+        if gestionnaire.active:
+            gestionnaire.afficher_interface_quete(screen, police_quete)
+            
 
         if player.OnBook:
             player.animBook()
@@ -704,6 +714,9 @@ def launch_game():
             if isinstance(sprite, Item) and player.hit_box.colliderect(sprite.rect) and sprite.en_animation_sortie == False:
                 group.remove(sprite)  # Supprime l'objet du groupe
                 player.add_to_inventory(sprite)
+                # Option A : passer directement par le gestionnaire
+                gestionnaire.etape_suivante()
+
 
             if isinstance(sprite, Entity) and player.feet.colliderect(sprite.hit_box):
                 player.move_back()
