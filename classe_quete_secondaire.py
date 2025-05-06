@@ -16,3 +16,4 @@ class Quetes_secondaire(pygame.sprite.Sprite):
     def arreter_quete(self):
         pass
     
+    
