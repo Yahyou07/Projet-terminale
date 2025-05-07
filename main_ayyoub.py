@@ -33,7 +33,7 @@ from pytmx.util_pygame import load_pygame
 import pytmx.util_pygame
 from player_Yahya import *
 from items import *
-
+from sqlite3 import *
 from pygame.locals import *
 import pyscroll
 import pyscroll.data
@@ -55,6 +55,54 @@ from login_class import *
 username = ""
 def on_login():
     print("hey")
+
+def verification(username,password):
+    """
+        Fonction de vérification du login
+    """
+    pannel_create_an_account = pygame.image.load("UI/create_account.png")
+    x_pannel_create_an_account = screen.get_width() // 2 - pannel_create_an_account.get_width() // 2
+    y_pannel_create_an_account = screen.get_height()//2 - pannel_create_an_account.get_height()//2
+    
+    font = pygame.font.Font("UI/dialog_font.ttf", 15)
+    message_erreur = font.render("Identifiant/Mot de passe invalide", True, (255, 0, 0))
+
+    # Connexion à la base de données SQLite
+    conn = sqlite3.connect('database/data.db')
+    cursor = conn.cursor()
+
+    # Requête pour vérifier si le nom d'utilisateur et le mot de passe existent dans la table "users"
+    cursor.execute("SELECT * FROM Login WHERE pseudo=? AND password=?", (username, password))
+    result = cursor.fetchone()
+
+    # Fermer la connexion à la base de données
+    conn.close()
+
+    if result:
+        return True  # Identifiant et mot de passe valides
+    else:
+        screen.blit(message_erreur, (x_pannel_create_an_account ,y_pannel_create_an_account))
+
+def create_account(username,password,confirm_password):
+    pannel_create_an_account = pygame.image.load("UI/create_account.png")
+    x_pannel_create_an_account = screen.get_width() // 2 - pannel_create_an_account.get_width() // 2
+    y_pannel_create_an_account = screen.get_height()//2 - pannel_create_an_account.get_height()//2
+    
+    tmx_data = load_pygame("maps/maps.tmx")  
+    player_position = tmx_data.get_object_by_name("Player")
+    if password == confirm_password:
+        # Connexion à la base de données SQLite
+        conn = sqlite3.connect('database/data.db')
+        cursor = conn.cursor()
+
+        # Requête pour vérifier si le nom d'utilisateur existe déjà dans la table "users"
+        cursor.execute("INSERT INTO Login (pseudo,password,pos_x,pos_y,health,mana,endurance,level) values (?,?,?,?,100,0,100))", (username,password,player_position.x,player_position.y))
+        result = cursor.fetchone()
+    else :
+        font = pygame.font.Font("UI/dialog_font.ttf", 15)
+        message_erreur = font.render("Les mots de passe ne correspondent pas", True, (255, 0, 0))
+        screen.blit(message_erreur, (x_pannel_create_an_account ,y_pannel_create_an_account))
+    
 
 def login():
 
@@ -136,7 +184,7 @@ def login():
         rect_btn_creation.y = y_btn_creation
         rect_creer_compte = pygame.Rect(rect_btn_creation.x,rect_btn_creation.y,rect_btn_creation.width,rect_btn_creation.height)
         
-        screen.blit(message_erreur, (x_pannel_create_an_account , y_pannel_create_an_account))
+        #screen.blit(message_erreur, (x_pannel_create_an_account , y_pannel_create_an_account))
         
     if Confirm:
         logo_image = pygame.transform.scale(logo_image, (300, 300))
@@ -156,7 +204,10 @@ def login():
                         sys.exit()
                 if Login:
                     if rect.collidepoint(event.pos):
-                        username = username_box.text
+                        if verification(username_box.text,password_box.text):
+                            running = False
+                            username = username_box.text
+                            print("Login successful")
                         return
                     if rect_creer_compte.collidepoint(event.pos):
                         Login = False
