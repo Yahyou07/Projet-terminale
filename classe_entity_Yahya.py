@@ -611,9 +611,9 @@ class Slime(pygame.sprite.Sprite):
 
     def kamikaze(self,sprite,group,player):
         explosion = Effect("explosion","frame",self.rect.centerx, self.rect.centery,(150,150))
-        crater = Crater("crater",self.rect.centerx-30,self.rect.centery)
+        #crater = Crater("crater",self.rect.centerx-30,self.rect.centery)
         
-        group.add(crater,layer = 3)
+        
         group.add(explosion,layer = 6)
         if player.last_direction == "right":
             player.knockback = True
