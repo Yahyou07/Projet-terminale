@@ -653,6 +653,13 @@ class Player(pygame.sprite.Sprite):
         
 
     def handle_mouse_events(self, event):
+        #coordonnée de la première cellule de l'inventaire
+        x_bag_icon = (self.screen.get_width() // 2 - self.inventory_image.get_width() // 2 - 50 + 291)
+        y_bag_icon = (self.screen.get_height() // 2 - self.inventory_image.get_height() // 2 + 59)
+
+        #coordonnée de la première cellule de l'inventaire d'armure
+        x_armour_icon = (self.screen.get_width() // 2 - self.inventory_amour.get_width() // 2 - 50 + 502)
+        y_armour_icon = (self.screen.get_height() // 2 - self.inventory_amour.get_height() // 2 + 53)
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouse_x, mouse_y = pygame.mouse.get_pos()
 
@@ -671,8 +678,8 @@ class Player(pygame.sprite.Sprite):
             if self.OnBag:
                 for row in range(5):
                     for col in range(6):
-                        if self.is_mouse_on_slot((self.screen.get_width() // 2 - self.inventory_image.get_width() // 2 - 50 + 291) + col * (self.CELL_SIZE + self.CELL_SPACING),
-                                                (self.screen.get_height() // 2 - self.inventory_image.get_height() // 2 + 59) + row * (self.CELL_SIZE + self.CELL_SPACING),
+                        if self.is_mouse_on_slot(x_bag_icon + col * (self.CELL_SIZE + self.CELL_SPACING),
+                                                y_bag_icon + row * (self.CELL_SIZE + self.CELL_SPACING),
                                                 self.CELL_SIZE, self.CELL_SIZE):
                             if self.inventory_list[row][col]:
                                 self.dragging_item = self.inventory_list[row][col]
@@ -685,7 +692,7 @@ class Player(pygame.sprite.Sprite):
             # Clic sur armure
             if self.OnArmour:
                 for i in range(len(self.armour_list)):
-                    if self.is_mouse_on_slot(800, 288 + i * 70, 50, 50):
+                    if self.is_mouse_on_slot(x_armour_icon, y_armour_icon + i * 70, 50, 50):
                         if self.armour_list[i]:
                             self.dragging_item = self.armour_list[i]
                             self.dragging_item['icon'] = self.armour_icon_list[i]
@@ -723,8 +730,8 @@ class Player(pygame.sprite.Sprite):
             if self.OnBag:
                 for row in range(5):
                     for col in range(6):
-                        if self.is_mouse_on_slot(595 + col * (self.CELL_SIZE + self.CELL_SPACING),
-                                                290 + row * (self.CELL_SIZE + self.CELL_SPACING),
+                        if self.is_mouse_on_slot(x_bag_icon + col * (self.CELL_SIZE + self.CELL_SPACING),
+                                                 y_bag_icon + row * (self.CELL_SIZE + self.CELL_SPACING),
                                                 self.CELL_SIZE, self.CELL_SIZE):
                             if self.dragging_item:
                                 slot = self.inventory_list[row][col]
@@ -748,7 +755,7 @@ class Player(pygame.sprite.Sprite):
 
             if self.OnArmour:
                 for i in range(len(self.armour_list)):
-                    if self.is_mouse_on_slot(800, 288 + i * 70, 50, 50):
+                    if self.is_mouse_on_slot(x_armour_icon, y_armour_icon + i * 70, 50, 50):
                         if self.dragging_item:
                             correct_type = (
                                 (i == 0 and self.dragging_item['object'].type == "Casque") or

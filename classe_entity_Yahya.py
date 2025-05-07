@@ -248,22 +248,31 @@ class Enemy(Entity):
         self.image = pygame.transform.scale(self.image,scale)
 
     def draw_health_bar(self, screen, map_layer):
-        """ Dessine la barre de vie arrondie de l'ennemi au-dessus de lui """
+        """ Dessine la barre de vie arrondie de l'ennemi au-dessus de lui avec un contour blanc """
+
+        # Position au-dessus de l'ennemi
         world_pos = (self.rect.centerx, self.rect.top - 10)
         screen_pos = map_layer.translate_point(world_pos)
 
+        # Calcul du pourcentage de vie
         health_percentage = self.current_health / self.max_health
+        bar_width = max(4, int(self.health_bar_width * health_percentage))  # minimum de largeur visible
 
-        # Fond de la barre (rouge clair)
+        # Fond gris (barre de fond complète)
         bg_rect = pygame.Rect(0, 0, self.health_bar_width, self.health_bar_height)
         bg_rect.center = screen_pos
-        pygame.draw.rect(screen, (200, 50, 50), bg_rect, border_radius=3)
+        pygame.draw.rect(screen, (125, 125, 125), bg_rect, border_radius=3)
 
-        # Barre de vie (verte)
-        health_rect = pygame.Rect(0, 0, self.health_bar_width * health_percentage, self.health_bar_height)
-        health_rect.topleft = bg_rect.topleft
-        health_rect.height = self.health_bar_height
-        pygame.draw.rect(screen, (50, 205, 50), health_rect, border_radius=3)
+        # Contour blanc
+        white_rect = pygame.Rect(0, 0, bar_width, self.health_bar_height)
+        white_rect.topleft = bg_rect.topleft
+        pygame.draw.rect(screen, (255, 255, 255), white_rect, border_radius=3)
+
+        # Barre rouge à l'intérieur du contour blanc
+        inner_margin = 1
+        red_rect = white_rect.inflate(-2 * inner_margin, -2 * inner_margin)
+        pygame.draw.rect(screen, (198, 0, 0), red_rect, border_radius=2)
+
 
 
         
