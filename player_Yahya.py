@@ -120,7 +120,7 @@ class Player(pygame.sprite.Sprite):
         self.cursor_image = pygame.image.load("UI/Inventories/cursor.png")
 
         #On charge ici les images des bouttons pour les quete, livre ...
-        self.button_book = pygame.image.load("UI/boutton_book.png")
+        self.button_book = pygame.image.load("UI/livre2.png")
         self.rect_button_book = self.button_book.get_rect()
         self.rect_button_book.x = self.screen.get_width()-62
         self.rect_button_book.y = 200
@@ -166,15 +166,8 @@ class Player(pygame.sprite.Sprite):
         self.max_page = 20
         self.pages_text = self.font_fantasy.render(f"{str(self.page)} - {self.page_a_cote}",True, (255, 174, 111))
 
-        self.pages = [self.font_book .render("Salut chef",True, (255, 255, 111)),
-                      self.font_book .render("Salut le singe",True, (255, 255, 111)), 
-                      self.font_book .render("Salut l'arabe",True, (255, 255, 111)),
-                      self.font_book .render("Salut Michel",True, (255, 255, 111)),
-                      self.font_book .render("Salut Roger",True, (255, 255, 111)),
-                      self.font_book .render("Salut Renoisanseaux",True, (255, 255, 111)),
-                      self.font_book .render("Salut Janny",True, (255, 255, 111)),
-                      self.font_book .render("Salut Gros",True, (255, 255, 111))
-                      ]
+        self.pages = [self.font_book .render("Q",True, (255, 255, 111)) for i in range(self.max_page)]
+                      
 
         self.book_animation_list = []
         self.book_anim_speed = 0
@@ -438,10 +431,9 @@ class Player(pygame.sprite.Sprite):
         
         self.current_item = self.inventory_bar_list[self.inventory_index]
 
+        pygame.draw.circle(self.screen, (125,125,125), (self.rect_button_book.x+20, self.rect_button_book.y+40), 40,2)
         # Affichage des bouttons sur le cote
         self.screen.blit(self.button_book,(self.screen.get_width()-80,200))
-        self.screen.blit(self.button_quete,(self.screen.get_width()-62,300))
-        self.screen.blit(self.button_map,(self.screen.get_width()-62,400))
 
         if self.OnBook:
             self.screen.blit(self.fond_table, (0, 0))

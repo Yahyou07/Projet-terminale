@@ -104,6 +104,7 @@ def login():
 
     retour_image = pygame.image.load("UI/retour_account.png")
     rect_retour_image = retour_image.get_rect(topleft=(20,rect_quit_button.height - 10))
+
     Can_see_password = False
     font = pygame.font.Font("UI/dialog_font.ttf", 15)
     message_erreur = font.render("Identifiant/Mot de passe invalide", True, (255, 0, 0))
@@ -120,8 +121,6 @@ def login():
         rect_pannel.x = x
         rect_pannel.y = y
         
-        #panneau création de compte
-        pannel_create = pygame.image.load("UI/creer_compte_pannel.png")
         
         #bouton de création de compte 
         btn_creation = pygame.image.load("UI/btn_cr.png")
@@ -222,6 +221,7 @@ def login():
             password_box.draw(screen)
             password_box.update_cursor()
             screen.blit(oeil_ouvert1, rect_oeil_ouvert1)    
+            pygame.draw.rect(screen, (255, 0, 0), rect, 2)  # Bordure rouge
             
         if Confirm:
             logo_image = pygame.transform.scale(logo_image, (300, 300))
