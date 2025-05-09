@@ -1,6 +1,6 @@
 
 import random
-
+from quete_secondaire import *
 def generate_tree_positions(max_x, max_y, num_trees, min_distance, max_attempts=1000):
     positions = list()
     for i in range(num_trees):
@@ -109,9 +109,10 @@ def login():
     font = pygame.font.Font("UI/dialog_font.ttf", 15)
     message_erreur = font.render("Identifiant/Mot de passe invalide", True, (255, 0, 0))
     
+    #création du créer un compte sur l'interface créer un compte
+    crer_compte_confirm = pygame.Rect(x_pannel_create_an_account + 153, y_pannel_create_an_account+363, 270, 30)
     if Login:
         logo_image = pygame.transform.scale(logo_image, (600, 600))
-        
         
 
         rect = pygame.Rect(x + 122, y + 247, 181, 52)
@@ -237,7 +238,7 @@ def login():
             screen.blit(oeil_ouvert2, rect_oeil_ouvert2)
             screen.blit(oeil_ouvert3, rect_oeil_ouvert3)
             screen.blit(retour_image, rect_retour_image)
-            
+            pygame.draw.rect(screen, (255, 0, 0), crer_compte_confirm, 2)  # Bordure rouge
         pygame.display.flip()
 
 
