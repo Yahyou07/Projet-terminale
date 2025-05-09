@@ -59,6 +59,9 @@ def on_login():
 def verification(username,password):
     """
         Fonction de vérification du login
+        attribut:
+            username : pseudo du joueur
+            password : mot de passe du joueur
     """
     pannel_create_an_account = pygame.image.load("UI/create_account.png")
     x_pannel_create_an_account = screen.get_width() // 2 - pannel_create_an_account.get_width() // 2
@@ -72,18 +75,26 @@ def verification(username,password):
     cursor = conn.cursor()
 
     # Requête pour vérifier si le nom d'utilisateur et le mot de passe existent dans la table "users"
-    cursor.execute("SELECT * FROM Login WHERE pseudo=? AND password=?", (username, password))
+    cursor.execute("SELECT pseudo,password FROM Login WHERE pseudo=? AND password=?", (username, password))
     result = cursor.fetchone()
 
     # Fermer la connexion à la base de données
     conn.close()
 
-    if result:
+    if result is not None:
         return True  # Identifiant et mot de passe valides
     else:
-        screen.blit(message_erreur, (x_pannel_create_an_account ,y_pannel_create_an_account))
+        return False
 
 def create_account(username,password,confirm_password):
+    """
+        Fonction de création de compte
+        Attribut :
+            username : pseudo du joueur
+            password : mot de passe du joueur
+            confirm_password : mot de passe de confirmation du joueur
+    """
+
     pannel_create_an_account = pygame.image.load("UI/create_account.png")
     x_pannel_create_an_account = screen.get_width() // 2 - pannel_create_an_account.get_width() // 2
     y_pannel_create_an_account = screen.get_height()//2 - pannel_create_an_account.get_height()//2
@@ -96,12 +107,16 @@ def create_account(username,password,confirm_password):
         cursor = conn.cursor()
 
         # Requête pour vérifier si le nom d'utilisateur existe déjà dans la table "users"
-        cursor.execute("INSERT INTO Login (pseudo,password,pos_x,pos_y,health,mana,endurance,level) values (?,?,?,?,100,0,100))", (username,password,player_position.x,player_position.y))
-        result = cursor.fetchone()
+        cursor.execute('''INSERT INTO Login (pseudo,password,pos_x,pos_y,health,mana,endurance,level) values (?,?,?,?,100,0,100,0) ''',(username,password,player_position.x,player_position.y))
+        cursor.close()
+        conn.commit()
+        conn.close()
+        return True
     else :
         font = pygame.font.Font("UI/dialog_font.ttf", 15)
         message_erreur = font.render("Les mots de passe ne correspondent pas", True, (255, 0, 0))
         screen.blit(message_erreur, (x_pannel_create_an_account ,y_pannel_create_an_account))
+
     
 
 def login():
@@ -158,6 +173,9 @@ def login():
     Can_see_password = False
     font = pygame.font.Font("UI/dialog_font.ttf", 15)
     message_erreur = font.render("Identifiant/Mot de passe invalide", True, (255, 0, 0))
+
+    # rectangle de création de compte
+    btn_create_account = pygame.Rect(x_pannel_create_an_account + 153, y_pannel_create_an_account + 363, 181, 52)
     
     if Login:
         logo_image = pygame.transform.scale(logo_image, (600, 600))
@@ -179,11 +197,12 @@ def login():
         btn_creation = pygame.transform.scale(btn_creation,(250,65))
         rect_btn_creation = btn_creation.get_rect()
         x_btn_creation = x + 80
-        y_btn_creation = y+ pannel.get_height()  +15
+        y_btn_creation = y+ pannel.get_height() + 15
         rect_btn_creation.x = x_btn_creation
         rect_btn_creation.y = y_btn_creation
         rect_creer_compte = pygame.Rect(rect_btn_creation.x,rect_btn_creation.y,rect_btn_creation.width,rect_btn_creation.height)
         
+
         #screen.blit(message_erreur, (x_pannel_create_an_account , y_pannel_create_an_account))
         
     if Confirm:
@@ -208,7 +227,9 @@ def login():
                             running = False
                             username = username_box.text
                             print("Login successful")
-                        return
+                            return
+                        else : screen.blit(message_erreur, (x_pannel_create_an_account ,y_pannel_create_an_account))
+                        
                     if rect_creer_compte.collidepoint(event.pos):
                         Login = False
                         Confirm = True
@@ -248,6 +269,13 @@ def login():
                     if rect_retour_image.collidepoint(event.pos):
                         Login = True
                         Confirm = False
+                    if btn_create_account.collidepoint(event.pos):
+                        if create_account(username_box1.text,password_box1.text,confirm_password_box1.text):
+                            running = False
+                            username = username_box1.text
+                            print("Login successful")
+                        else : screen.blit(message_erreur, (x_pannel_create_an_account ,y_pannel_create_an_account))
+                        return
                         
             if Login:
                 username_box.handle_event(event)
