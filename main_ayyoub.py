@@ -75,16 +75,15 @@ def verification(username,password):
     cursor = conn.cursor()
 
     # Requête pour vérifier si le nom d'utilisateur et le mot de passe existent dans la table "users"
-    cursor.execute("SELECT pseudo,password FROM Login WHERE pseudo=? AND password=?", (username, password))
-    result = cursor.fetchone()
+    cursor.execute('''SELECT pseudo,password FROM Login WHERE pseudo=? AND password=?;''', (username, password))
+    result = cursor.fetchall()
 
     # Fermer la connexion à la base de données
     conn.close()
 
     if result is not None:
         return True  # Identifiant et mot de passe valides
-    else:
-        return False
+    
 
 def create_account(username,password,confirm_password):
     """
