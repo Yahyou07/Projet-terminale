@@ -95,11 +95,6 @@ def create_account(username,password,confirm_password):
             password : mot de passe du joueur
             confirm_password : mot de passe de confirmation du joueur
     """
-
-    pannel_create_an_account = pygame.image.load("UI/create_account.png")
-    x_pannel_create_an_account = screen.get_width() // 2 - pannel_create_an_account.get_width() // 2
-    y_pannel_create_an_account = screen.get_height()//2 - pannel_create_an_account.get_height()//2
-    
     tmx_data = load_pygame("maps/maps.tmx")  
     player_position = tmx_data.get_object_by_name("Player")
     if password == confirm_password:
@@ -294,14 +289,18 @@ def login():
                             pygame.time.delay(2000)  # Affiche le message pendant 2 secondes
                             username_box1.text = ""
                             password_box1.text = ""
+                            confirm_password_box1.text = ""
                             print("mdp diff")
-                        if username_box1.text == "" or password_box1.text == "" or confirm_password_box1.text == "":
+                        elif username_box1.text == "" or password_box1.text == "" or confirm_password_box1.text == "":
                             font = pygame.font.Font("UI/dialog_font.ttf", 15)
                             message_erreur = font.render("Veuiller insérer un identifiant et un mot de passe", True, (255, 0, 0))
                             screen.blit(message_erreur, (x_pannel_create_an_account ,y_pannel_create_an_account))
                             pygame.display.update()
                             pygame.time.delay(2000)
                             print("rien")
+                            username_box1.text = ""
+                            password_box1.text = ""
+                            confirm_password_box1.text = ""
             if Login:
                 username_box.handle_event(event)
                 password_box.handle_event(event)
