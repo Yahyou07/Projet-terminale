@@ -87,7 +87,7 @@ def verification(username,password):
         return False # Identifiant ou mot de passe invalide
     
 
-def create_account(username,password,confirm_password):
+def create_account(username, password, confirm_password):
     """
         Fonction de création de compte
         Attribut :
@@ -97,21 +97,35 @@ def create_account(username,password,confirm_password):
     """
     tmx_data = load_pygame("maps/maps.tmx")  
     player_position = tmx_data.get_object_by_name("Player")
-    if password == confirm_password:
-        # Connexion à la base de données SQLite
-        conn = sqlite3.connect('database/data.db')
+
+    # Vérification 1 : Les champs ne doivent pas être vides
+    if username == "" or password == "" or confirm_password == "":
+        return "rien"  # rien n'est rentré
+
+    # Connexion à la base de données SQLite
+    with sqlite3.connect('database/data.db') as conn:
         cursor = conn.cursor()
 
-        # Requête pour vérifier si le nom d'utilisateur existe déjà dans la table "users"
-        cursor.execute('''INSERT INTO Login (pseudo,password,pos_x,pos_y,health,mana,endurance,level) values (?,?,?,?,100,0,100,0) ''',(username,password,player_position.x,player_position.y))
-        cursor.close()
-        conn.commit()
-        conn.close()
-        return True
-    elif password != confirm_password:
-        return False # mot de passe différent de la confirmation
+        # Vérification 2 : Le pseudo ne doit pas déjà exister
+        cursor.execute('''SELECT pseudo FROM Login WHERE pseudo=?;''', (username,))
+        result = cursor.fetchall()
+        if result:  # Si un résultat est trouvé, le pseudo existe déjà
+            return "pseudo déjà existant"
 
-    
+        # Vérification 3 : Les mots de passe doivent correspondre
+        if password != confirm_password:
+            return "mot de passe différent"
+
+        # Vérification 4 : Le mot de passe doit respecter des critères (par exemple, longueur minimale)
+        if len(password) < 6:  # Exemple : mot de passe doit avoir au moins 6 caractères
+            return "mot de passe trop court"
+
+        # Si toutes les vérifications passent, création du compte
+        cursor.execute('''INSERT INTO Login (pseudo, password, pos_x, pos_y, health, mana, endurance, level) 
+                           VALUES (?, ?, ?, ?, 100, 0, 100, 0);''', 
+                       (username, password, player_position.x, player_position.y))
+        conn.commit()
+    return "ça passe"  # compte créé avec succès
 
 def login():
 
@@ -276,31 +290,39 @@ def login():
                         Login = True
                         Confirm = False
                     if btn_create_account.collidepoint(event.pos):
-                        if create_account(username_box1.text,password_box1.text,confirm_password_box1.text):
-                            running = False
-                            username = username_box1.text
-                            print("Login successful")
-                            return
-                        elif not create_account(username_box1.text,password_box1.text,confirm_password_box1.text): 
-                            font = pygame.font.Font("UI/dialog_font.ttf", 15)
-                            message_erreur = font.render("Les mots de passe ne correspondent pas", True, (255, 0, 0))
-                            screen.blit(message_erreur, (x_pannel_create_an_account ,y_pannel_create_an_account))
-                            pygame.display.update()
-                            pygame.time.delay(2000)  # Affiche le message pendant 2 secondes
-                            username_box1.text = ""
-                            password_box1.text = ""
-                            confirm_password_box1.text = ""
-                            print("mdp diff")
-                        elif username_box1.text == "" or password_box1.text == "" or confirm_password_box1.text == "":
+                        
+                        if create_account(username_box1.text,password_box1.text,confirm_password_box1.text) == "rien":
                             font = pygame.font.Font("UI/dialog_font.ttf", 15)
                             message_erreur = font.render("Veuiller insérer un identifiant et un mot de passe", True, (255, 0, 0))
                             screen.blit(message_erreur, (x_pannel_create_an_account ,y_pannel_create_an_account))
                             pygame.display.update()
                             pygame.time.delay(2000)
                             print("rien")
-                            username_box1.text = ""
-                            password_box1.text = ""
-                            confirm_password_box1.text = ""
+                            
+                        
+                        if create_account(username_box1.text,password_box1.text,confirm_password_box1.text) == "pseudo déjà existant":
+                            font = pygame.font.Font("UI/dialog_font.ttf", 15)
+                            message_erreur = font.render("Pseudo déjà existant", True, (255, 0, 0))
+                            screen.blit(message_erreur, (x_pannel_create_an_account ,y_pannel_create_an_account))
+                            pygame.display.update()
+                            pygame.time.delay(2000)
+                            print("pseudo déjà existant")
+
+                        if create_account(username_box1.text,password_box1.text,confirm_password_box1.text) == "mot de passe différent": 
+                            font = pygame.font.Font("UI/dialog_font.ttf", 15)
+                            message_erreur = font.render("Les mots de passe ne correspondent pas", True, (255, 0, 0))
+                            screen.blit(message_erreur, (x_pannel_create_an_account ,y_pannel_create_an_account))
+                            pygame.display.update()
+                            pygame.time.delay(2000)  # Affiche le message pendant 2 secondes
+                            print("mdp diff")
+
+                        if create_account(username_box1.text,password_box1.text,confirm_password_box1.text) == "ça passe":
+                            running = False
+                            username = username_box1.text
+                            print("Login successful")
+                            return
+                        
+
             if Login:
                 username_box.handle_event(event)
                 password_box.handle_event(event)
