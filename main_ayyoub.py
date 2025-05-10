@@ -115,8 +115,6 @@ def create_account(username,password,confirm_password):
         return True
     elif password != confirm_password:
         return False # mot de passe différent de la confirmation
-    else :
-        return None # erreur de création de compte
 
     
 
@@ -296,12 +294,14 @@ def login():
                             pygame.time.delay(2000)  # Affiche le message pendant 2 secondes
                             username_box1.text = ""
                             password_box1.text = ""
-                        if create_account(username_box1.text,password_box1.text,confirm_password_box1.text) == None: 
+                            print("mdp diff")
+                        if username_box1.text == "" or password_box1.text == "" or confirm_password_box1.text == "":
                             font = pygame.font.Font("UI/dialog_font.ttf", 15)
                             message_erreur = font.render("Veuiller insérer un identifiant et un mot de passe", True, (255, 0, 0))
                             screen.blit(message_erreur, (x_pannel_create_an_account ,y_pannel_create_an_account))
                             pygame.display.update()
-                            pygame.time.delay(2000)                       
+                            pygame.time.delay(2000)
+                            print("rien")
             if Login:
                 username_box.handle_event(event)
                 password_box.handle_event(event)
