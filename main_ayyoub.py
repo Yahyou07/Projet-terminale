@@ -87,7 +87,7 @@ def verification(username,password):
         return False # Identifiant ou mot de passe invalide
     
 
-def create_account(username, password, confirm_password):
+def create_account(username,password,confirm_password):
     """
         Fonction de création de compte
         Attribut :
@@ -98,34 +98,37 @@ def create_account(username, password, confirm_password):
     tmx_data = load_pygame("maps/maps.tmx")  
     player_position = tmx_data.get_object_by_name("Player")
 
-    # Vérification 1 : Les champs ne doivent pas être vides
     if username == "" or password == "" or confirm_password == "":
-        return "rien"  # rien n'est rentré
+        return "rien" # rien n'est rentré
+    
+    conn = sqlite3.connect('database/data.db')
+    cursor = conn.cursor()
+    # Requête pour vérifier si le nom d'utilisateur existe déjà dans la table "users"
+    cursor.execute('''SELECT pseudo FROM Login WHERE pseudo=?;''', (username,))
+    result = cursor.fetchall()
+    for row in result:
+        if row[0] == username:
+            cursor.close()
+            conn.commit()
+            conn.close()
+            return "pseudo déjà existant" # nom d'utilisateur déjà pris
+    
 
-    # Connexion à la base de données SQLite
-    with sqlite3.connect('database/data.db') as conn:
-        cursor = conn.cursor()
-
-        # Vérification 2 : Le pseudo ne doit pas déjà exister
-        cursor.execute('''SELECT pseudo FROM Login WHERE pseudo=?;''', (username,))
-        result = cursor.fetchall()
-        if result:  # Si un résultat est trouvé, le pseudo existe déjà
-            return "pseudo déjà existant"
-
-        # Vérification 3 : Les mots de passe doivent correspondre
-        if password != confirm_password:
-            return "mot de passe différent"
-
-        # Vérification 4 : Le mot de passe doit respecter des critères (par exemple, longueur minimale)
-        if len(password) < 6:  # Exemple : mot de passe doit avoir au moins 6 caractères
-            return "mot de passe trop court"
-
-        # Si toutes les vérifications passent, création du compte
-        cursor.execute('''INSERT INTO Login (pseudo, password, pos_x, pos_y, health, mana, endurance, level) 
-                           VALUES (?, ?, ?, ?, 100, 0, 100, 0);''', 
-                       (username, password, player_position.x, player_position.y))
-        conn.commit()
-    return "ça passe"  # compte créé avec succès
+    if username != "" and result == [] :
+        if password == confirm_password:
+            # Connexion à la base de données SQLite
+            conn = sqlite3.connect('database/data.db')
+            cursor = conn.cursor()
+            # Requête pour stocker le nom d'utilisateur et le mot de passe dans la table "users"
+            cursor.execute('''INSERT INTO Login (pseudo,password,pos_x,pos_y,health,mana,endurance,level) values (?,?,?,?,100,0,100,0) ''',(username,password,player_position.x,player_position.y))
+            cursor.close()
+            conn.commit()
+            conn.close()
+            return "ça passe" # compte créé avec succès
+            
+        else : 
+            return "mot de passe différent" # les mots de passe ne correspondent pas
+    
 
 def login():
 
