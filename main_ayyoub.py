@@ -81,8 +81,10 @@ def verification(username,password):
     # Fermer la connexion à la base de données
     conn.close()
 
-    if result is not None:
+    if result:
         return True  # Identifiant et mot de passe valides
+    else : 
+        return False # Identifiant ou mot de passe invalide
     
 
 def create_account(username,password,confirm_password):
@@ -111,10 +113,10 @@ def create_account(username,password,confirm_password):
         conn.commit()
         conn.close()
         return True
+    elif password != confirm_password:
+        return False # mot de passe différent de la confirmation
     else :
-        font = pygame.font.Font("UI/dialog_font.ttf", 15)
-        message_erreur = font.render("Les mots de passe ne correspondent pas", True, (255, 0, 0))
-        screen.blit(message_erreur, (x_pannel_create_an_account ,y_pannel_create_an_account))
+        return None # erreur de création de compte
 
     
 
@@ -129,8 +131,8 @@ def login():
     logo_image = pygame.image.load("UI/Logo.png")
 
     pannel_create_an_account = pygame.image.load("UI/create_account.png")
-    x_pannel_create_an_account = screen.get_width() // 2 - pannel_create_an_account.get_width() // 2
-    y_pannel_create_an_account = screen.get_height()//2 - pannel_create_an_account.get_height()//2
+    x_pannel_create_an_account = (screen.get_width() - pannel_create_an_account.get_width()) // 2
+    y_pannel_create_an_account = (screen.get_height() - pannel_create_an_account.get_height())//2
     #Ajout du boutton quitter
     quit_button = pygame.image.load("UI/quitter_account.png.png")
     rect_quit_button = quit_button.get_rect()
@@ -171,7 +173,8 @@ def login():
     rect_retour_image = retour_image.get_rect(topleft=(20,rect_quit_button.height - 10))
     Can_see_password = False
     font = pygame.font.Font("UI/dialog_font.ttf", 15)
-    message_erreur = font.render("Identifiant/Mot de passe invalide", True, (255, 0, 0))
+    message_erreur = font.render("Les mots de passe ne correspondent pas", True, (255, 0, 0))
+
 
     # rectangle de création de compte
     btn_create_account = pygame.Rect(x_pannel_create_an_account + 153, y_pannel_create_an_account + 363, 181, 52)
@@ -187,6 +190,8 @@ def login():
         rect_pannel = pannel.get_rect()
         rect_pannel.x = x
         rect_pannel.y = y
+        x_pannel_login = (screen.get_width() - pannel.get_width()) // 2
+        y_pannel_login = (screen.get_height() - pannel.get_height())//2
         
         #panneau création de compte
         pannel_create = pygame.image.load("UI/creer_compte_pannel.png")
@@ -222,12 +227,21 @@ def login():
                         sys.exit()
                 if Login:
                     if rect.collidepoint(event.pos):
-                        if verification(username_box.text,password_box.text):
+                        if verification(username_box.text, password_box.text):
                             running = False
                             username = username_box.text
                             print("Login successful")
                             return
-                        else : screen.blit(message_erreur, (x_pannel_create_an_account ,y_pannel_create_an_account))
+                        else:
+                            ## revoie un message d'erreur si le login est incorrect
+                            font = pygame.font.Font("UI/dialog_font.ttf", 12)
+                            error_message = font.render("Identifiant ou mot de passe invalide", True, (255, 0, 0))
+                            screen.blit(error_message, (x, y + 50))
+                            pygame.display.update()
+                            pygame.time.delay(2000)  # Affiche le message pendant 2 secondes
+                            username_box.text = ""
+                            password_box.text = ""
+                        
                         
                     if rect_creer_compte.collidepoint(event.pos):
                         Login = False
@@ -273,9 +287,21 @@ def login():
                             running = False
                             username = username_box1.text
                             print("Login successful")
-                        else : screen.blit(message_erreur, (x_pannel_create_an_account ,y_pannel_create_an_account))
-                        return
-                        
+                            return
+                        elif not create_account(username_box1.text,password_box1.text,confirm_password_box1.text): 
+                            font = pygame.font.Font("UI/dialog_font.ttf", 15)
+                            message_erreur = font.render("Les mots de passe ne correspondent pas", True, (255, 0, 0))
+                            screen.blit(message_erreur, (x_pannel_create_an_account ,y_pannel_create_an_account))
+                            pygame.display.update()
+                            pygame.time.delay(2000)  # Affiche le message pendant 2 secondes
+                            username_box1.text = ""
+                            password_box1.text = ""
+                        if create_account(username_box1.text,password_box1.text,confirm_password_box1.text) == None: 
+                            font = pygame.font.Font("UI/dialog_font.ttf", 15)
+                            message_erreur = font.render("Veuiller insérer un identifiant et un mot de passe", True, (255, 0, 0))
+                            screen.blit(message_erreur, (x_pannel_create_an_account ,y_pannel_create_an_account))
+                            pygame.display.update()
+                            pygame.time.delay(2000)                       
             if Login:
                 username_box.handle_event(event)
                 password_box.handle_event(event)
@@ -290,7 +316,6 @@ def login():
         screen.blit(quit_button, rect_quit_button)
         
         if Login:
-            screen.blit(message_erreur, (x_pannel_create_an_account ,y_pannel_create_an_account))
             logo_image = pygame.transform.scale(logo_image, (600, 600))
 
             screen.blit(logo_image, (screen.get_width() // 2 - logo_image.get_width() // 2,-80))
