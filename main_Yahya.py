@@ -620,14 +620,16 @@ def launch_game():
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if show_inventory == False and player.dead == False and can_attack:
                     # Animation attaque
-                    if player.last_direction == "right" or player.last_direction == "down":
+                    if player.last_direction == "right":
                         player.start_anim_attack(player.attack_right_mouv, 0.3, 0)
+                            #Le joueur peut attaquer
+                        player.is_attacking = True
                         
-                    if player.last_direction == "left" or player.last_direction == "up":
+                    if player.last_direction == "left":
                         player.start_anim_attack(player.attack_left_mouv, 0.3, -0)
 
-                    #Le joueur peut attaquer
-                    player.is_attacking = True
+                        #Le joueur peut attaquer
+                        player.is_attacking = True
 
                     # Définir une direction de dash
                     direction = pygame.math.Vector2(0, 0)
@@ -644,31 +646,33 @@ def launch_game():
                     # Vérifie l'attaque sur les ennemis
                     for sprite in group.sprites():
                         if isinstance(sprite, Enemy) or isinstance(sprite, Slime):
-                            if player.last_direction == "right" or player.last_direction == "down":
-                                # Créer une "zone d'attaque" autour du joueur
-                                attack_zone = player.rect.inflate(-60, -83)  # Zone légèrement plus grande
-                                attack_zone.x += 20  # Décalage à droite
-                                attack_zone.y += 3  # Décalage vers le bas
-                            else:
-                                # Créer une "zone d'attaque" autour du joueur
-                                attack_zone = player.rect.inflate(-60, -83)  # Zone légèrement plus grande
-                                attack_zone.x -= 20  # Décalage à droite
-                                attack_zone.y += 3  # Décalage vers le bas
+                            if player.last_direction == "right" :
+                                if player.attack_box_right.colliderect(sprite.rect):
+                                    sprite.current_health -= player.degats  # Inflige 10 points de dégâts
+                                    
+                                    if sprite.current_health < 0:
+                                        sprite.current_health = 0
+                                    if sprite.current_health == 0:
+                                        sprite.dead(group,sprite)
+                                    sprite.knockback = True
+                                    sprite.knockback_speed = 6
+                                    sprite.knockback_direction = 1
 
-                            if attack_zone.colliderect(sprite.rect):
-                                sprite.current_health -= player.degats  # Inflige 10 points de dégâts
-                                world_pos = (attack_zone.x, attack_zone.y)
-                                screen_pos = map_layer.translate_point(world_pos)
-                                rect_to_draw = pygame.Rect(screen_pos[0], screen_pos[1], attack_zone.width, attack_zone.height)
+                            if player.last_direction == "left" :
+                                if player.attack_box_left.colliderect(sprite.rect):
+                                    sprite.current_health -= player.degats  # Inflige 10 points de dégâts
 
-                                pygame.draw.rect(screen, (255, 0, 0), rect_to_draw, 2)  # en rouge
-                                
-                                
+                                    if sprite.current_health < 0:
+                                        sprite.current_health = 0
+                                    if sprite.current_health == 0:
+                                        sprite.dead(group,sprite)
 
-                                if sprite.current_health < 0:
-                                    sprite.current_health = 0
-                                if sprite.current_health == 0:
-                                    sprite.dead(group,sprite)
+                                    sprite.knockback = True
+                                    sprite.knockback_speed = 6
+                                    sprite.knockback_direction = -1
+
+    
+                                    
 
 
                 if player.rect_button_armour.collidepoint(event.pos):
@@ -991,7 +995,7 @@ def launch_game():
             can_attack = True
         
         
-        
+        '''
         # Affichage optionnel des hitbox bour le debbugage
         pygame.draw.rect(screen, (255, 0, 0), map_layer.translate_rect(player.hit_box), 2)
 
@@ -1024,6 +1028,7 @@ def launch_game():
                     
         pygame.draw.rect(screen, (255, 190, 56), map_layer.translate_rect(player.attack_box_left), 2)
         pygame.draw.rect(screen, (255, 190, 56), map_layer.translate_rect(player.attack_box_right), 2)
+        '''
         pnj1.update(dt)
         
         save_menu.update()

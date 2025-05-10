@@ -219,8 +219,8 @@ class Player(pygame.sprite.Sprite):
         self.dash_target = None
         self.dash_vector = pygame.math.Vector2(0, 0)
         self.dashing = False
-        self.dash_speed = 3
-        self.dash_duration = 5  # nombre de frames
+        self.dash_speed = 5
+        self.dash_duration = 7  # nombre de frames
         self.dash_timer = 0
 
     def start_anim_attack(self,list_mouv,speed,decal):
