@@ -102,9 +102,13 @@ class Player(pygame.sprite.Sprite):
         self.rect.x = pos_x
         self.rect.y = pos_y
         self.hit_box = self.rect.copy().inflate(-53, -53)
-        self.attack_box = self.rect.copy().inflate(-60,-83)
-        self.attack_box.x -=20
-        self.attack_box.y += 3
+        self.attack_box_left = self.rect.copy().inflate(-60,-83)
+        self.attack_box_left.x -=20
+        self.attack_box_left.y += 3
+        self.attack_box_right = self.rect.copy().inflate(-60,-83)
+        self.attack_box_right.x += 20
+        self.attack_box_right.y += 3
+        
         self.old_position = self.rect.copy()
         # Variable qui stocke la dernière direction du personnage, par défaut on la met à down
         self.last_direction = "down"
@@ -210,6 +214,15 @@ class Player(pygame.sprite.Sprite):
         self.knockback_direction = 0  # Direction du recul : -1 pour gauche, 1 pour droite
         self.knockback_direction_y = 0
         
+
+        #parametre pour l'effet de dash lors de l'attaque
+        self.dash_target = None
+        self.dash_vector = pygame.math.Vector2(0, 0)
+        self.dashing = False
+        self.dash_speed = 3
+        self.dash_duration = 5  # nombre de frames
+        self.dash_timer = 0
+
     def start_anim_attack(self,list_mouv,speed,decal):
         '''
         Dans cette méthode on va remplacer certaine les variables utilisées dans anim_player_full_animation (list_mouv et speed)
@@ -304,6 +317,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.y += dy * speed
         self.hit_box.y += dy * speed
 
+        
         # 🔸 3. Mettre à jour les pieds (pour détection collision)
         self.feet.midbottom = self.hit_box.midbottom
 
@@ -454,6 +468,8 @@ class Player(pygame.sprite.Sprite):
         
         self.feet.midbottom = self.hit_box.midbottom
         self.hit_box.center = self.rect.center
+        self.attack_box_left.topright = self.hit_box.center
+        self.attack_box_right.topleft = self.hit_box.center
         if self.dead:
             fond = pygame.Surface((self.screen.get_width(), self.screen.get_height()), pygame.SRCALPHA)
             fond.fill((196, 6, 6, 128))  # Rouge avec 50% de transparence (128/255)
@@ -461,7 +477,13 @@ class Player(pygame.sprite.Sprite):
             self.screen.blit(self.dead_image,(500,200))
             self.screen.blit(self.reesayer_dead,self.rect_reesayer_dead)
             self.screen.blit(self.quiiter_dead,self.rect_quiiter_dead)
-
+        
+        if self.dashing and self.dash_timer > 0:
+            self.rect.x += int(self.dash_vector.x)
+            self.rect.y += int(self.dash_vector.y)
+            self.dash_timer -= 1
+        else:
+            self.dashing = False
     def is_mouse_on_slot(self, x, y, width, height):
         mouse_x, mouse_y = pygame.mouse.get_pos()
         return x <= mouse_x <= x + width and y <= mouse_y <= y + height
