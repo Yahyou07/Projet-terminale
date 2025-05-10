@@ -524,8 +524,6 @@ class Slime(pygame.sprite.Sprite):
                         self.animation_attack(self.top_attack, 0.15, (64, 64), player, 0, -1)
                         self.last_dir = "up"
 
-                
-
             else:
                 # EVITEMENT avec hitbox
                 for other in all_enemies:
@@ -541,15 +539,13 @@ class Slime(pygame.sprite.Sprite):
                             self.rect.y += 1
 
                 # --- DEPLACEMENT EN DIAGONALE ---
-                if dx > 0:
-                    self.rect.x += self.speed
-                elif dx < 0:
-                    self.rect.x -= self.speed
+                norm = sqrt(dx**2 + dy**2)
+                if norm != 0:
+                    dx = (dx / norm) * self.speed
+                    dy = (dy / norm) * self.speed
 
-                if dy > 0:
-                    self.rect.y += self.speed
-                elif dy < 0:
-                    self.rect.y -= self.speed
+                self.rect.x += int(dx)
+                self.rect.y += int(dy)
 
                 # --- ANIMATION : prioriser le mouvement principal ---
                 if abs(dx) > abs(dy):
@@ -568,7 +564,7 @@ class Slime(pygame.sprite.Sprite):
                         self.last_dir = "up"
 
         else:
-            self.idle()  
+            self.idle()
     def follow_player_optional(self, player):
         """ Fait bouger l'ennemi vers le joueur en diagonale avec bonne animation """
 

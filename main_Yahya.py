@@ -24,6 +24,7 @@ tree_positions = [
                    ]
 
 
+
 import pygame, sys
 import pytmx
 from pytmx.util_pygame import load_pygame
@@ -48,6 +49,29 @@ from classe_entity_Yahya import *
 from dialog_data import *
 
 from login_class import *
+import networkx as nx
+
+
+
+# Création du graphe dirigé
+graphe_quetes = nx.DiGraph()
+
+# Création des objets quête
+q1 = Quete("Q1", "Trouver le coffre", "Suivez le chemin et trouvez le coffre.")
+q2 = Quete("Q2", "Trouver le guide", "Trouver le guide dans le bois.")
+q3 = Quete("Q3", "Ramasser du bois", "Ramasser 10 buches dans la forêt.")
+
+# Ajout des nœuds avec attributs
+graphe_quetes.add_node("Q1", quete=q1)
+graphe_quetes.add_node("Q2", quete=q2)
+graphe_quetes.add_node("Q3", quete=q3)
+
+# Ajout des relations (choix ou dépendances)
+graphe_quetes.add_edge("Q1", "Q2")  # Après Q1, Q2 est possible
+graphe_quetes.add_edge("Q2", "Q3")  # Après Q2, Q3 est possible
+
+
+
 
 username = ""
 def on_login():
@@ -441,8 +465,9 @@ def main_menu():
 
 # Fonction pour lancer le jeu 
 def launch_game():
-    global tree_positions
+    global tree_positions, graphe_quetes
     
+
     mainClock = pygame.time.Clock()
     # Chargement de la carte Tiled
     tmx_data = load_pygame("maps/maps.tmx")  
@@ -473,7 +498,7 @@ def launch_game():
 
     gobelin3 = Enemy("gobelin_epee",350,400,"enemy",screen,(100,100))
 
-    slime1 = Slime("slime1","enemy",600,100,"kamikaze",screen)
+    slime1 = Slime("slime1","enemy",600,100,"suiveur",screen)
     #pnj2 = PNJ("Wizard",200,500,"pnj",screen)
     chest1 = Coffre("chest1",chest_position.x,chest_position.y)
 
@@ -488,6 +513,20 @@ def launch_game():
     # Création des arbres et ajout au groupe
     trees = [Arbre("arbre", x, y) for x, y in tree_positions]
 
+    #panneau quetes
+    panneau_quest_img = pygame.image.load("UI/fond_quete_ui.png")
+    panneau_quest_img = pygame.transform.scale(panneau_quest_img,(700,174))
+
+    police_quetes = pygame.font.Font("UI/dialog_font.ttf", 20)
+    police_quetes_mission = pygame.font.Font("UI/dialog_font.ttf", 15)
+
+
+    panneau_visible = False
+    panneau_y = -200  # Position de départ hors écran
+    panneau_target_y = 50  # Position finale
+    temps_affichage_panneau = 5  # en secondes
+    temps_depart_panneau = 0
+    quete_affichee = None  # Instance de Quete
 
     map_data = pyscroll.data.TiledMapData(tmx_data)
 
@@ -527,8 +566,62 @@ def launch_game():
         group.add(tronc, layer=2)
         group.add(feuillage, layer=7)
         troncs.append(tronc)  # ← On garde une liste de tous les troncs si besoin
+    
+    file_quete_a_afficher = []
+    affichage_etape = None
 
+    def terminer_quete(id_quete):
+        global panneau_visible, panneau_y, panneau_target_y
+        global temps_depart_panneau
+        global file_quete_a_afficher  # nouvelle file d'attente
+        global quete_affichee, affichage_etape
+        print("lancement terminer quetes")
 
+        quete = graphe_quetes.nodes[id_quete]["quete"]
+        quete.terminee = True
+        quete.active = False
+
+        print("etat de la quete après",  quete.active, quete.terminee)
+        # Récupérer les quêtes suivantes
+        suivantes = list(graphe_quetes.successors(id_quete))
+
+        # Mettre en file l'affichage "quête accomplie"
+        panneau_visible = True
+        panneau_y = -200
+        panneau_target_y = 50
+        temps_depart_panneau = pygame.time.get_ticks()
+        quete_affichee = None
+        affichage_etape = "accomplie"
+        file_quete_a_afficher = []  # on vide d'abord
+
+        for id_suivante in suivantes:
+            q = graphe_quetes.nodes[id_suivante]["quete"]
+            if not q.terminee and not q.active:
+                file_quete_a_afficher.append(q)
+        print("[terminer_quete] appelée pour :", id_quete)
+        print("affichage_etape =", affichage_etape)
+        print("file_quete_a_afficher =", [q.id for q in file_quete_a_afficher])
+
+    def afficher_panneau_slide(screen, quete, y):
+        # Affiche le panneau à la position y
+        screen.blit(panneau_quest_img, (screen.get_width() // 2 - panneau_quest_img.get_width() // 2, y))
+        
+        titre = police_quetes.render('Nouvelle quête principale', True, (255, 255,0))
+        desc = police_quetes_mission.render(quete.description, True, (0, 0, 0))
+        
+        screen.blit(titre, (screen.get_width() // 2 - titre.get_width() // 2, y + 20))
+        screen.blit(desc, (screen.get_width() // 2 - panneau_quest_img.get_width() // 2 +122, y + 60))
+
+    def afficher_panneau_texte(screen, titre_texte, desc_texte, y):
+        screen.blit(panneau_quest_img, (screen.get_width() // 2 - panneau_quest_img.get_width() // 2, y))
+        
+        titre = police_quetes.render(titre_texte, True, (0, 0, 0))
+        desc = police_quetes.render(desc_texte, True, (0, 0, 0))
+
+        screen.blit(titre, (screen.get_width() // 2 - titre.get_width() // 2, y + 20))
+        screen.blit(desc, (screen.get_width() // 2 - desc.get_width() // 2, y + 60))
+
+    
 
     # Fonction quit
     def quit():
@@ -568,6 +661,8 @@ def launch_game():
             elif player.last_direction == "left":
                 player.idle_left()
 
+    
+
     # Paramètres la progression du cercle pour le "manger"
     fill_time = 3.0  # Durée du remplissage
     fill_time_cut = 11
@@ -602,9 +697,20 @@ def launch_game():
     can_attack = True
     bois_recolte = 0
     fps_font = pygame.font.SysFont("arial", 20)
+
+    # Lancer l'affichage de la quête d'intro au début du jeu
+    quete_affichee = graphe_quetes.nodes["Q1"]["quete"]
+    quete_affichee.active = True
+    panneau_visible = True
+    panneau_y = -200
+    panneau_target_y = 50
+    temps_depart_panneau = pygame.time.get_ticks()
+    affichage_etape = "nouvelle_quete"
+
+    
     while running:
         dt = mainClock.tick(60) / 1000  # Temps écoulé en secondes
-
+        
         for event in pygame.event.get():
             quit()
             if event.type == pygame.KEYDOWN:
@@ -615,6 +721,7 @@ def launch_game():
                     moving = not moving
                 elif event.key == pygame.K_F3:
                     Show_stats = not Show_stats
+                    
             
             
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
@@ -728,6 +835,12 @@ def launch_game():
                 if event.key == pygame.K_i:
                     if near_chest and near_chest.Can_open:
                         near_chest.start_animation_coffre(near_chest.coffre_open_list, 0.3)
+                        # Si la quête actuelle est "Q1", on la termine
+                        quete = graphe_quetes.nodes["Q1"]["quete"]
+                        print("état de la quêtes", quete.active, quete.terminee)
+                        if quete.active and not quete.terminee:
+                            terminer_quete("Q1")
+                            
                         
                     elif active_pnj:  # ← Si on a un PNJ actif
                         active_pnj.CanDialog = not active_pnj.CanDialog
@@ -994,41 +1107,10 @@ def launch_game():
             moving = True
             can_attack = True
         
-        
-        '''
-        # Affichage optionnel des hitbox bour le debbugage
-        pygame.draw.rect(screen, (255, 0, 0), map_layer.translate_rect(player.hit_box), 2)
-
-        pygame.draw.rect(screen, (255, 255, 0), map_layer.translate_rect(player.feet), 2)
-        for i in troncs:
-            pygame.draw.rect(screen, (255, 0, 255), map_layer.translate_rect(i.hitbox), 2)
-
-        pygame.draw.rect(screen, (255, 255, 0), map_layer.translate_rect(player.rect), 2)
-        
-        for i in collision_rects:
-            pygame.draw.rect(screen, (255, 255, 0), map_layer.translate_rect(i), 2)
-        
-
-        pygame.draw.rect(screen, (255, 255, 0), map_layer.translate_rect(chest1.rect), 2)
-        pygame.draw.rect(screen, (255, 255, 0), map_layer.translate_rect(player.feet), 2)
-
-        pygame.draw.rect(screen, (255, 125, 56), map_layer.translate_rect(pnj1.rect), 2)
-        pygame.draw.rect(screen, (255, 0, 0), map_layer.translate_rect(player.hit_box), 2)
-        pygame.draw.rect(screen, (255, 125, 56), map_layer.translate_rect(pnj1.champ_vision), 2)
-        pygame.draw.rect(screen, (255, 125, 56), map_layer.translate_rect(gobelin1.champ_vision_enemy), 2)
-        
+      
        
 
-        for i in troncs:
-            pygame.draw.rect(screen, (255, 0, 255), map_layer.translate_rect(i.feuillage.hitbox), 2)
-        pygame.draw.rect(screen, (255, 125, 56), map_layer.translate_rect(gobelin1.hitbox), 2)
-        pygame.draw.rect(screen, (255, 50, 56), map_layer.translate_rect(gobelin2.hitbox), 2)
-        pygame.draw.rect(screen, (255, 190, 56), map_layer.translate_rect(gobelin3.hitbox), 2)
-        
-                    
-        pygame.draw.rect(screen, (255, 190, 56), map_layer.translate_rect(player.attack_box_left), 2)
-        pygame.draw.rect(screen, (255, 190, 56), map_layer.translate_rect(player.attack_box_right), 2)
-        '''
+
         pnj1.update(dt)
         
         save_menu.update()
@@ -1037,7 +1119,49 @@ def launch_game():
         
         pnj1.idle()
         
-        
+        if panneau_visible:
+            print("panneau_visible actif - état :", affichage_etape)
+
+            if panneau_y < panneau_target_y:
+                panneau_y += 10
+                if panneau_y > panneau_target_y:
+                    panneau_y = panneau_target_y
+
+            # Étape : Quête accomplie
+            if affichage_etape == "accomplie":
+                afficher_panneau_texte(screen, "Quête accomplie !", "Nouvelle quête débloquée.", panneau_y)
+
+                if (pygame.time.get_ticks() - temps_depart_panneau) / 1000 > temps_affichage_panneau:
+                    if file_quete_a_afficher:
+                        panneau_y = -200
+                        temps_depart_panneau = pygame.time.get_ticks()
+                        quete_affichee = file_quete_a_afficher.pop(0)
+                        quete_affichee.active = True
+                        affichage_etape = "nouvelle_quete"
+                    else:
+                        panneau_visible = False
+                        affichage_etape = None
+                        quete_affichee = None
+                        panneau_y = -200
+
+            elif affichage_etape == "nouvelle_quete":
+                if quete_affichee:
+                    afficher_panneau_slide(screen, quete_affichee, panneau_y)
+
+                if (pygame.time.get_ticks() - temps_depart_panneau) / 1000 > temps_affichage_panneau:
+                    if file_quete_a_afficher:
+                        panneau_y = -200
+                        temps_depart_panneau = pygame.time.get_ticks()
+                        quete_affichee = file_quete_a_afficher.pop(0)
+                        quete_affichee.active = True
+                    else:
+                        panneau_visible = False
+                        affichage_etape = None
+                        quete_affichee = None
+                        panneau_y = -200
+
+
+
         
         if Show_stats:
             fps = int(mainClock.get_fps())
@@ -1047,6 +1171,7 @@ def launch_game():
             screen.blit(fps_text, (800, 10))
             screen.blit(x_position,(900,10))
             screen.blit(y_position,(900,50))
+
         pygame.display.update()
 
 if __name__ == "__main__":

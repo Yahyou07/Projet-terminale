@@ -151,7 +151,7 @@ class Player(pygame.sprite.Sprite):
         self.current_book_index = 0
         self.current_book = self.open_book[self.current_book_index]
         
-        self.current_book = pygame.transform.scale(self.current_book,(800,750))
+        self.current_book = pygame.transform.scale(self.current_book,(1200,1125))
         
         self.IsAnimating = True
         self.IsOpen = False
@@ -244,6 +244,8 @@ class Player(pygame.sprite.Sprite):
         self.IsOpen = False
         self.Affiche_texte_page = False
 
+        
+
     def animation(self,liste_mouv,speed):
         self.current_sprite += speed
         if self.current_sprite >=len(liste_mouv):
@@ -282,7 +284,7 @@ class Player(pygame.sprite.Sprite):
                 self.book_anim_index = 0  # Assurez-vous que l'index n'est pas négatif
             self.current_book = self.book_animation_list[int(self.book_anim_index)]
             
-            self.current_book = pygame.transform.scale(self.current_book, (800, 750))  # Appliquez l'échelle ici
+            self.current_book = pygame.transform.scale(self.current_book, (1200,1125))  # Appliquez l'échelle ici
 
     def anim_player_full_animation(self):
         if self.player_attack_anim:
@@ -433,7 +435,7 @@ class Player(pygame.sprite.Sprite):
             x += 60
         
         x_stack = 520
-        print(x_stack)
+        
         for stack in self.stack_text:
             self.screen.blit(stack,(x_stack,self.screen.get_height()-0.07*self.screen.get_height()))
             x_stack += 60
@@ -451,7 +453,7 @@ class Player(pygame.sprite.Sprite):
 
         if self.OnBook:
             self.screen.blit(self.fond_table, (0, 0))
-            self.screen.blit(self.current_book, (400, -40))
+            self.screen.blit(self.current_book, (200, -300))
             self.screen.blit(self.button_back_book, (5, 10))
             
 
@@ -493,7 +495,7 @@ class Player(pygame.sprite.Sprite):
         
         y = self.screen.get_height() // 2 - self.inventory_image.get_height() // 2 
 
-        print(x,y)
+        
         if self.OnBag:
             # Affichage de l'image de l'inventaire
             

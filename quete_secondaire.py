@@ -1,16 +1,60 @@
 import networkx as nx               # Pour créer et manipuler un graphe orienté
 #quetes_principales.py
 # Définition de la classe Quete
+
 class Quete:
-    def __init__(self, id, nom, description="", obligatoire=False):
-        self.id = id                  # Identifiant unique de la quête
-        self.nom = nom                # Nom de la quête (affiché au joueur)
-        self.description = description  # Description de la quête
-        self.obligatoire = obligatoire  # Marqueur pour signaler une quête obligatoire
+    def __init__(self, id, nom, description, map_a_charger=None, entites=None):
+        self.id = id
+        self.nom = nom
+        self.description = description
+        self.map_a_charger = map_a_charger
+        self.entites = entites or []
+        self.active = False
+        self.terminee = False
+
+    def demarrer(self):
+        self.active = True
+        print(f"Début de la quête : {self.nom}")
+
+    def terminer(self):
+        self.active = False
+        self.terminee = True
+        print(f"Quête terminée : {self.nom}")
 
 
 
 
+
+
+class Quest_Manager:
+    def __init__(self, graphe):
+        self.graphe = graphe
+        self.quetes_actives = []
+
+    def peut_demarrer(self, id_quete):
+        # On vérifie que toutes les quêtes précédentes sont terminées
+        prerequis = list(self.graphe.predecessors(id_quete))
+        return all(self.graphe.nodes[q]['quete'].terminee for q in prerequis)
+
+    def demarrer_quete(self, id_quete):
+        quete = self.graphe.nodes[id_quete]['quete']
+        if self.peut_demarrer(id_quete) and not quete.terminee:
+            quete.demarrer()
+            self.quetes_actives.append(quete)
+
+    def terminer_quete(self, id_quete):
+        quete = self.graphe.nodes[id_quete]['quete']
+        quete.terminer()
+        self.quetes_actives.remove(quete)
+
+    def quetes_disponibles(self):
+        # Renvoie les quêtes prêtes à être proposées
+        disponibles = []
+        for node in self.graphe.nodes:
+            quete = self.graphe.nodes[node]['quete']
+            if not quete.active and not quete.terminee and self.peut_demarrer(node):
+                disponibles.append(quete)
+        return disponibles
 
 
 
@@ -32,28 +76,4 @@ class QueteSecondaire:
         print(f"Quête '{self.nom}' terminée ! Récompense : {self.recompense}")
         self.terminee = True
 
-# --- Création des quêtes sous forme d’objets ---
-q1 = Quete("q1", "1 )Trouver le forgeron", "Le début de votre aventure.")
-q2 = Quete("q2", "2 )Récupérer l'artefact")
-q3 = Quete("q3", "3 )Éliminer les gobelins")
-q4 = Quete("q4", "4 )Résoudre énigme dans un volcan")
-q5 = Quete("q5", "5 )Ramasser du poulet")
-q6 = Quete("q6", "6 )Explorer la forêt", obligatoire=True)
-q7 = Quete("q7", "7 )Boss final")
-
-# --- Création du graphe dirigé (les quêtes sont des nœuds, les transitions des arêtes) ---
-G = nx.DiGraph()  # Graphe orienté = sens de progression
-
-# Ajout des quêtes comme nœuds avec leurs données
-for q in [q1, q2, q3, q4, q5, q6, q7]:
-    G.add_node(q.id, data=q)
-
-# Définition des connexions entre les quêtes (chemins possibles)
-G.add_edge(q1.id, q2.id)  # Depuis q1, on peut aller vers q2
-G.add_edge(q1.id, q3.id)  # ou vers q3
-G.add_edge(q2.id, q4.id)  # q2 mène à q4
-G.add_edge(q3.id, q5.id)  # q3 mène à q5
-G.add_edge(q4.id, q6.id)  # q4 ou q5 mènent à q6 (quête obligatoire)
-G.add_edge(q5.id, q6.id)
-G.add_edge(q6.id, q7.id)  # La forêt mène au boss final
 
