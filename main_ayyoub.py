@@ -87,7 +87,7 @@ def verification(username,password):
         return False # Identifiant ou mot de passe invalide
     
 
-def create_account(username,password,confirm_password,running):
+def create_account(username,password,confirm_password):
     """
         Fonction de création de compte
         Attribut :
@@ -109,6 +109,7 @@ def create_account(username,password,confirm_password,running):
         pygame.display.update()
         pygame.time.delay(2000)
         print("rien")
+        return
     
     conn = sqlite3.connect('database/data.db')
     cursor = conn.cursor()
@@ -125,6 +126,7 @@ def create_account(username,password,confirm_password,running):
                 pygame.display.update()
                 pygame.time.delay(2000)
                 print("pseudo déjà existant")
+                return
         
 
     if username != "" and password != "" and confirm_password != "" and result == [] :
@@ -134,10 +136,12 @@ def create_account(username,password,confirm_password,running):
             cursor = conn.cursor()
             # Requête pour stocker le nom d'utilisateur et le mot de passe dans la table "users"
             cursor.execute('''INSERT INTO Login (pseudo,password,pos_x,pos_y,health,mana,endurance,level) values (?,?,?,?,100,0,100,0) ''',(username,password,player_position.x,player_position.y))
+            cursor.execute('''INSERT INTO Inventory (pseudo) VALUES (?)''', (username,))
+            cursor.execute('''INSERT INTO Stuff (pseudo) VALUES (?)''', (username,))
             cursor.close()
             conn.commit()
             conn.close()
-            running = False
+            return True  # Identifiant et mot de passe valides
             
             
         else : 
@@ -147,6 +151,7 @@ def create_account(username,password,confirm_password,running):
             pygame.display.update()
             pygame.time.delay(2000)  # Affiche le message pendant 2 secondes
             print("mdp diff")
+            return
     
 
 def login():
@@ -323,8 +328,7 @@ def login():
                         #if create_account(username_box1.text,password_box1.text,confirm_password_box1.text) == "mot de passe différent": 
                             
 
-                        create_account(username_box1.text,password_box1.text,confirm_password_box1.text,Confirm)
-                        if Confirm == False:
+                        if create_account(username_box1.text,password_box1.text,confirm_password_box1.text):
                             print("Login successful")
                             running = False
                             username = username_box1.text
