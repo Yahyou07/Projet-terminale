@@ -87,7 +87,7 @@ def verification(username,password):
         return False # Identifiant ou mot de passe invalide
     
 
-def create_account(username,password,confirm_password):
+def create_account(username,password,confirm_password,running):
     """
         Fonction de création de compte
         Attribut :
@@ -95,12 +95,12 @@ def create_account(username,password,confirm_password):
             password : mot de passe du joueur
             confirm_password : mot de passe de confirmation du joueur
     """
+    pannel_create_an_account = pygame.image.load("UI/create_account.png")
+    x_pannel_create_an_account = screen.get_width() // 2 - pannel_create_an_account.get_width() // 2
+    y_pannel_create_an_account = screen.get_height()//2 - pannel_create_an_account.get_height()//2
+
     tmx_data = load_pygame("maps/maps.tmx")  
     player_position = tmx_data.get_object_by_name("Player")
-
-    pannel_create_an_account = pygame.image.load("UI/create_account.png")
-    x_pannel_create_an_account = (screen.get_width() - pannel_create_an_account.get_width()) // 2
-    y_pannel_create_an_account = (screen.get_height() - pannel_create_an_account.get_height())//2
 
     if username == "" or password == "" or confirm_password == "":
         font = pygame.font.Font("UI/dialog_font.ttf", 15)
@@ -115,20 +115,19 @@ def create_account(username,password,confirm_password):
     # Requête pour vérifier si le nom d'utilisateur existe déjà dans la table "users"
     cursor.execute('''SELECT pseudo FROM Login WHERE pseudo=?;''', (username,))
     result = cursor.fetchall()
-    for row in result:
-        if row[0] == username:
-            cursor.close()
-            conn.commit()
-            conn.close()
-            font = pygame.font.Font("UI/dialog_font.ttf", 15)
-            message_erreur = font.render("Pseudo déjà existant", True, (255, 0, 0))
-            screen.blit(message_erreur, (x_pannel_create_an_account ,y_pannel_create_an_account))
-            pygame.display.update()
-            pygame.time.delay(2000)
-            print("pseudo déjà existant")
-    
+    if result != []:
+                cursor.close()
+                conn.commit()
+                conn.close()
+                font = pygame.font.Font("UI/dialog_font.ttf", 15)
+                message_erreur = font.render("Pseudo déjà existant", True, (255, 0, 0))
+                screen.blit(message_erreur, (x_pannel_create_an_account ,y_pannel_create_an_account))
+                pygame.display.update()
+                pygame.time.delay(2000)
+                print("pseudo déjà existant")
+        
 
-    if username != "" and result == [] :
+    if username != "" and password != "" and confirm_password != "" and result == [] :
         if password == confirm_password:
             # Connexion à la base de données SQLite
             conn = sqlite3.connect('database/data.db')
@@ -138,7 +137,8 @@ def create_account(username,password,confirm_password):
             cursor.close()
             conn.commit()
             conn.close()
-            return
+            running = False
+            
             
         else : 
             font = pygame.font.Font("UI/dialog_font.ttf", 15)
@@ -321,12 +321,13 @@ def login():
                             
 
                         #if create_account(username_box1.text,password_box1.text,confirm_password_box1.text) == "mot de passe différent": 
-                           
+                            
 
-                        if create_account(username_box1.text,password_box1.text,confirm_password_box1.text):
+                        create_account(username_box1.text,password_box1.text,confirm_password_box1.text,Confirm)
+                        if Confirm == False:
+                            print("Login successful")
                             running = False
                             username = username_box1.text
-                            print("Login successful")
                             return
                         
 
