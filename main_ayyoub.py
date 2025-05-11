@@ -98,8 +98,17 @@ def create_account(username,password,confirm_password):
     tmx_data = load_pygame("maps/maps.tmx")  
     player_position = tmx_data.get_object_by_name("Player")
 
+    pannel_create_an_account = pygame.image.load("UI/create_account.png")
+    x_pannel_create_an_account = (screen.get_width() - pannel_create_an_account.get_width()) // 2
+    y_pannel_create_an_account = (screen.get_height() - pannel_create_an_account.get_height())//2
+
     if username == "" or password == "" or confirm_password == "":
-        return "rien" # rien n'est rentré
+        font = pygame.font.Font("UI/dialog_font.ttf", 15)
+        message_erreur = font.render("Veuiller insérer un identifiant et un mot de passe", True, (255, 0, 0))
+        screen.blit(message_erreur, (x_pannel_create_an_account ,y_pannel_create_an_account))
+        pygame.display.update()
+        pygame.time.delay(2000)
+        print("rien")
     
     conn = sqlite3.connect('database/data.db')
     cursor = conn.cursor()
@@ -111,7 +120,12 @@ def create_account(username,password,confirm_password):
             cursor.close()
             conn.commit()
             conn.close()
-            return "pseudo déjà existant" # nom d'utilisateur déjà pris
+            font = pygame.font.Font("UI/dialog_font.ttf", 15)
+            message_erreur = font.render("Pseudo déjà existant", True, (255, 0, 0))
+            screen.blit(message_erreur, (x_pannel_create_an_account ,y_pannel_create_an_account))
+            pygame.display.update()
+            pygame.time.delay(2000)
+            print("pseudo déjà existant")
     
 
     if username != "" and result == [] :
@@ -124,10 +138,15 @@ def create_account(username,password,confirm_password):
             cursor.close()
             conn.commit()
             conn.close()
-            return "ça passe" # compte créé avec succès
+            return
             
         else : 
-            return "mot de passe différent" # les mots de passe ne correspondent pas
+            font = pygame.font.Font("UI/dialog_font.ttf", 15)
+            message_erreur = font.render("Les mots de passe ne correspondent pas", True, (255, 0, 0))
+            screen.blit(message_erreur, (x_pannel_create_an_account ,y_pannel_create_an_account))
+            pygame.display.update()
+            pygame.time.delay(2000)  # Affiche le message pendant 2 secondes
+            print("mdp diff")
     
 
 def login():
@@ -294,32 +313,17 @@ def login():
                         Confirm = False
                     if btn_create_account.collidepoint(event.pos):
                         
-                        if create_account(username_box1.text,password_box1.text,confirm_password_box1.text) == "rien":
-                            font = pygame.font.Font("UI/dialog_font.ttf", 15)
-                            message_erreur = font.render("Veuiller insérer un identifiant et un mot de passe", True, (255, 0, 0))
-                            screen.blit(message_erreur, (x_pannel_create_an_account ,y_pannel_create_an_account))
-                            pygame.display.update()
-                            pygame.time.delay(2000)
-                            print("rien")
+                        #if create_account(username_box1.text,password_box1.text,confirm_password_box1.text) == "rien":
+                            
                             
                         
-                        if create_account(username_box1.text,password_box1.text,confirm_password_box1.text) == "pseudo déjà existant":
-                            font = pygame.font.Font("UI/dialog_font.ttf", 15)
-                            message_erreur = font.render("Pseudo déjà existant", True, (255, 0, 0))
-                            screen.blit(message_erreur, (x_pannel_create_an_account ,y_pannel_create_an_account))
-                            pygame.display.update()
-                            pygame.time.delay(2000)
-                            print("pseudo déjà existant")
+                        #if create_account(username_box1.text,password_box1.text,confirm_password_box1.text) == "pseudo déjà existant":
+                            
 
-                        if create_account(username_box1.text,password_box1.text,confirm_password_box1.text) == "mot de passe différent": 
-                            font = pygame.font.Font("UI/dialog_font.ttf", 15)
-                            message_erreur = font.render("Les mots de passe ne correspondent pas", True, (255, 0, 0))
-                            screen.blit(message_erreur, (x_pannel_create_an_account ,y_pannel_create_an_account))
-                            pygame.display.update()
-                            pygame.time.delay(2000)  # Affiche le message pendant 2 secondes
-                            print("mdp diff")
+                        #if create_account(username_box1.text,password_box1.text,confirm_password_box1.text) == "mot de passe différent": 
+                           
 
-                        if create_account(username_box1.text,password_box1.text,confirm_password_box1.text) == "ça passe":
+                        if create_account(username_box1.text,password_box1.text,confirm_password_box1.text):
                             running = False
                             username = username_box1.text
                             print("Login successful")
