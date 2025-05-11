@@ -904,7 +904,7 @@ def launch_game():
 
         
         # vérifier si l'on peut marcher
-        if moving and player.dead == False:
+        if not cinematique and player.dead == False:
             input()
 
         player.anim_player_full_animation()
