@@ -59,17 +59,20 @@ graphe_quetes = nx.DiGraph()
 # Création des objets quête
 q1 = Quete("Q1", "Trouver le coffre", "Suivez le chemin et trouvez le coffre.")
 q2 = Quete("Q2", "Trouver le guide", "Trouver le guide dans le bois.")
+
 q3 = Quete("Q3", "Ramasser du bois", "Ramasser 10 buches dans la forêt.")
+q4 = Quete("Q4","Récupérer des pommes","Ramasser 5 pommes dans la foret")
+
 
 # Ajout des nœuds avec attributs
 graphe_quetes.add_node("Q1", quete=q1)
 graphe_quetes.add_node("Q2", quete=q2)
 graphe_quetes.add_node("Q3", quete=q3)
-
+graphe_quetes.add_node("Q4",quete = q4)
 # Ajout des relations (choix ou dépendances)
 graphe_quetes.add_edge("Q1", "Q2")  # Après Q1, Q2 est possible
-graphe_quetes.add_edge("Q2", "Q3")  # Après Q2, Q3 est possible
-
+graphe_quetes.add_edge("Q2", "Q3",choix=True)  # Après Q2, Q3 est possible
+graphe_quetes.add_edge("Q2","Q4",choix=True)     # Après Q2, Q4 est possible
 
 
 
@@ -489,7 +492,7 @@ def launch_game():
     save_menu = Save_game(screen)
     chest_position = tmx_data.get_object_by_name("coffre1")
 
-    pnj1 = PNJ("Wizard",200,200,"pnj",screen,(50,50),pnj1_dialog)
+    
 
     #Création des gobelins
     gobelin1 = Enemy("gobelin_epee",250,300,"enemy",screen,(100,100))
@@ -547,8 +550,7 @@ def launch_game():
     #On ajoute ici le coffre
     group.add(chest1,layer = 2)
 
-    #On ajoute ici les PNJ
-    group.add(pnj1 , layer = 2 )
+    
 
     #On ajoute ici les gobelins
     group.add(gobelin1,layer = 4)
@@ -573,36 +575,61 @@ def launch_game():
     # Fonction pour terminer une quête
     def terminer_quete(id_quete):
         nonlocal panneau_visible, panneau_y, panneau_target_y
-        nonlocal temps_depart_panneau
-        nonlocal file_quete_a_afficher  # nouvelle file d'attente
-        nonlocal quete_affichee, affichage_etape
-        
-        print("lancement terminer quetes")
+        nonlocal temps_depart_panneau, quete_affichee, affichage_etape, file_quete_a_afficher
 
+        print("→ terminer_quete appelée pour :", id_quete)
+
+        # Récupérer la quête
         quete = graphe_quetes.nodes[id_quete]["quete"]
         quete.terminee = True
         quete.active = False
 
-        print("etat de la quete après",  quete.active, quete.terminee)
-        # Récupérer les quêtes suivantes
-        suivantes = list(graphe_quetes.successors(id_quete))
+        # Successeurs SANS le flag "choix" (donc à activer automatiquement)
+        suivantes = [
+            s for s in graphe_quetes.successors(id_quete)
+            if not graphe_quetes[id_quete][s].get("choix", False)
+        ]
 
-        # Mettre en file l'affichage "quête accomplie"
+        if not suivantes:
+            # Afficher au moins "quête accomplie" même sans suite directe
+            panneau_visible = True
+            panneau_y = -200
+            panneau_target_y = 50
+            temps_depart_panneau = pygame.time.get_ticks()
+            affichage_etape = "accomplie"
+            quete_affichee = None
+            file_quete_a_afficher = []
+            print("→ quete accomplie sans suite automatique")
+            return
+
+        # Préparer l’affichage "quête accomplie"
         panneau_visible = True
         panneau_y = -200
         panneau_target_y = 50
         temps_depart_panneau = pygame.time.get_ticks()
-        quete_affichee = None
         affichage_etape = "accomplie"
-        file_quete_a_afficher = []  # on vide d'abord
+        file_quete_a_afficher = [graphe_quetes.nodes[s]["quete"] for s in suivantes]
 
-        for id_suivante in suivantes:
-            q = graphe_quetes.nodes[id_suivante]["quete"]
-            if not q.terminee and not q.active:
-                file_quete_a_afficher.append(q)
-        print("[terminer_quete] appelée pour :", id_quete)
-        print("affichage_etape =", affichage_etape)
-        print("file_quete_a_afficher =", [q.id for q in file_quete_a_afficher])
+        print("→ file_quete_a_afficher :", [q.id for q in file_quete_a_afficher])
+
+
+    
+    def afficher_panneau_nouvelle_quete(quete):
+        nonlocal panneau_visible, panneau_y, panneau_target_y
+        nonlocal temps_depart_panneau, quete_affichee, affichage_etape
+
+        print(" Panneau nouvelle quête :", quete.id)
+        panneau_visible = True
+        panneau_y = -200
+        panneau_target_y = 50
+        temps_depart_panneau = pygame.time.get_ticks()
+        quete_affichee = quete
+        affichage_etape = "nouvelle_quete"
+
+    pnj1 = PNJ("Wizard",200,200,"pnj",screen,(50,50),pnj1_dialog,panneau_callback=afficher_panneau_nouvelle_quete)
+    #On ajoute ici les PNJ
+    group.add(pnj1 , layer = 2 )
+
 
     def afficher_panneau_slide(screen, quete, y):
         # Affiche le panneau à la position y
@@ -612,16 +639,16 @@ def launch_game():
         desc = police_quetes_mission.render(quete.description, True, (0, 0, 0))
         
         screen.blit(titre, (screen.get_width() // 2 - titre.get_width() // 2, y + 20))
-        screen.blit(desc, (screen.get_width() // 2 - panneau_quest_img.get_width() // 2 +122, y + 60))
+        screen.blit(desc, (screen.get_width() // 2 - panneau_quest_img.get_width() // 2 +120, y + 65))
 
     def afficher_panneau_texte(screen, titre_texte, desc_texte, y):
         screen.blit(panneau_quest_img, (screen.get_width() // 2 - panneau_quest_img.get_width() // 2, y))
         
-        titre = police_quetes.render(titre_texte, True, (0, 0, 0))
-        desc = police_quetes.render(desc_texte, True, (0, 0, 0))
+        titre = police_quetes.render(titre_texte, True, (255, 255, 0))
+        desc = police_quetes_mission.render(desc_texte, True, (0, 0, 0))
 
         screen.blit(titre, (screen.get_width() // 2 - titre.get_width() // 2, y + 20))
-        screen.blit(desc, (screen.get_width() // 2 - desc.get_width() // 2, y + 60))
+        screen.blit(desc, (screen.get_width() // 2 - desc.get_width() // 2, y + 70))
 
     
 
@@ -848,7 +875,16 @@ def launch_game():
                     elif active_pnj:  # ← Si on a un PNJ actif
                         active_pnj.CanDialog = not active_pnj.CanDialog
                         if active_pnj.CanDialog:
-                            active_pnj.start_dialog(0)  # ← Lancer le texte de ce PNJ
+                            active_pnj.start_dialog(0)
+                            q2 = graphe_quetes.nodes["Q2"]["quete"]
+                            if q2.active and not q2.terminee:
+                                terminer_quete("Q2")
+
+                                # Récupérer manuellement les choix (Q3 et Q4)
+                                q3 = graphe_quetes.nodes["Q3"]["quete"]
+                                q4 = graphe_quetes.nodes["Q4"]["quete"]
+                                active_pnj.proposer_quetes([q3, q4])
+
                 if event.key == pygame.K_SPACE:
                     if active_pnj and active_pnj.CanDialog:
                         active_pnj.next_dialog()
@@ -931,6 +967,7 @@ def launch_game():
                     if sprite.Can_cut:
                         if pygame.mouse.get_pressed()[0]:
                             if not cut_progressing:
+                                player.is_attacking = False
                                 cut_progressing = True
                                 progress_cut = 0.0
                             else:
@@ -1163,6 +1200,7 @@ def launch_game():
                         quete_affichee = None
                         panneau_y = -200
 
+            
 
 
        

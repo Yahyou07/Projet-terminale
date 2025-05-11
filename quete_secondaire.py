@@ -11,6 +11,7 @@ class Quete:
         self.entites = entites or []
         self.active = False
         self.terminee = False
+        self.est_choix = False  # si c’est une quête à choix multiple
 
     def demarrer(self):
         self.active = True

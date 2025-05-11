@@ -95,7 +95,7 @@ class Entity(pygame.sprite.Sprite):
     
 
 class PNJ(Entity):
-    def __init__(self, name, x, y, type, screen,scale,parole):
+    def __init__(self, name, x, y, type, screen,scale,parole,panneau_callback=None):
         """
         Classe PNJ qui hérite de la classe Entity
         Attributs:
@@ -110,6 +110,11 @@ class PNJ(Entity):
         super().__init__(name, x, y, type, screen,scale)
         self.hit_box = self.rect.copy().inflate(-30,0)
         self.champ_vision = self.rect.copy().inflate(20,20)
+
+        self.panneau_callback = panneau_callback
+
+        self.choix_de_quetes = None  # ex: [quete1, quete2]
+        self.en_mode_choix = False
 
         self.dialog_box = pygame.image.load("UI/dialog_box_gris.png")
         self.dialog_box_name = pygame.image.load("UI/dialog_box_nom.png")
@@ -133,7 +138,39 @@ class PNJ(Entity):
         self.name_entity = self.font_dialog_box_name.render(self.name,True, (255, 255, 111))
         self.entity_parole = self.font_dialog_box.render(self.parole[3],True, (255, 255, 111))
         self.pass_message = self.font_dialog_box_pass.render(self.message_passer,True, (255, 255, 255))
-        
+    def proposer_quetes(self, quetes):
+        """
+        Affiche un choix de quêtes au joueur dans le dialogue.
+        """
+        self.choix_de_quetes = quetes
+        self.en_mode_choix = True
+        self.full_text = f"Choisissez votre quête :\n   1. {quetes[0].nom}\n   2. {quetes[1].nom}"
+        self.current_text = ""
+        self.text_index = 0
+        self.last_update_time = pygame.time.get_ticks()  
+
+    def activer_quete_choisie(self, index):
+        quete = self.choix_de_quetes[index]
+        quete.active = True
+
+        # Désactiver l’autre
+        for i, q in enumerate(self.choix_de_quetes):
+            if i != index:
+                q.terminee = True
+                q.active = False
+
+        # ✅ Appel du callback pour afficher le panneau
+        if self.panneau_callback:
+            self.panneau_callback(quete)
+
+        # Reset dialogue
+        self.en_mode_choix = False
+        self.choix_de_quetes = None
+        self.CanDialog = False
+
+
+
+
     def update(self,dt):
         """
             Met à jour l'entité
@@ -165,6 +202,12 @@ class PNJ(Entity):
                 line_surface = self.font_dialog_box.render(line, True, (255, 255, 111))
                 self.screen.blit(line_surface, (580, 660 + i * 30))  # ← 25 px entre chaque ligne
             
+            if self.en_mode_choix and self.choix_de_quetes:
+                keys = pygame.key.get_pressed()
+                if keys[pygame.K_1]:
+                    self.activer_quete_choisie(0)
+                elif keys[pygame.K_2]:
+                    self.activer_quete_choisie(1)
 
     def start_dialog(self, index=0):
         """
