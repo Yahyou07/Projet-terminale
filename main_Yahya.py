@@ -570,11 +570,13 @@ def launch_game():
     file_quete_a_afficher = []
     affichage_etape = None
 
+    # Fonction pour terminer une quête
     def terminer_quete(id_quete):
-        global panneau_visible, panneau_y, panneau_target_y
-        global temps_depart_panneau
-        global file_quete_a_afficher  # nouvelle file d'attente
-        global quete_affichee, affichage_etape
+        nonlocal panneau_visible, panneau_y, panneau_target_y
+        nonlocal temps_depart_panneau
+        nonlocal file_quete_a_afficher  # nouvelle file d'attente
+        nonlocal quete_affichee, affichage_etape
+        
         print("lancement terminer quetes")
 
         quete = graphe_quetes.nodes[id_quete]["quete"]
@@ -706,7 +708,7 @@ def launch_game():
     panneau_target_y = 50
     temps_depart_panneau = pygame.time.get_ticks()
     affichage_etape = "nouvelle_quete"
-
+    
     
     while running:
         dt = mainClock.tick(60) / 1000  # Temps écoulé en secondes
@@ -840,6 +842,7 @@ def launch_game():
                         print("état de la quêtes", quete.active, quete.terminee)
                         if quete.active and not quete.terminee:
                             terminer_quete("Q1")
+                            print(affichage_etape)
                             
                         
                     elif active_pnj:  # ← Si on a un PNJ actif
@@ -1120,7 +1123,7 @@ def launch_game():
         pnj1.idle()
         
         if panneau_visible:
-            print("panneau_visible actif - état :", affichage_etape)
+            
 
             if panneau_y < panneau_target_y:
                 panneau_y += 10
@@ -1130,7 +1133,7 @@ def launch_game():
             # Étape : Quête accomplie
             if affichage_etape == "accomplie":
                 afficher_panneau_texte(screen, "Quête accomplie !", "Nouvelle quête débloquée.", panneau_y)
-
+                
                 if (pygame.time.get_ticks() - temps_depart_panneau) / 1000 > temps_affichage_panneau:
                     if file_quete_a_afficher:
                         panneau_y = -200
@@ -1162,7 +1165,7 @@ def launch_game():
 
 
 
-        
+       
         if Show_stats:
             fps = int(mainClock.get_fps())
             fps_text = fps_font.render(f"FPS : {fps}", True, (255, 255, 0))
