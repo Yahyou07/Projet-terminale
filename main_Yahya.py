@@ -527,7 +527,7 @@ def launch_game():
     panneau_visible = False
     panneau_y = -200  # Position de départ hors écran
     panneau_target_y = 50  # Position finale
-    temps_affichage_panneau = 5  # en secondes
+    temps_affichage_panneau = 3  # en secondes
     temps_depart_panneau = 0
     quete_affichee = None  # Instance de Quete
 
@@ -566,6 +566,21 @@ def launch_game():
         group.add(feuillage, layer=7)
         troncs.append(tronc)  # ← On garde une liste de tous les troncs si besoin
     
+
+    #paraetre pour cinematique de début 
+    cinematique = True
+    camera_y_offset = 300  # distance verticale à compenser
+    camera_vitesse = 120  # pixels/sec
+
+    #parametre fondu noir 
+    fondu_actif = True
+    fondu_opacite = 255  # Noir total
+    vitesse_fondu = 150  # Pixels par seconde
+
+    surface_fondu = pygame.Surface(screen.get_size())
+    surface_fondu.fill((0, 0, 0))
+    surface_fondu.set_alpha(fondu_opacite)
+    #paraetre pour le panneau de quête à afficher
     file_quete_a_afficher = []
     affichage_etape = None
 
@@ -723,15 +738,9 @@ def launch_game():
     can_attack = True
     bois_recolte = 0
     fps_font = pygame.font.SysFont("arial", 20)
-
-    # Lancer l'affichage de la quête d'intro au début du jeu
-    quete_affichee = graphe_quetes.nodes["Q1"]["quete"]
-    quete_affichee.active = True
-    panneau_visible = True
-    panneau_y = -200
-    panneau_target_y = 50
-    temps_depart_panneau = pygame.time.get_ticks()
-    affichage_etape = "nouvelle_quete"
+    
+    
+        
     
     
     while running:
@@ -895,7 +904,7 @@ def launch_game():
 
         
         # vérifier si l'on peut marcher
-        if moving and player.dead == False:
+        if not cinematique and player.dead == False:
             input()
 
         player.anim_player_full_animation()
@@ -930,7 +939,29 @@ def launch_game():
 
 
         group.update(dt)
-        group.center(player.rect.center)  # Centre la caméra sur le joueur
+        if cinematique:
+            moving = False
+            # Centre sur une position décalée progressivement vers le joueur
+            current_offset = max(0, camera_y_offset - camera_vitesse * dt)
+            camera_y_offset = current_offset
+
+            camera_target = (player.rect.centerx, player.rect.centery - int(current_offset))
+            group.center(camera_target)
+
+            if camera_y_offset <= 0:
+                cinematique = False  # Fin de l'animation
+                # Lancer l'affichage de la quête d'intro au début du jeu
+                quete_affichee = graphe_quetes.nodes["Q1"]["quete"]
+                quete_affichee.active = True
+                panneau_visible = True
+                panneau_y = -200
+                panneau_target_y = 50
+                temps_depart_panneau = pygame.time.get_ticks()
+                affichage_etape = "nouvelle_quete"
+        else:
+            group.center(player.rect.center)
+            moving = True
+        
         
         group.draw(screen)
         
@@ -1209,6 +1240,18 @@ def launch_game():
             screen.blit(fps_text, (800, 10))
             screen.blit(x_position,(900,10))
             screen.blit(y_position,(900,50))
+        if fondu_opacite <= 0 and camera_y_offset <= 0:
+            cinematique = False
+            fondu_actif = False
+            moving = True
+        # ---- Fondu noir de début ----
+        if fondu_actif:
+            fondu_opacite = max(0, fondu_opacite - vitesse_fondu * dt)
+            surface_fondu.set_alpha(int(fondu_opacite))
+            screen.blit(surface_fondu, (0, 0))
+
+            if fondu_opacite <= 0:
+                fondu_actif = False
 
         pygame.display.update()
 
