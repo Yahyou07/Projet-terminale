@@ -553,9 +553,6 @@ def launch_game():
     
 
     #On ajoute ici les gobelins
-    group.add(gobelin1,layer = 4)
-    group.add(gobelin2,layer = 4)
-    group.add(gobelin3, layer = 4)
     #group.add(pnj2, layer = 2)
 
     group.add(slime1 ,layer = 4)
