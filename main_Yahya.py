@@ -628,7 +628,7 @@ def launch_game():
 
     pnj1 = PNJ("Wizard",200,200,"pnj",screen,(50,50),pnj1_dialog,panneau_callback=afficher_panneau_nouvelle_quete)
     #On ajoute ici les PNJ
-    group.add(pnj1 , layer = 2 )
+    group.add(pnj1, layer=2)
 
 
     def afficher_panneau_slide(screen, quete, y):
@@ -879,7 +879,7 @@ def launch_game():
                             q2 = graphe_quetes.nodes["Q2"]["quete"]
                             if q2.active and not q2.terminee:
                                 terminer_quete("Q2")
-
+                                
                                 # Récupérer manuellement les choix (Q3 et Q4)
                                 q3 = graphe_quetes.nodes["Q3"]["quete"]
                                 q4 = graphe_quetes.nodes["Q4"]["quete"]
@@ -893,8 +893,8 @@ def launch_game():
 
 
 
-
-                        
+        quete = graphe_quetes.nodes["Q2"]["quete"]
+                      
 
         
         # vérifier si l'on peut marcher
