@@ -16,6 +16,8 @@ class Player(pygame.sprite.Sprite):
         self.font_book = pygame.font.Font("Items/Minecraft.ttf", 20)  # Police par défaut, taille 20
         self.font_fantasy = pygame.font.Font("Items/Minecraft.ttf", 45)  # Police par défaut, taille 20
         self.Regen = False
+
+        self.level = 0
         #Booleen permettant gerer l'attaque du joueur
         self.is_attacking = False
         
