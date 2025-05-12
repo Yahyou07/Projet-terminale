@@ -76,10 +76,8 @@ graphe_quetes.add_edge("Q2", "Q3",choix=True)  # Après Q2, Q3 est possible
 graphe_quetes.add_edge("Q2","Q4",choix=True)     # Après Q2, Q4 est possible
 
 
-
+#variable username utilisé pour stocké le pseudo du joueur
 username = ""
-def on_login():
-    print("hey")
 
 def verification(username,password):
     """
@@ -484,7 +482,9 @@ def main_menu():
             
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if play_rect.collidepoint(event.pos):
-                    return
+                    launch_game()
+                    pygame.event.clear()
+
                 elif quit_rect.collidepoint(event.pos):
                     pygame.quit()
                     sys.exit()
@@ -542,10 +542,15 @@ def launch_game():
             collision_rects.append(rect)
 
 
-    player_position = tmx_data.get_object_by_name("Player")
-    x_tmp = player_position.x
-    y_tmp = player_position.y
-    player = Player(x_tmp, y_tmp, screen)  # Positionner le joueur
+    # Connexion à la base de données
+    conn = sqlite3.connect('database/data.db')
+    cursor = conn.cursor()
+    # Requête pour récupérer la position du joueur
+    cursor.execute('''SELECT pos_x,pos_y FROM Login WHERE pseudo = ?;''', (username,))
+    result = cursor.fetchone()
+    position_player = result
+    player = Player(position_player[0],position_player[1], screen)  # Positionner le joueur
+
 
     save_menu = Save_game(screen)
     chest_position = tmx_data.get_object_by_name("coffre1")
@@ -634,7 +639,7 @@ def launch_game():
     #parametre fondu noir 
     fondu_actif = True
     fondu_opacite = 255  # Noir total
-    vitesse_fondu = 150  # Pixels par seconde
+    vitesse_fondu = 40  # Pixels par seconde
 
     surface_fondu = pygame.Surface(screen.get_size())
     surface_fondu.fill((0, 0, 0))
@@ -782,20 +787,18 @@ def launch_game():
 
 
 
-    IsCursorOn = True
 
-    Arbre_touche = False
+    
 
     running = True
     near_chest = None  # coffre à proximité par défaut à None
 
 
     Show_stats = False
-    can_talk_to_pnj1 = False
 
     active_pnj = None
     can_attack = True
-    bois_recolte = 0
+
     fps_font = pygame.font.SysFont("arial", 20)
     
     
@@ -923,7 +926,7 @@ def launch_game():
 
             player.handle_key_events(event)
 
-            save_menu.handle_event(event,"ruen",1,player.rect.x,player.rect.y)
+            save_menu.handle_event(event,username,player.level,player.rect.x,player.rect.y,player.health_value,player.mana_value,player.endurance_value)
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_i:
@@ -1134,7 +1137,7 @@ def launch_game():
 
             if isinstance(sprite, PNJ):
                 if player.hit_box.colliderect(sprite.champ_vision):
-                    can_talk_to_pnj1 = True
+                    
                     active_pnj = sprite  # ← Le PNJ actif devient celui détecté
                     world_pos = (player.rect.centerx , player.rect.top - 10)
                     screen_pos = map_layer.translate_point(world_pos)
@@ -1303,6 +1306,8 @@ def launch_game():
             cinematique = False
             fondu_actif = False
             moving = True
+        if save_menu.running == False:
+            main_menu()
         # ---- Fondu noir de début ----
         if fondu_actif:
             fondu_opacite = max(0, fondu_opacite - vitesse_fondu * dt)
@@ -1317,7 +1322,5 @@ def launch_game():
 if __name__ == "__main__":
     login()
     pygame.event.clear()
-    main_menu()       # Montre le menu, attend que l'utilisateur clique sur "Jouer"
-    # Vider les événements restants pour éviter le double-clic
+    main_menu()
     pygame.event.clear()
-    launch_game()
