@@ -517,11 +517,14 @@ def launch_game():
             rect = pygame.Rect(obj.x, obj.y, obj.width, obj.height)
             collision_rects.append(rect)
 
-
-    player_position = tmx_data.get_object_by_name("Player")
-    x_tmp = player_position.x
-    y_tmp = player_position.y
-    player = Player(x_tmp, y_tmp, screen)  # Positionner le joueur
+    # Connexion à la base de données
+    conn = sqlite3.connect('database/data.db')
+    cursor = conn.cursor()
+    # Requête pour récupérer la position du joueur
+    cursor.execute('''SELECT pos_x,pos_y FROM Login WHERE pseudo = ?;''', (username,))
+    result = cursor.fetchone()
+    position_player = result
+    player = Player(position_player[0],position_player[1], screen)  # Positionner le joueur
 
     save_menu = Save_game(screen)
     chest_position = tmx_data.get_object_by_name("coffre1")
@@ -762,7 +765,7 @@ def launch_game():
                 if player.dead:
                     #On gère ici l'appuie sur les boutton du menu de mort
                     if player.rect_reesayer_dead.collidepoint(event.pos):
-                        player = Player(player_position.x, player_position.y, screen)
+                        player = Player(position_player[0], position_player[1], screen)
                         group.add(player, layer=5)
                         
                     if player.rect_quiiter_dead.collidepoint(event.pos):
@@ -775,7 +778,7 @@ def launch_game():
 
             player.handle_key_events(event)
 
-            save_menu.handle_event(event,"ruen",1,player.rect.x,player.rect.y)
+            save_menu.handle_event(event,"ruen",1,player.rect.x,player.rect.y,player.health_value,player.mana_value,player.endurance_value,player.level)
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_i:
@@ -1084,6 +1087,8 @@ def launch_game():
         pnj1.update(dt)
         
         save_menu.update()
+        if save_menu.running == False:
+            main_menu()
         chest1.anim_chest(group,near_chest)
         
         
