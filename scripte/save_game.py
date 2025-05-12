@@ -31,7 +31,7 @@ class Save_game(object):
         self.text_quit = "Quitter la partie"
         self.text_param = "Paramètre"
         self.text_retour = "Retourner"
-        self.connexion = sqlite3.connect('save-game.db')
+        self.connexion = sqlite3.connect('database/data.db')
         self.clock = pygame.time.Clock()
         self.running = True
         self.quitte = False
@@ -75,7 +75,7 @@ class Save_game(object):
         #self.screen.blit(self.parametre_btn,(self.largeur-75, 0))
         #self.screen.blit(param_text, (self.parametre_btn.x + 10, self.parametre_btn.y + 10))
 
-    def handle_event(self, event, joueur : str , level_joueur : int , pos_x : int = None, pos_y : int = None,inventory_barlist : list = None,invetory_list : list = None):
+    def handle_event(self, event, joueur : str , level_joueur : int , pos_x : int, pos_y : int,inventory_barlist : list = None,invetory_list : list = None):
         """
             Gère les événements de la fenêtre de jeu
             event : l'événement à gérer
@@ -96,8 +96,7 @@ class Save_game(object):
                 if self.quit_rect.collidepoint(event.pos):
                         print("tu vas quitter la game chef")
                         #self.sauvegarder(joueur, level_joueur, pos_x, pos_y)
-                        pygame.quit()
-                        sys.exit()
+                        self.running = False
 
                 elif self.retour_rect.collidepoint(event.pos):
                         print("retour dans le jeu")
@@ -115,7 +114,7 @@ class Save_game(object):
             inventaire : l'inventaire du joueur à sauvegarder
         """
         curseur = self.connexion.cursor()
-        requeteSQL = "UPDATE Save SET save_level = {} WHERE pseudo = '{}';".format(level_joueur, joueur) # rerquête à modifier afin d'enregistrer l'emplacement du joueur et le contenu de son inventaire
+        requeteSQL = "UPDATE Login SET level = {}WHERE pseudo = '{}';".format(level_joueur, joueur) # rerquête à modifier afin d'enregistrer l'emplacement du joueur et le contenu de son inventaire
         curseur.execute(requeteSQL)
         curseur.close()
         self.connexion.commit()
