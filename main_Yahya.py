@@ -630,7 +630,7 @@ def launch_game():
         group.add(feuillage, layer=7)
         troncs.append(tronc)  # ← On garde une liste de tous les troncs si besoin
     
-
+    
     #paraetre pour cinematique de début 
     cinematique = True
     camera_y_offset = 300  # distance verticale à compenser
