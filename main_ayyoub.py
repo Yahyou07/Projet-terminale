@@ -778,7 +778,7 @@ def launch_game():
 
             player.handle_key_events(event)
 
-            save_menu.handle_event(event,"ruen",1,player.rect.x,player.rect.y,player.health_value,player.mana_value,player.endurance_value,player.level)
+            save_menu.handle_event(event,username,player.level,player.rect.x,player.rect.y,player.health_value,player.mana_value,player.endurance_value)
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_i:
