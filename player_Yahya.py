@@ -845,7 +845,7 @@ class Player(pygame.sprite.Sprite):
                 
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 4:  # Molette vers le haut
+            if event.button == 4: # Molette vers le haut
                 self.inventory_index = (self.inventory_index + 1) % 10
                 print(self.current_item)
             elif event.button == 5:  # Molette vers le bas

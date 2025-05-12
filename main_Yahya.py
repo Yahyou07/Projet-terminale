@@ -69,6 +69,7 @@ graphe_quetes.add_node("Q1", quete=q1)
 graphe_quetes.add_node("Q2", quete=q2)
 graphe_quetes.add_node("Q3", quete=q3)
 graphe_quetes.add_node("Q4",quete = q4)
+
 # Ajout des relations (choix ou dépendances)
 graphe_quetes.add_edge("Q1", "Q2")  # Après Q1, Q2 est possible
 graphe_quetes.add_edge("Q2", "Q3",choix=True)  # Après Q2, Q3 est possible
@@ -603,6 +604,7 @@ def launch_game():
     group.add(item2)
     group.add(item3)
 
+    group.add(gobelin1, layer=2)
 
     #On ajoute ici le coffre
     group.add(chest1,layer = 2)
