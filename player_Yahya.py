@@ -225,6 +225,12 @@ class Player(pygame.sprite.Sprite):
         self.dash_duration = 7  # nombre de frames
         self.dash_timer = 0
 
+        #parametre pour limiter le nombre d'attaques
+        self.remaining_attacks = 3
+        self.max_attacks = 3
+        self.attack_regen_timer = 0
+        self.attack_regen_delay = 1000  # 1 seconde par attaque
+
     def start_anim_attack(self,list_mouv,speed,decal):
         '''
         Dans cette méthode on va remplacer certaine les variables utilisées dans anim_player_full_animation (list_mouv et speed)

@@ -823,64 +823,67 @@ def launch_game():
             
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if show_inventory == False and player.dead == False and can_attack:
-                    # Animation attaque
-                    if player.last_direction == "right":
-                        player.start_anim_attack(player.attack_right_mouv, 0.3, 0)
+                    if player.remaining_attacks > 0:
+                        player.remaining_attacks -= 1
+                        player.attack_regen_timer = 0  # Reset du timer
+                        # Animation attaque
+                        if player.last_direction == "right":
+                            player.start_anim_attack(player.attack_right_mouv, 0.3, 0)
+                                #Le joueur peut attaquer
+                            player.is_attacking = True
+                            
+                            
+                        if player.last_direction == "left":
+                            player.start_anim_attack(player.attack_left_mouv, 0.3, -0)
+
                             #Le joueur peut attaquer
-                        player.is_attacking = True
-                        
-                        
-                    if player.last_direction == "left":
-                        player.start_anim_attack(player.attack_left_mouv, 0.3, -0)
+                            player.is_attacking = True
+                            
 
-                        #Le joueur peut attaquer
-                        player.is_attacking = True
-                        
+                        # Définir une direction de dash
+                        direction = pygame.math.Vector2(0, 0)
+                        if player.last_direction == "right":
+                            direction = pygame.math.Vector2(1, 0)
+                        elif player.last_direction == "left":
+                            direction = pygame.math.Vector2(-1, 0)
 
-                    # Définir une direction de dash
-                    direction = pygame.math.Vector2(0, 0)
-                    if player.last_direction == "right":
-                        direction = pygame.math.Vector2(1, 0)
-                    elif player.last_direction == "left":
-                        direction = pygame.math.Vector2(-1, 0)
+                        # Lancer le dash
+                        player.dash_vector = direction * player.dash_speed
+                        player.dashing = True
+                        player.dash_timer = player.dash_duration
 
-                    # Lancer le dash
-                    player.dash_vector = direction * player.dash_speed
-                    player.dashing = True
-                    player.dash_timer = player.dash_duration
+                        # Vérifie l'attaque sur les ennemis
+                        for sprite in group.sprites():
+                            if isinstance(sprite, Enemy) or isinstance(sprite, Slime):
+                                if player.last_direction == "right" :
+                                    if player.attack_box_right.colliderect(sprite.rect):
+                                        sprite.current_health -= player.degats  # Inflige 10 points de dégâts
+                                        
+                                        if sprite.current_health < 0:
+                                            sprite.current_health = 0
+                                        if sprite.current_health == 0:
+                                            sprite.dead(group,sprite)
+                                        sprite.knockback = True
+                                        sprite.knockback_speed = 6
+                                        sprite.knockback_direction = 1
 
-                    # Vérifie l'attaque sur les ennemis
-                    for sprite in group.sprites():
-                        if isinstance(sprite, Enemy) or isinstance(sprite, Slime):
-                            if player.last_direction == "right" :
-                                if player.attack_box_right.colliderect(sprite.rect):
-                                    sprite.current_health -= player.degats  # Inflige 10 points de dégâts
-                                    
-                                    if sprite.current_health < 0:
-                                        sprite.current_health = 0
-                                    if sprite.current_health == 0:
-                                        sprite.dead(group,sprite)
-                                    sprite.knockback = True
-                                    sprite.knockback_speed = 6
-                                    sprite.knockback_direction = 1
+                                if player.last_direction == "left" :
+                                    if player.attack_box_left.colliderect(sprite.rect):
+                                        sprite.current_health -= player.degats  # Inflige 10 points de dégâts
 
-                            if player.last_direction == "left" :
-                                if player.attack_box_left.colliderect(sprite.rect):
-                                    sprite.current_health -= player.degats  # Inflige 10 points de dégâts
+                                        if sprite.current_health < 0:
+                                            sprite.current_health = 0
+                                        if sprite.current_health == 0:
+                                            sprite.dead(group,sprite)
 
-                                    if sprite.current_health < 0:
-                                        sprite.current_health = 0
-                                    if sprite.current_health == 0:
-                                        sprite.dead(group,sprite)
-
-                                    sprite.knockback = True
-                                    sprite.knockback_speed = 6
-                                    sprite.knockback_direction = -1
-                        if isinstance(sprite, Tronc) and player.feet.colliderect(sprite.hitbox):
-                            if player.last_direction == "right" :
-                                if player.attack_box_right.colliderect(sprite.hitbox):
-                                    player.move_back()
-                        
+                                        sprite.knockback = True
+                                        sprite.knockback_speed = 6
+                                        sprite.knockback_direction = -1
+                            if isinstance(sprite, Tronc) and player.feet.colliderect(sprite.hitbox):
+                                if player.last_direction == "right" :
+                                    if player.attack_box_right.colliderect(sprite.hitbox):
+                                        player.move_back()
+                            
 
 
     
@@ -1050,7 +1053,15 @@ def launch_game():
                             -math.pi / 2, end_angle, 4)
 
             screen.blit(eat_image, (screen_pos[0] - 30, screen_pos[1] - 27))
-            
+        
+        #régéneration des point d'attaques
+        if player.remaining_attacks < player.max_attacks:
+            player.attack_regen_timer += dt * 1000  # dt est en secondes → ms
+            if player.attack_regen_timer >= player.attack_regen_delay:
+                player.remaining_attacks += 1
+                player.attack_regen_timer = 0
+                
+        #changement de la vitesse de coupe de l'arbre si l'on a une hache    
         if player.inventory_bar_list[player.inventory_index] != {}:
             if player.inventory_bar_list[player.inventory_index]['object'].type == "Hache":
                 fill_time_cut = 4
@@ -1234,6 +1245,12 @@ def launch_game():
                     
 
         player.affiche_ui()
+        for i in range(player.max_attacks):
+            color = (255, 140, 0) if i < player.remaining_attacks else (100, 100, 100)
+            world_pos = (player.rect.centerx - 30 + i * 20, player.rect.top - 20)
+            screen_pos = map_layer.translate_point(world_pos)
+            pygame.draw.rect(screen, color, (screen_pos[0], screen_pos[1], 15, 10))
+
         
         if show_inventory:
             player.display_inventory()  # On appelle la méthode display_inventory pour afficher l'inventaire
