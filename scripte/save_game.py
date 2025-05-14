@@ -103,7 +103,7 @@ class Save_game(object):
                         self.return_game()
                 
 
-    def sauvegarder(self, joueur : str , level_joueur : int , pos_x : int , pos_y : int ,vie : int,mana : int,endurance : int,inventory_barlist : list = None,invetory_list : list = None):
+    def sauvegarder(self, joueur : str , level_joueur : int , pos_x : int , pos_y : int ,vie : int,mana : int,endurance : int, quete_id : str,inventory_barlist : list = None,invetory_list : list = None):
         """
             Sauvegarde le joueur dans un fichier
             joueur : le joueur à sauvegarder
@@ -115,7 +115,7 @@ class Save_game(object):
         """
         curseur = self.connexion.cursor()
         requeteSQL = '''update Login set pos_x = {}, pos_y = {} , level = {},health = {},mana = {},endurance = {} where pseudo = {}'''.format(pos_x,pos_y,level_joueur,vie,mana,endurance,joueur) # rerquête à modifier afin d'enregistrer l'emplacement du joueur et le contenu de son inventaire
-        curseur.execute('''update Login set pos_x = ?, pos_y = ? , level = ?,health = ?,mana = ?,endurance = ? where pseudo = ?''',(pos_x,pos_y,level_joueur,vie,mana,endurance,joueur))
+        curseur.execute('''update Login set pos_x = ?, pos_y = ? , level = ?,health = ?,mana = ?,endurance = ?,current_quete = ? where pseudo = ?''',(pos_x,pos_y,level_joueur,vie,mana,endurance,quete_id,joueur))
         curseur.close()
         self.connexion.commit()
         self.connexion.close()

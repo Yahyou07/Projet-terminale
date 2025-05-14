@@ -124,7 +124,7 @@ def create_account(username,password,confirm_password):
 
     tmx_data = load_pygame("maps/maps.tmx")  
     player_position = tmx_data.get_object_by_name("Player")
-
+    id_quete_deBase = "Q1"
     if username == "" or password == "" or confirm_password == "":
         font = pygame.font.Font("UI/dialog_font.ttf", 15)
         message_erreur = font.render("Veuiller insérer un identifiant et un mot de passe", True, (255, 0, 0))
@@ -158,7 +158,7 @@ def create_account(username,password,confirm_password):
             conn = sqlite3.connect('database/data.db')
             cursor = conn.cursor()
             # Requête pour stocker le nom d'utilisateur et le mot de passe dans la table "users"
-            cursor.execute('''INSERT INTO Login (pseudo,password,pos_x,pos_y,health,mana,endurance,level) values (?,?,?,?,100,0,100,0) ''',(username,password,player_position.x,player_position.y))
+            cursor.execute('''INSERT INTO Login (pseudo,password,pos_x,pos_y,health,mana,endurance,level,current_quete) values (?,?,?,?,100,0,100,0,?) ''',(username,password,player_position.x,player_position.y,id_quete_deBase))
             cursor.execute('''INSERT INTO Inventory (pseudo) VALUES (?)''', (username,))
             cursor.execute('''INSERT INTO Stuff (pseudo) VALUES (?)''', (username,))
             cursor.close()
@@ -524,6 +524,16 @@ def main_menu():
         screen.blit(username_text,(screen.get_width() - profile_image.get_width() - 150, profile_image.get_height()//2 +15))
         pygame.display.update()
 
+def charger_quete():
+    # Connexion à la base de données
+    conn = sqlite3.connect('database/data.db')
+    cursor = conn.cursor()
+    # Requête pour récupérer la position du joueur
+    cursor.execute('''SELECT current_quete FROM Login WHERE pseudo = ?;''', (username,))
+    result = cursor.fetchone()
+    if result:
+        return graphe_quetes.nodes[result[0]]["quete"]
+    return None
 # Fonction pour lancer le jeu 
 def launch_game():
     global tree_positions, graphe_quetes
@@ -801,13 +811,34 @@ def launch_game():
 
     fps_font = pygame.font.SysFont("arial", 20)
     
-    
+    current_quete = graphe_quetes.nodes["Q1"]["quete"]
         
-    
     
     while running:
         dt = mainClock.tick(60) / 1000  # Temps écoulé en secondes
-        
+        if cinematique:
+            moving = False
+            # Centre sur une position décalée progressivement vers le joueur
+            current_offset = max(0, camera_y_offset - camera_vitesse * dt)
+            camera_y_offset = current_offset
+
+            camera_target = (player.rect.centerx, player.rect.centery - int(current_offset))
+            group.center(camera_target)
+
+            if camera_y_offset <= 0:
+                cinematique = False  # Fin de l'animation
+                # Lancer l'affichage de la quête d'intro au début du jeu
+                quete_affichee = charger_quete()
+                quete_affichee.active = True
+                current_quete = graphe_quetes.nodes[quete_affichee.id]["quete"]
+                panneau_visible = True
+                panneau_y = -200
+                panneau_target_y = 50
+                temps_depart_panneau = pygame.time.get_ticks()
+                affichage_etape = "nouvelle_quete"
+        else:
+            group.center(player.rect.center)
+            moving = True
         for event in pygame.event.get():
             quit()
             if event.type == pygame.KEYDOWN:
@@ -824,7 +855,7 @@ def launch_game():
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if show_inventory == False and player.dead == False and can_attack:
                     if player.remaining_attacks > 0:
-                        
+                        print(current_quete.id)
                         # Animation attaque
                         if player.last_direction == "right":
                             player.start_anim_attack(player.attack_right_mouv, 0.3, 0)
@@ -940,7 +971,7 @@ def launch_game():
 
             player.handle_key_events(event)
 
-            save_menu.handle_event(event,username,player.level,player.rect.x,player.rect.y,player.health_value,player.mana_value,player.endurance_value)
+            save_menu.handle_event(event,username,player.level,player.rect.x,player.rect.y,player.health_value,player.mana_value,player.endurance_value,current_quete.id)
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_i:
@@ -951,6 +982,7 @@ def launch_game():
                         print("état de la quêtes", quete.active, quete.terminee)
                         if quete.active and not quete.terminee:
                             terminer_quete("Q1")
+                            current_quete = graphe_quetes.nodes["Q2"]["quete"]
                             print(affichage_etape)
                             
                         
@@ -1015,28 +1047,7 @@ def launch_game():
 
 
         group.update(dt)
-        if cinematique:
-            moving = False
-            # Centre sur une position décalée progressivement vers le joueur
-            current_offset = max(0, camera_y_offset - camera_vitesse * dt)
-            camera_y_offset = current_offset
-
-            camera_target = (player.rect.centerx, player.rect.centery - int(current_offset))
-            group.center(camera_target)
-
-            if camera_y_offset <= 0:
-                cinematique = False  # Fin de l'animation
-                # Lancer l'affichage de la quête d'intro au début du jeu
-                quete_affichee = graphe_quetes.nodes["Q1"]["quete"]
-                quete_affichee.active = True
-                panneau_visible = True
-                panneau_y = -200
-                panneau_target_y = 50
-                temps_depart_panneau = pygame.time.get_ticks()
-                affichage_etape = "nouvelle_quete"
-        else:
-            group.center(player.rect.center)
-            moving = True
+        
         
         
         group.draw(screen)
@@ -1147,8 +1158,8 @@ def launch_game():
                 near_chest = sprite  # On garde en mémoire le coffre à proximité
                 if sprite.Can_open:
                     world_pos = (player.rect.centerx , player.rect.top - 10)
-                    screen_pos = map_layer.translate_point(world_pos)
-                    screen.blit(player.key_board_I, (screen_pos[0]-23, screen_pos[1]+10))
+                    screen_pos = map_layer.translate_point(world_pos) #On récupère la poistion relative à la map
+                    screen.blit(player.key_board_I, (screen_pos[0]-23, screen_pos[1]+30))#affichage de la touche I quand on est à proximité d'un coffre
 
             if isinstance(sprite, Item) and player.hit_box.colliderect(sprite.rect) and sprite.en_animation_sortie == False:
                 group.remove(sprite)  # Supprime l'objet du groupe
@@ -1266,7 +1277,7 @@ def launch_game():
        
 
 
-        pnj1.update(dt)
+        pnj1.updatee(dt,current_quete)
         
         save_menu.update()
         chest1.anim_chest(group,near_chest)

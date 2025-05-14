@@ -157,16 +157,18 @@ class Player(pygame.sprite.Sprite):
         
         self.IsAnimating = True
         self.IsOpen = False
-        
+
+        self.y_buttons = self.screen.get_height() - 60
+
         self.button_right_book = pygame.image.load("UI/bouton_droitBook.png")
         self.rect_button_right_book = self.button_right_book.get_rect()
         self.rect_button_right_book.x = 900
-        self.rect_button_right_book.y = 740
+        self.rect_button_right_book.y = self.y_buttons
 
         self.button_left_book = pygame.image.load("UI/bouton_gaucheBook.png")
         self.rect_button_left_book = self.button_left_book.get_rect()
         self.rect_button_left_book.x = 660
-        self.rect_button_left_book.y = 740
+        self.rect_button_left_book.y = self.y_buttons
         self.page = 0
         self.page_a_cote = self.page + 1
         self.max_page = 20
@@ -460,7 +462,7 @@ class Player(pygame.sprite.Sprite):
         #affichage des barres d'attaque au dessus du joueur
         for i in range(self.max_attacks):
             color = (0, 191, 255) if i < self.remaining_attacks else (100, 100, 100)
-            world_pos = (self.rect.centerx - 15 + i * 15, self.rect.top )
+            world_pos = (self.rect.centerx - 20 + i * 15, self.rect.top )
             screen_pos = map_layer.translate_point(world_pos)
             pygame.draw.rect(self.screen, color, (screen_pos[0], screen_pos[1], 30, 10),border_radius=3)
         # Affichage des bouttons sur le cote
@@ -473,10 +475,10 @@ class Player(pygame.sprite.Sprite):
             
 
             if self.IsOpen:
-                self.screen.blit(self.button_right_book, (900, 740))
-                self.screen.blit(self.button_left_book, (660, 740))
+                self.screen.blit(self.button_right_book, (900, self.y_buttons))
+                self.screen.blit(self.button_left_book, (660, self.y_buttons))
                 self.pages_text = self.font_fantasy.render(f"{str(self.page)} - {self.page_a_cote}",True, (255, 174, 111))
-                self.screen.blit(self.pages_text,(760,750))
+                self.screen.blit(self.pages_text,(760,self.y_buttons + 10))
 
                 if self.Affiche_texte_page:
                     self.screen.blit(self.pages[self.page],(513,300))

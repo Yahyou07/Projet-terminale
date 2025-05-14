@@ -149,8 +149,9 @@ class PNJ(Entity):
         self.text_index = 0
         self.last_update_time = pygame.time.get_ticks()  
 
-    def activer_quete_choisie(self, index):
+    def activer_quete_choisie(self, index,current_quete):
         quete = self.choix_de_quetes[index]
+        current_quete = quete
         quete.active = True
 
         # Désactiver l’autre
@@ -171,7 +172,7 @@ class PNJ(Entity):
 
 
 
-    def update(self,dt):
+    def updatee(self,dt,current_quete):
         """
             Met à jour l'entité
         """
@@ -205,9 +206,9 @@ class PNJ(Entity):
             if self.en_mode_choix and self.choix_de_quetes:
                 keys = pygame.key.get_pressed()
                 if keys[pygame.K_1]:
-                    self.activer_quete_choisie(0)
+                    self.activer_quete_choisie(0,current_quete)
                 elif keys[pygame.K_2]:
-                    self.activer_quete_choisie(1)
+                    self.activer_quete_choisie(1,current_quete)
 
     def start_dialog(self, index=0):
         """
