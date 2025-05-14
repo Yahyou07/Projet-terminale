@@ -639,7 +639,7 @@ def launch_game():
     #parametre fondu noir 
     fondu_actif = True
     fondu_opacite = 255  # Noir total
-    vitesse_fondu = 40  # Pixels par seconde
+    vitesse_fondu = 150  # Pixels par seconde
 
     surface_fondu = pygame.Surface(screen.get_size())
     surface_fondu.fill((0, 0, 0))
