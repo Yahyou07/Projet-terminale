@@ -829,11 +829,13 @@ def launch_game():
                             #Le joueur peut attaquer
                         player.is_attacking = True
                         
+                        
                     if player.last_direction == "left":
                         player.start_anim_attack(player.attack_left_mouv, 0.3, -0)
 
                         #Le joueur peut attaquer
                         player.is_attacking = True
+                        
 
                     # Définir une direction de dash
                     direction = pygame.math.Vector2(0, 0)
@@ -913,7 +915,7 @@ def launch_game():
                 if player.dead:
                     #On gère ici l'appuie sur les boutton du menu de mort
                     if player.rect_reesayer_dead.collidepoint(event.pos):
-                        player = Player(player_position.x, player_position.y, screen)
+                        player = Player(position_player[0], position_player[1], screen)
                         group.add(player, layer=5)
                         
                     if player.rect_quiiter_dead.collidepoint(event.pos):

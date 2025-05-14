@@ -556,16 +556,20 @@ class Slime(pygame.sprite.Sprite):
                     if dx > 0:
                         self.animation_attack(self.right_attack, 0.15, (64, 64), player, 1, 0)
                         self.last_dir = "right"
+                        player.health_value -= 20/60
                     else:
                         self.animation_attack(self.left_attack, 0.15, (64, 64), player, -1, 0)
                         self.last_dir = "left"
+                        player.health_value -= 20/60
                 else:
                     if dy > 0:
                         self.animation_attack(self.bottom_attack, 0.15, (64, 64), player, 0, 1)
                         self.last_dir = "down"
+                        player.health_value -= 20/60
                     else:
                         self.animation_attack(self.top_attack, 0.15, (64, 64), player, 0, -1)
                         self.last_dir = "up"
+                        player.health_value -= 20/60
 
             else:
                 # EVITEMENT avec hitbox
