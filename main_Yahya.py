@@ -876,6 +876,12 @@ def launch_game():
                                     sprite.knockback = True
                                     sprite.knockback_speed = 6
                                     sprite.knockback_direction = -1
+                        if isinstance(sprite, Tronc) and player.feet.colliderect(sprite.hitbox):
+                            if player.last_direction == "right" :
+                                if player.attack_box_right.colliderect(sprite.hitbox):
+                                    player.move_back()
+                        
+
 
     
                                     
