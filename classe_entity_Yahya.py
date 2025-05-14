@@ -501,15 +501,6 @@ class Slime(pygame.sprite.Sprite):
         """
         self.sprite_index += speed
         if self.sprite_index >=len(list_mouv):
-
-            if player.mana_value >= self.degats:
-                player.mana_value -= self.degats
-            else:
-                player.health_value += player.mana_value - self.degats
-                player.mana_value -= self.degats
-                    
-            if player.health_value < 0:
-                player.health_value = 0
             self.sprite_index = 0
         if self.sprite_index >=len(list_mouv)-3:
             player.knockback = True
@@ -566,10 +557,12 @@ class Slime(pygame.sprite.Sprite):
                         self.animation_attack(self.bottom_attack, 0.15, (64, 64), player, 0, 1)
                         self.last_dir = "down"
                         player.health_value -= 20/60
+                        print(player.health_value)
                     else:
                         self.animation_attack(self.top_attack, 0.15, (64, 64), player, 0, -1)
                         self.last_dir = "up"
                         player.health_value -= 20/60
+                        print(player.health_value)
 
             else:
                 # EVITEMENT avec hitbox

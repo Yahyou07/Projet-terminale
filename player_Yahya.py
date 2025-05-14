@@ -366,7 +366,7 @@ class Player(pygame.sprite.Sprite):
     def idle_right(self):
         self.animation(self.idle_right_mouv,0.15)
 
-    def affiche_ui(self):
+    def affiche_ui(self,map_layer):
         
         #Gestion affichage de la barre de vie selon la valeur de la vie
         if 0 < self.health_value <= 20:
@@ -456,6 +456,13 @@ class Player(pygame.sprite.Sprite):
         self.current_item = self.inventory_bar_list[self.inventory_index]
 
         pygame.draw.circle(self.screen, (125,125,125), (self.rect_button_book.x+20, self.rect_button_book.y+40), 40,2)
+        
+        #affichage des barres d'attaque au dessus du joueur
+        for i in range(self.max_attacks):
+            color = (0, 191, 255) if i < self.remaining_attacks else (100, 100, 100)
+            world_pos = (self.rect.centerx - 15 + i * 15, self.rect.top )
+            screen_pos = map_layer.translate_point(world_pos)
+            pygame.draw.rect(self.screen, color, (screen_pos[0], screen_pos[1], 30, 10),border_radius=3)
         # Affichage des bouttons sur le cote
         self.screen.blit(self.button_book,(self.screen.get_width()-80,200))
 

@@ -824,13 +824,14 @@ def launch_game():
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if show_inventory == False and player.dead == False and can_attack:
                     if player.remaining_attacks > 0:
-                        player.remaining_attacks -= 1
-                        player.attack_regen_timer = 0  # Reset du timer
+                        
                         # Animation attaque
                         if player.last_direction == "right":
                             player.start_anim_attack(player.attack_right_mouv, 0.3, 0)
                                 #Le joueur peut attaquer
                             player.is_attacking = True
+                            player.remaining_attacks -= 1
+                            player.attack_regen_timer = 0  # Reset du timer
                             
                             
                         if player.last_direction == "left":
@@ -838,6 +839,8 @@ def launch_game():
 
                             #Le joueur peut attaquer
                             player.is_attacking = True
+                            player.remaining_attacks -= 1
+                            player.attack_regen_timer = 0  # Reset du timer
                             
 
                         # Définir une direction de dash
@@ -1060,7 +1063,7 @@ def launch_game():
             if player.attack_regen_timer >= player.attack_regen_delay:
                 player.remaining_attacks += 1
                 player.attack_regen_timer = 0
-                
+
         #changement de la vitesse de coupe de l'arbre si l'on a une hache    
         if player.inventory_bar_list[player.inventory_index] != {}:
             if player.inventory_bar_list[player.inventory_index]['object'].type == "Hache":
@@ -1243,13 +1246,10 @@ def launch_game():
             player.dead = True # Si c'est le cas on met player.dead à zéro 
             group.remove(player) # on remove le joueur du group
                     
+        #affichage des UI 
+        player.affiche_ui(map_layer)
 
-        player.affiche_ui()
-        for i in range(player.max_attacks):
-            color = (255, 140, 0) if i < player.remaining_attacks else (100, 100, 100)
-            world_pos = (player.rect.centerx - 30 + i * 20, player.rect.top - 20)
-            screen_pos = map_layer.translate_point(world_pos)
-            pygame.draw.rect(screen, color, (screen_pos[0], screen_pos[1], 15, 10))
+        
 
         
         if show_inventory:
