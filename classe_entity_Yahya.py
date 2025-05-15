@@ -152,6 +152,8 @@ class PNJ(Entity):
     def activer_quete_choisie(self, index,current_quete):
         quete = self.choix_de_quetes[index]
         current_quete = quete
+        print("**la quete **")
+        print(current_quete.id)
         quete.active = True
 
         # Désactiver l’autre
@@ -205,9 +207,11 @@ class PNJ(Entity):
             
             if self.en_mode_choix and self.choix_de_quetes:
                 keys = pygame.key.get_pressed()
-                if keys[pygame.K_1]:
+                if keys[pygame.K_1] or keys[pygame.K_KP_1]:
                     self.activer_quete_choisie(0,current_quete)
-                elif keys[pygame.K_2]:
+
+
+                elif keys[pygame.K_2] or keys[pygame.K_KP_2]:
                     self.activer_quete_choisie(1,current_quete)
 
     def start_dialog(self, index=0):
