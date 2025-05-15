@@ -534,6 +534,7 @@ def charger_quete():
     if result:
         return graphe_quetes.nodes[result[0]]["quete"]
     return None
+
 # Fonction pour lancer le jeu 
 def launch_game():
     global tree_positions, graphe_quetes
@@ -701,10 +702,11 @@ def launch_game():
 
     
     def afficher_panneau_nouvelle_quete(quete):
-        nonlocal panneau_visible, panneau_y, panneau_target_y
+        nonlocal current_quete,panneau_visible, panneau_y, panneau_target_y
         nonlocal temps_depart_panneau, quete_affichee, affichage_etape
 
         print(" Panneau nouvelle quête :", quete.id)
+        current_quete = quete
         panneau_visible = True
         panneau_y = -200
         panneau_target_y = 50
@@ -713,6 +715,8 @@ def launch_game():
         affichage_etape = "nouvelle_quete"
 
     pnj1 = PNJ("Wizard",200,200,"pnj",screen,(50,50),pnj1_dialog,panneau_callback=afficher_panneau_nouvelle_quete)
+    pnj1.choix_de_quetes = [graphe_quetes.nodes["Q3"]["quete"], graphe_quetes.nodes["Q4"]["quete"]]
+    pnj1.restaurer_etat_quete()
     #On ajoute ici les PNJ
     group.add(pnj1, layer=2)
 
@@ -990,14 +994,11 @@ def launch_game():
                         active_pnj.CanDialog = not active_pnj.CanDialog
                         if active_pnj.CanDialog:
                             active_pnj.start_dialog(0)
+                            # Gérer la fin de la quête précédente (Q2)
                             q2 = graphe_quetes.nodes["Q2"]["quete"]
                             if q2.active and not q2.terminee:
                                 terminer_quete("Q2")
-                                
-                                # Récupérer manuellement les choix (Q3 et Q4)
-                                q3 = graphe_quetes.nodes["Q3"]["quete"]
-                                q4 = graphe_quetes.nodes["Q4"]["quete"]
-                                active_pnj.proposer_quetes([q3, q4])
+                            
                                
 
                 if event.key == pygame.K_SPACE:
@@ -1277,7 +1278,7 @@ def launch_game():
        
 
 
-        pnj1.updatee(dt,current_quete)
+        pnj1.updatee(dt)
         
         save_menu.update()
         chest1.anim_chest(group,near_chest)
@@ -1355,7 +1356,7 @@ def launch_game():
 
             if fondu_opacite <= 0:
                 fondu_actif = False
-
+        print(current_quete.id)
         pygame.display.update()
 
 if __name__ == "__main__":

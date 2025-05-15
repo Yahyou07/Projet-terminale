@@ -6,10 +6,8 @@ print("**fichier de dialogue**")
 
 # Dialogue initial (avant la fin de la quête)
 pnj1_dialog = [
-    "Salutations voyageur.",
-    "Je serais ton guide dans ce monde.",
-    "Le village a besoin de bois \n pour réchauffer les habitants.",
-    "Coupe le bois dans la forêt,\n bonne chance."
+    "Bonjour, aventurier.",
+    "J'ai deux missions pour toi. \n Écoute bien..."
 ]
 
 # Nouveau : dialogue **après** avoir terminé la quête

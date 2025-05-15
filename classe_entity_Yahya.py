@@ -136,8 +136,23 @@ class PNJ(Entity):
         self.parole = parole
         self.message_passer = "[ESPACE] pour passer"
         self.name_entity = self.font_dialog_box_name.render(self.name,True, (255, 255, 111))
-        self.entity_parole = self.font_dialog_box.render(self.parole[3],True, (255, 255, 111))
+        self.entity_parole = self.font_dialog_box.render(self.parole[0],True, (255, 255, 111))
         self.pass_message = self.font_dialog_box_pass.render(self.message_passer,True, (255, 255, 255))
+
+        self.quete_donnee = False #Boolen pour gérer si oui ou non une quete a été donnée
+        self.quete_attribuee = None  # Pour stocker la quête qui a été donnée
+    
+    def restaurer_etat_quete(self):
+        """
+        Appelée au lancement du jeu pour restaurer l’état du PNJ si une quête a déjà été donnée
+        """
+        if self.choix_de_quetes:
+            for quete in self.choix_de_quetes:
+                if quete.active and not quete.terminee:
+                    self.quete_donnee = True
+                    self.quete_attribuee = quete
+                    self.parole = [f"Bonne chance pour ta mission : {quete.nom} !"]
+ 
     def proposer_quetes(self, quetes):
         """
         Affiche un choix de quêtes au joueur dans le dialogue.
@@ -149,24 +164,32 @@ class PNJ(Entity):
         self.text_index = 0
         self.last_update_time = pygame.time.get_ticks()  
 
-    def activer_quete_choisie(self, index,current_quete):
+    def activer_quete_choisie(self, index):
+        """
+        Active la quête choisie par le joueur à partir des choix proposés par le PNJ.
+        Met à jour l'état du PNJ pour éviter de reproposer la même sélection.
+        """
         quete = self.choix_de_quetes[index]
-        current_quete = quete
-        print("**la quete **")
-        print(current_quete.id)
         quete.active = True
 
-        # Désactiver l’autre
+        # Désactiver l'autre quête du choix
         for i, q in enumerate(self.choix_de_quetes):
             if i != index:
                 q.terminee = True
                 q.active = False
 
-        # ✅ Appel du callback pour afficher le panneau
+        # ✅ Stocker la quête attribuée
+        self.quete_donnee = True
+        self.quete_attribuee = quete
+
+        # ✅ Modifier le dialogue pour les interactions futures
+        self.parole = [f"Bonne chance pour ta mission : {quete.nom} !"]
+
+        # ✅ Appel du callback pour afficher le panneau de quête
         if self.panneau_callback:
             self.panneau_callback(quete)
 
-        # Reset dialogue
+        # ✅ Réinitialisation de l'état de dialogue
         self.en_mode_choix = False
         self.choix_de_quetes = None
         self.CanDialog = False
@@ -174,7 +197,9 @@ class PNJ(Entity):
 
 
 
-    def updatee(self,dt,current_quete):
+
+
+    def updatee(self,dt):
         """
             Met à jour l'entité
         """
@@ -208,11 +233,11 @@ class PNJ(Entity):
             if self.en_mode_choix and self.choix_de_quetes:
                 keys = pygame.key.get_pressed()
                 if keys[pygame.K_1] or keys[pygame.K_KP_1]:
-                    self.activer_quete_choisie(0,current_quete)
+                    self.activer_quete_choisie(0)
 
 
                 elif keys[pygame.K_2] or keys[pygame.K_KP_2]:
-                    self.activer_quete_choisie(1,current_quete)
+                    self.activer_quete_choisie(1)
 
     def start_dialog(self, index=0):
         """
@@ -227,14 +252,17 @@ class PNJ(Entity):
         self.last_update_time = pygame.time.get_ticks()
         
     def next_dialog(self):
-        """
-            Passe à la phrase suivante du dialogue
-        """
         if self.current_parole_index + 1 < len(self.parole):
             self.current_parole_index += 1
             self.start_dialog(self.current_parole_index)
         else:
-            self.CanDialog = False  # Plus de texte = fermer la boîte
+            if not self.quete_donnee and self.choix_de_quetes:
+                # Si c’est la fin du dialogue et que les choix doivent être proposés
+                self.en_mode_choix = True
+                self.proposer_quetes(self.choix_de_quetes)
+            else:
+                self.CanDialog = False  # Fin de dialogue classique
+
             
 
 
