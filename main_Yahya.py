@@ -716,7 +716,7 @@ def launch_game():
 
     pnj1 = PNJ("Wizard",200,200,"pnj",screen,(50,50),pnj1_dialog,panneau_callback=afficher_panneau_nouvelle_quete)
     pnj1.choix_de_quetes = [graphe_quetes.nodes["Q3"]["quete"], graphe_quetes.nodes["Q4"]["quete"]]
-    pnj1.restaurer_etat_quete()
+    
     #On ajoute ici les PNJ
     group.add(pnj1, layer=2)
 
@@ -820,6 +820,8 @@ def launch_game():
     
     while running:
         dt = mainClock.tick(60) / 1000  # Temps écoulé en secondes
+
+        #Lancement de la cinématique
         if cinematique:
             moving = False
             # Centre sur une position décalée progressivement vers le joueur
@@ -832,9 +834,10 @@ def launch_game():
             if camera_y_offset <= 0:
                 cinematique = False  # Fin de l'animation
                 # Lancer l'affichage de la quête d'intro au début du jeu
-                quete_affichee = charger_quete()
+                quete_affichee = charger_quete() #On charge la quête enregistrer dans la base de donnée à l'aide de la fonction charger_quete()
                 quete_affichee.active = True
-                current_quete = graphe_quetes.nodes[quete_affichee.id]["quete"]
+                current_quete = graphe_quetes.nodes[quete_affichee.id]["quete"] #on stocke ici la quête en cours
+                pnj1.restaurer_etat_quete() #On restaure la quete qui a été faite afin de ne pas retomber sur le dialogue de proposition du pnj enn cas d'interaction avec lui
                 panneau_visible = True
                 panneau_y = -200
                 panneau_target_y = 50

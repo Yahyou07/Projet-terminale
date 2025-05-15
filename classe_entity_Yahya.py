@@ -144,14 +144,19 @@ class PNJ(Entity):
     
     def restaurer_etat_quete(self):
         """
-        Appelée au lancement du jeu pour restaurer l’état du PNJ si une quête a déjà été donnée
+        Appelée au lancement du jeu pour restaurer l’état du PNJ
+        si une des quêtes de choix est déjà active.
         """
         if self.choix_de_quetes:
             for quete in self.choix_de_quetes:
                 if quete.active and not quete.terminee:
                     self.quete_donnee = True
                     self.quete_attribuee = quete
-                    self.parole = [f"Bonne chance pour ta mission : {quete.nom} !"]
+                    self.parole = [f"Bonne chance pour ta mission : \n {quete.nom}. \n   Je compte sur toi!"]
+                    self.en_mode_choix = False
+                    self.choix_de_quetes = None
+                    break  # ← On s'arrête dès qu'on trouve une quête déjà active
+
  
     def proposer_quetes(self, quetes):
         """
@@ -183,7 +188,7 @@ class PNJ(Entity):
         self.quete_attribuee = quete
 
         # ✅ Modifier le dialogue pour les interactions futures
-        self.parole = [f"Bonne chance pour ta mission : {quete.nom} !"]
+        self.parole = [f"Bonne chance pour ta mission : \n {quete.nom}. \n   Je compte sur toi!"]
 
         # ✅ Appel du callback pour afficher le panneau de quête
         if self.panneau_callback:
@@ -258,7 +263,7 @@ class PNJ(Entity):
         else:
             if not self.quete_donnee and self.choix_de_quetes:
                 # Si c’est la fin du dialogue et que les choix doivent être proposés
-                self.en_mode_choix = True
+                #self.en_mode_choix = True
                 self.proposer_quetes(self.choix_de_quetes)
             else:
                 self.CanDialog = False  # Fin de dialogue classique
