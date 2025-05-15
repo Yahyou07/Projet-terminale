@@ -1243,7 +1243,7 @@ def launch_game():
                 player.move_back()
                 
                 
-        
+        print(current_quete.id)
         #On reférifie si la vie est en dessous de 0 
         if player.health_value < 0:
             player.health_value = 0 # Si c'est le cas on remet la vie à zéro
