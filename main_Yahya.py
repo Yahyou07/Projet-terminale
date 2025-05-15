@@ -998,6 +998,7 @@ def launch_game():
                                 q3 = graphe_quetes.nodes["Q3"]["quete"]
                                 q4 = graphe_quetes.nodes["Q4"]["quete"]
                                 active_pnj.proposer_quetes([q3, q4])
+                               
 
                 if event.key == pygame.K_SPACE:
                     if active_pnj and active_pnj.CanDialog:
@@ -1174,7 +1175,7 @@ def launch_game():
                     active_pnj = sprite  # ← Le PNJ actif devient celui détecté
                     world_pos = (player.rect.centerx , player.rect.top - 10)
                     screen_pos = map_layer.translate_point(world_pos)
-                    screen.blit(player.key_board_I, (screen_pos[0]-23, screen_pos[1]+10))
+                    screen.blit(player.key_board_I, (screen_pos[0]-23, screen_pos[1]+30))
                 else:
                     if active_pnj == sprite:
                         sprite.CanDialog = False   # On FERME la boîte de dialogue
@@ -1242,8 +1243,7 @@ def launch_game():
             if player.feet.colliderect(rect):
                 player.move_back()
                 
-                
-        print(current_quete.id)
+
         #On reférifie si la vie est en dessous de 0 
         if player.health_value < 0:
             player.health_value = 0 # Si c'est le cas on remet la vie à zéro
@@ -1284,7 +1284,8 @@ def launch_game():
         
         
         pnj1.idle()
-        
+
+        #gestion de l'affichage du panneau 
         if panneau_visible:
             
 
@@ -1329,7 +1330,7 @@ def launch_game():
             
 
 
-       
+        #affichage des stats génerale du jeu : (FPS, pos_x,pox_y)
         if Show_stats:
             fps = int(mainClock.get_fps())
             fps_text = fps_font.render(f"FPS : {fps}", True, (255, 255, 0))
@@ -1338,10 +1339,12 @@ def launch_game():
             screen.blit(fps_text, (800, 10))
             screen.blit(x_position,(900,10))
             screen.blit(y_position,(900,50))
+        #gestion du fondu lors du début du jeu 
         if fondu_opacite <= 0 and camera_y_offset <= 0:
             cinematique = False
             fondu_actif = False
             moving = True
+        #lorsqu'on quitte le jeu on passe sur le menu principal
         if save_menu.running == False:
             main_menu()
         # ---- Fondu noir de début ----
