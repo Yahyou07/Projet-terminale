@@ -16,6 +16,13 @@
             "scaleInDock": 1.5,
             "scaleInEditor": 1
         },
+        "houses.tsx": {
+            "scaleInEditor": 1
+        },
+        "lage.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
         "mais.tsx": {
             "scaleInDock": 1,
             "scaleInEditor": 1
@@ -32,6 +39,10 @@
             "scaleInDock": 1,
             "scaleInEditor": 1
         },
+        "maisonnn.tsx": {
+            "scaleInDock": 1.5,
+            "scaleInEditor": 1
+        },
         "map_test.tmx": {
             "expandedObjectLayers": [
                 2
@@ -39,16 +50,16 @@
             "scale": 0.33,
             "selectedLayer": 2,
             "viewCenter": {
-                "x": 903.0303030303032,
-                "y": 343.939393939394
+                "x": 933.3333333333333,
+                "y": 359.090909090909
             }
         },
         "maps.tmx": {
-            "scale": 8,
-            "selectedLayer": 5,
+            "scale": 2,
+            "selectedLayer": 2,
             "viewCenter": {
-                "x": 1604.375,
-                "y": 1620.4375
+                "x": 172,
+                "y": 193.75
             }
         },
         "murs.tsx": {
@@ -73,14 +84,14 @@
         },
         "water2.tsx": {
             "scaleInDock": 0.125,
-            "scaleInEditor": 0.75
+            "scaleInEditor": 1
         },
         "water_ex.tsx": {
             "scaleInDock": 1.5,
             "scaleInEditor": 1
         }
     },
-    "last.imagePath": "C:/Users/Bloc/Downloads",
+    "last.imagePath": "C:/Users/Bloc/Documents/Projet NSI terminale/Projet-terminale/maps/TileSet image",
     "map.height": 100,
     "map.lastUsedFormat": "tmx",
     "map.tileHeight": 16,
@@ -101,18 +112,18 @@
     ],
     "project": "Projet_jeu_RPG.tiled-project",
     "recentFiles": [
-        "maps.tmx",
+        "map_test.tmx",
+        "lage.tsx",
+        "houses.tsx",
+        "maisonnn.tsx",
+        "maison.tsx",
+        "water2.tsx",
+        "water_ex.tsx",
+        "ombre plant.tsx",
+        "plants.tsx",
         "grass.tsx",
         "objects.tsx",
-        "murs.tsx",
-        "escaliers.tsx",
-        "plants.tsx",
-        "ombre plant.tsx",
-        "ombres.tsx",
-        "water_ex.tsx",
-        "water2.tsx",
-        "mais.tsx",
-        "maison.tsx"
+        "murs.tsx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {

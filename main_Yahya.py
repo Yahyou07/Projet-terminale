@@ -40,8 +40,8 @@ from objects_Yahya import *
 from random import *
 pygame.init()
 pygame.key.set_repeat(400, 20)  # délai initial 400ms, puis 40ms entre répétitions
-pygame.display.set_caption("Jeu")
-from scripte.save_game import*
+pygame.display.set_caption("The Last Heir")
+from scripte.save_game_yahya import*
 from classe_enemy_Yahya import *
 from scripte.pnj import *
 import pygame
@@ -94,7 +94,7 @@ def verification(username,password):
     message_erreur = font.render("Identifiant/Mot de passe invalide", True, (255, 0, 0))
 
     # Connexion à la base de données SQLite
-    conn = sqlite3.connect('database/data.db')
+    conn = sqlite3.connect('database/data_yahya.db')
     cursor = conn.cursor()
 
     # Requête pour vérifier si le nom d'utilisateur et le mot de passe existent dans la table "users"
@@ -134,7 +134,7 @@ def create_account(username,password,confirm_password):
         print("rien")
         return
     
-    conn = sqlite3.connect('database/data.db')
+    conn = sqlite3.connect('database/data_yahya.db')
     cursor = conn.cursor()
     # Requête pour vérifier si le nom d'utilisateur existe déjà dans la table "users"
     cursor.execute('''SELECT pseudo FROM Login WHERE pseudo=?;''', (username,))
@@ -155,7 +155,7 @@ def create_account(username,password,confirm_password):
     if username != "" and password != "" and confirm_password != "" and result == [] :
         if password == confirm_password:
             # Connexion à la base de données SQLite
-            conn = sqlite3.connect('database/data.db')
+            conn = sqlite3.connect('database/data_yahya.db')
             cursor = conn.cursor()
             # Requête pour stocker le nom d'utilisateur et le mot de passe dans la table "users"
             cursor.execute('''INSERT INTO Login (pseudo,password,pos_x,pos_y,health,mana,endurance,level,current_quete) values (?,?,?,?,100,0,100,0,?) ''',(username,password,player_position.x,player_position.y,id_quete_deBase))
@@ -526,7 +526,7 @@ def main_menu():
 
 def charger_quete():
     # Connexion à la base de données
-    conn = sqlite3.connect('database/data.db')
+    conn = sqlite3.connect('database/data_yahya.db')
     cursor = conn.cursor()
     # Requête pour récupérer la position du joueur
     cursor.execute('''SELECT current_quete FROM Login WHERE pseudo = ?;''', (username,))
@@ -554,7 +554,7 @@ def launch_game():
 
 
     # Connexion à la base de données
-    conn = sqlite3.connect('database/data.db')
+    conn = sqlite3.connect('database/data_yahya.db')
     cursor = conn.cursor()
     # Requête pour récupérer la position du joueur
     cursor.execute('''SELECT pos_x,pos_y FROM Login WHERE pseudo = ?;''', (username,))
