@@ -62,7 +62,7 @@ q2 = Quete("Q2", "Trouver le guide", "Trouver le guide dans le bois.")
 
 q3 = Quete("Q3", "Ramasser du bois", "Ramasser 10 buches dans la forêt.")
 q4 = Quete("Q4","Récupérer des pommes","Ramasser 5 pommes dans la foret.")
-q5 = Quete("Q5","Retrouver le vieux guide","Retrouver le vieux le guide.")
+q5 = Quete("Q5","Retrouver le vieux guide","Retrouver le vieux guide.")
 
 # Ajout des nœuds avec attributs
 graphe_quetes.add_node("Q1", quete=q1)
@@ -800,11 +800,34 @@ def launch_game():
             
             if count_buche == 10 :
                 terminer_quete("Q3")
+                pnj1.parole = ["Merci d'avoir ramassé les 10 bûches !", "Tu as prouvé ta valeur en rendant\n service à un viel homme comme moi.","Je t'en suis reconnaisant.", "Pour te remercier, voila quelque chose\n qui te sera utile pour ton aventure.","Adieu ..."]
                 # Récupérer le successeur de Q3 (s'il existe)
                 suivants = list(graphe_quetes.successors("Q3"))
                 if suivants:
                     current_quete = graphe_quetes.nodes[suivants[0]]["quete"]
+    def accomplissement_quete4():
+        nonlocal current_quete
+        quete3 = graphe_quetes.nodes["Q4"]["quete"]
 
+        if quete3.active and not quete3.terminee:
+            # Compter les "buche1" dans l'inventaire et la barre d'inventaire
+            count_apple = 0
+            # Inventaire principal
+            for item in player.inventory_list:
+                if item and getattr(item, 'name', '') == "apple":
+                    count_apple += slot['quantity']
+            # Barre d'inventaire rapide
+            for slot in player.inventory_bar_list:
+                if slot and 'object' in slot and getattr(slot['object'], 'name', '') == "apple":
+                    count_apple += slot['quantity']
+            
+            if count_apple == 5 :
+                terminer_quete("Q4")
+                pnj1.parole = ["Merci d'avoir ramassé les 5 pommes !", "Tu as prouvé ta valeur en rendant\n service à un viel homme comme moi.","Je t'en suis reconnaisant.", "Pour te remercier, voila quelque chose\n qui te sera utile pour ton aventure.","Adieu ..."]
+                # Récupérer le successeur de Q3 (s'il existe)
+                suivants = list(graphe_quetes.successors("Q3"))
+                if suivants:
+                    current_quete = graphe_quetes.nodes[suivants[0]]["quete"]
     # Paramètres la progression du cercle pour le "manger"
     fill_time = 3.0  # Durée du remplissage
     fill_time_cut = 11
@@ -1290,7 +1313,10 @@ def launch_game():
         #gestion de l'accomplissement des quêtes sans avoir besoin de rencontrer une entité
 
         # On gère ici l'accomplissment de la quete 3 
-        idjjjjjjjjjjjsxxxxçççç_______()
+        accomplissement_quete3()
+        accomplissement_quete4()
+
+
         #affichage des UI 
         player.affiche_ui(map_layer)
 
