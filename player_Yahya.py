@@ -2,6 +2,9 @@
 import pygame
 import math
 import time
+import sqlite3
+from items import Item
+
 class Player(pygame.sprite.Sprite): 
     def __init__(self,pos_x,pos_y,screen):
         super().__init__()  # Initialisation du sprite
@@ -888,4 +891,63 @@ class Player(pygame.sprite.Sprite):
                     self.stack_text[index] = self.font.render(str(item["quantity"]), True, (255, 255, 255))
                 print(f"Mange {item['object'].name}. Quantite restante: {item['quantity']}")
 
+    def recup_inventory(self,pseudo : str):
+        """
+            Méthode permettant de récupérer l'inventaire du joueur dans la base de données
+            et de le stocker dans les attributs de la classe Player.
+            Paramètre :
+                - pseudo : le pseudo du joueur
+        """
+        assert pseudo != "", "Le pseudo ne peut pas être vide"
+        assert type(pseudo) == str, "Le pseudo doit être une chaîne de caractères"
+
+        i = 0
+        while i <= 40:
+            i += 1
+            # Connexion à la base de données
+            connexion = sqlite3.connect("database.db")
+            curseur = connexion.cursor()
+            # Récupérer les données de l'inventaire du joueur
+            curseur.execute('''select item.name from Slot inner join Item on Slot.id_item = Item.id where pseudo = ? and Slot.num_case = ?''',(pseudo,i))
+            result = curseur.fetchone()
+            if result and result[0] != "Null":
+                # Récupérer le nom de l'item
+                item_name = result[0]
+                # Créer une instance de l'item
+                item = Item(item_name)
+                # Ajouter l'item à l'inventaire
+                self.add_to_inventory(item)
+            pass
+
     
+    def recup_stuff(self,pseudo: str):
+        """
+            Méthode permettant de récupérer le stuff du joueur dans la base de données
+            et de le stocker dans les attributs de la classe Player.
+            Paramètre :
+                - pseudo : le pseudo du joueur
+        """
+        assert pseudo != "", "Le pseudo ne peut pas être vide"
+        assert type(pseudo) == str, "Le pseudo doit être une chaîne de caractères"
+        # Connexion à la base de données
+        connexion = sqlite3.connect("database.db")
+        curseur = connexion.cursor()
+
+        # Récupérer les données du Stuff du joueur
+        curseur.execute(''''select casque,plastron,jambiere,bottes from Stuff where pseudo = ?''',(pseudo,))
+
+        # récupératio du résultat
+        result = curseur.fetchone()
+        self.casque = result[0]
+        self.plastron = result[1]
+        self.jambiere = result[2]
+        self.bottes = result[3]
+        # Vérifier si la requête a renvoyé un résultat
+        if result and self.casque != "Null" and self.plastron != "Null" and self.jambiere != "Null" and self.bottes != "Null":
+            self.armour_list[0] = self.casque
+            self.armour_list[1] = self.plastron
+            self.armour_list[2] = self.jambiere
+            self.armour_list[3] = self.bottes
+        
+
+            
