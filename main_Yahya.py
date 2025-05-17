@@ -620,7 +620,7 @@ def launch_game():
     group.add(item2)
     group.add(item3)
 
-    group.add(gobelin1, layer=2)
+   
 
     #On ajoute ici le coffre
     group.add(chest1,layer = 2)
@@ -630,7 +630,7 @@ def launch_game():
     #On ajoute ici les gobelins
     #group.add(pnj2, layer = 2)
 
-    group.add(slime1 ,layer = 4)
+    
     troncs = []
     for x, y in tree_positions:
         feuillage = Feuillage(x, y)
@@ -862,7 +862,7 @@ def launch_game():
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if show_inventory == False and player.dead == False and can_attack:
                     if player.remaining_attacks > 0:
-                        print(current_quete.id)
+                        
                         # Animation attaque
                         if player.last_direction == "right":
                             player.start_anim_attack(player.attack_right_mouv, 0.3, 0)
@@ -990,7 +990,6 @@ def launch_game():
                         if quete.active and not quete.terminee:
                             terminer_quete("Q1")
                             current_quete = graphe_quetes.nodes["Q2"]["quete"]
-                            print(affichage_etape)
                             
                         
                     elif active_pnj:  # ← Si on a un PNJ actif
@@ -1088,6 +1087,9 @@ def launch_game():
                 fill_time_cut = 8
         near_chest = None  # Reset à chaque frame
         
+
+        
+
         for sprite in group.sprites():
             if show_inventory == False:
                 if isinstance(sprite, Tronc) and player.hit_box.colliderect(sprite.hitbox):
@@ -1289,7 +1291,7 @@ def launch_game():
         
         pnj1.idle()
 
-        #gestion de l'affichage du panneau 
+        #gestion de l'affichage des panneau des quête
         if panneau_visible:
             
 
@@ -1359,7 +1361,7 @@ def launch_game():
 
             if fondu_opacite <= 0:
                 fondu_actif = False
-        print(current_quete.id)
+        
         pygame.display.update()
 
 if __name__ == "__main__":

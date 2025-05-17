@@ -32,12 +32,23 @@
             "scaleInDock": 1,
             "scaleInEditor": 1
         },
-        "maps.tmx": {
-            "scale": 1.5,
-            "selectedLayer": 4,
+        "map_test.tmx": {
+            "expandedObjectLayers": [
+                2
+            ],
+            "scale": 0.33,
+            "selectedLayer": 2,
             "viewCenter": {
-                "x": 338.3333333333333,
-                "y": 295.66666666666663
+                "x": 903.0303030303032,
+                "y": 343.939393939394
+            }
+        },
+        "maps.tmx": {
+            "scale": 8,
+            "selectedLayer": 5,
+            "viewCenter": {
+                "x": 1604.375,
+                "y": 1620.4375
             }
         },
         "murs.tsx": {
@@ -69,7 +80,7 @@
             "scaleInEditor": 1
         }
     },
-    "last.imagePath": "C:/Users/Bloc/Documents/Projet NSI terminale/Projet-terminale/maps/TileSet image",
+    "last.imagePath": "C:/Users/Bloc/Downloads",
     "map.height": 100,
     "map.lastUsedFormat": "tmx",
     "map.tileHeight": 16,
