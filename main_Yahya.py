@@ -61,20 +61,22 @@ q1 = Quete("Q1", "Trouver le coffre", "Suivez le chemin et trouvez le coffre.")
 q2 = Quete("Q2", "Trouver le guide", "Trouver le guide dans le bois.")
 
 q3 = Quete("Q3", "Ramasser du bois", "Ramasser 10 buches dans la forêt.")
-q4 = Quete("Q4","Récupérer des pommes","Ramasser 5 pommes dans la foret")
-
+q4 = Quete("Q4","Récupérer des pommes","Ramasser 5 pommes dans la foret.")
+q5 = Quete("Q5","Retrouver le vieux guide","Retrouver le vieux le guide.")
 
 # Ajout des nœuds avec attributs
 graphe_quetes.add_node("Q1", quete=q1)
 graphe_quetes.add_node("Q2", quete=q2)
 graphe_quetes.add_node("Q3", quete=q3)
 graphe_quetes.add_node("Q4",quete = q4)
+graphe_quetes.add_node("Q5",quete = q5)
 
 # Ajout des relations (choix ou dépendances)
 graphe_quetes.add_edge("Q1", "Q2")  # Après Q1, Q2 est possible
 graphe_quetes.add_edge("Q2", "Q3",choix=True)  # Après Q2, Q3 est possible
 graphe_quetes.add_edge("Q2","Q4",choix=True)     # Après Q2, Q4 est possible
-
+graphe_quetes.add_edge("Q3","Q5")
+graphe_quetes.add_edge("Q4","Q5")
 
 #variable username utilisé pour stocké le pseudo du joueur
 username = ""
@@ -780,7 +782,28 @@ def launch_game():
             elif player.last_direction == "left":
                 player.idle_left()
 
-    
+    def accomplissement_quete3():
+        nonlocal current_quete
+        quete3 = graphe_quetes.nodes["Q3"]["quete"]
+
+        if quete3.active and not quete3.terminee:
+            # Compter les "buche1" dans l'inventaire et la barre d'inventaire
+            count_buche = 0
+            # Inventaire principal
+            for item in player.inventory_list:
+                if item and getattr(item, 'name', '') == "buche1":
+                    count_buche += slot['quantity']
+            # Barre d'inventaire rapide
+            for slot in player.inventory_bar_list:
+                if slot and 'object' in slot and getattr(slot['object'], 'name', '') == "buche1":
+                    count_buche += slot['quantity']
+            
+            if count_buche == 10 :
+                terminer_quete("Q3")
+                # Récupérer le successeur de Q3 (s'il existe)
+                suivants = list(graphe_quetes.successors("Q3"))
+                if suivants:
+                    current_quete = graphe_quetes.nodes[suivants[0]]["quete"]
 
     # Paramètres la progression du cercle pour le "manger"
     fill_time = 3.0  # Durée du remplissage
@@ -1229,7 +1252,7 @@ def launch_game():
 
             
 
-        # Si knockback est actif
+        # On gère ici le recul du personnage
         if player.knockback:
             player.rect.x += player.knockback_direction * player.knockback_speed
             player.hit_box.x += player.knockback_direction * player.knockback_speed
@@ -1262,7 +1285,12 @@ def launch_game():
         if player.health_value == 0:
             player.dead = True # Si c'est le cas on met player.dead à zéro 
             group.remove(player) # on remove le joueur du group
-                    
+
+
+        #gestion de l'accomplissement des quêtes sans avoir besoin de rencontrer une entité
+
+        # On gère ici l'accomplissment de la quete 3 
+        idjjjjjjjjjjjsxxxxçççç_______()
         #affichage des UI 
         player.affiche_ui(map_layer)
 
