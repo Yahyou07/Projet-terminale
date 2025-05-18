@@ -901,23 +901,42 @@ class Player(pygame.sprite.Sprite):
         assert pseudo != "", "Le pseudo ne peut pas être vide"
         assert type(pseudo) == str, "Le pseudo doit être une chaîne de caractères"
 
-        i = 0
-        while i <= 40:
-            i += 1
+        for i in range(40):
             # Connexion à la base de données
-            connexion = sqlite3.connect("database.db")
+            connexion = sqlite3.connect("database/data.db")
             curseur = connexion.cursor()
             # Récupérer les données de l'inventaire du joueur
-            curseur.execute('''select item.name from Slot inner join Item on Slot.id_item = Item.id where pseudo = ? and Slot.num_case = ?''',(pseudo,i))
+            curseur.execute('''select Item.name,Item.type,Item.stack_max,Item.regen from Item inner join Slot on Slot.id_item = Item.id where pseudo = ? and Slot.num_case = ?''',(pseudo,i))
             result = curseur.fetchone()
+            # Vérifier si la requête a renvoyé un résultat
             if result and result[0] != "Null":
-                # Récupérer le nom de l'item
+                # Récupérer les données de l'item
                 item_name = result[0]
-                # Créer une instance de l'item
-                item = Item(item_name)
-                # Ajouter l'item à l'inventaire
+                item_type = result[1]
+                item_stack_max = result[2]
+                item_regen = result[3]
+
+                # Créer un objet Item
+                item = Item(item_name, item_stack_max,item_regen,0,0,item_type)
+                item.icon = pygame.image.load(f"Items/{item_name}.png")
+
+                # ajout de l'item à l'inventaire
                 self.add_to_inventory(item)
-            pass
+                """
+                # Mettre à jour l'inventaire du joueur
+                if i <= 10:
+                    self.inventory_bar_list[i-1] = {'name': item.name,'object':item ,'quantity': 1,'icon':item.icon}
+                    self.inventory_icons[i-1] = item.icon
+                    self.stack_text[i-1] = self.font.render("1", True, (255, 255, 255))
+                else:
+                    row = (i - 11) // 6
+                    col = (i - 11) % 6
+                    self.inventory_list[row][col] = {'name': item.name,'object':item ,'quantity': 1,'icon':item.icon}
+                    self.inventory_bag_icon[row][col] = item.icon
+                    self.inventory_bag_stack_text[row][col] = self.font.render("1", True, (255, 255, 255))"""
+                
+
+            
 
     
     def recup_stuff(self,pseudo: str):
@@ -930,14 +949,53 @@ class Player(pygame.sprite.Sprite):
         assert pseudo != "", "Le pseudo ne peut pas être vide"
         assert type(pseudo) == str, "Le pseudo doit être une chaîne de caractères"
         # Connexion à la base de données
-        connexion = sqlite3.connect("database.db")
+        connexion = sqlite3.connect("database/data.db")
         curseur = connexion.cursor()
-
-        # Récupérer les données du Stuff du joueur
         curseur.execute(''''select casque,plastron,jambiere,bottes from Stuff where pseudo = ?''',(pseudo,))
-
         # récupératio du résultat
         result = curseur.fetchone()
+        curseur.close()
+        connexion.close()
+        if result is None:
+            print("Aucun stuff trouvé pour ce pseudo.")
+            return
+        else : 
+            stuff = ["casque","plastron","jambiere","bottes"]
+        
+            for armure in stuff:
+                # Récupérer les données de l'armure
+                curseur.execute('''select Item.name,Item.stack_max,Item.regen,Item.type from Item inner join Stuff on Stuff.{} = Item.id where Stuff.pseudo = {}'''.format(armure,pseudo))
+                result = curseur.fetchone()
+                # Vérifier si la requête a renvoyé un résultat
+                if result and result[0] != "Null":
+                    # Récupérer les données de l'item
+                    item_name = result[0]
+                    item_type = result[1]
+                    item_stack_max = result[2]
+                    item_regen = result[3]
+
+                    # Créer un objet Item
+                    item = Item(item_name, item_stack_max,item_regen,0,0,item_type)
+                    item.icon = pygame.image.load(f"Items/{item_name}.png")
+                    self.armour_icon_list[stuff.index(armure)] = item.icon
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        """
+        
         self.casque = result[0]
         self.plastron = result[1]
         self.jambiere = result[2]
@@ -949,5 +1007,5 @@ class Player(pygame.sprite.Sprite):
             self.armour_list[2] = self.jambiere
             self.armour_list[3] = self.bottes
         
-
+        """
             

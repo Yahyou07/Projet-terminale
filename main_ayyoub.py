@@ -525,6 +525,7 @@ def launch_game():
     result = cursor.fetchone()
     position_player = result
     player = Player(position_player[0],position_player[1], screen)  # Positionner le joueur
+    player.recup_inventory(username)
 
     save_menu = Save_game(screen)
     chest_position = tmx_data.get_object_by_name("coffre1")
@@ -545,6 +546,7 @@ def launch_game():
     item = Item("pain", 24, 30, 352, 350, "Food")
     item2 = Item("plastron", 1, 10, 300, 450, "Plastron")
     item3 = Item("casque", 1, 10, 500, 270, "Casque")
+    
 
 
 
@@ -1038,7 +1040,7 @@ def launch_game():
             group.remove(player) # on remove le joueur du group
                     
 
-        player.affiche_ui()
+        player.affiche_ui(map_layer=1)
         
         if show_inventory:
             player.display_inventory()  # On appelle la méthode display_inventory pour afficher l'inventaire
