@@ -60,11 +60,11 @@
             }
         },
         "maps.tmx": {
-            "scale": 3,
-            "selectedLayer": 2,
+            "scale": 1,
+            "selectedLayer": 3,
             "viewCenter": {
-                "x": 135.33333333333331,
-                "y": 132.83333333333331
+                "x": 721,
+                "y": 558.5
             }
         },
         "murs.tsx": {
@@ -72,7 +72,7 @@
             "scaleInEditor": 1
         },
         "objects.tsx": {
-            "scaleInDock": 1,
+            "scaleInDock": 2,
             "scaleInEditor": 1
         },
         "ombre plant.tsx": {

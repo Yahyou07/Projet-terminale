@@ -546,7 +546,7 @@ def charger_inventaire(username):
     donnees = cursor.fetchall()
     
     inventaire = [{}]*10  # 10 slots
-    icones = [pygame.image.load(f"Items/slot.png")]*10  # Remplacez par vos icônes de slot
+    icones = [pygame.image.load(f"Items/slot.png")]*10 
     stack = [font.render("", True, (255, 255, 255))]*10
 
     for slot_index, nom_item, quantite in donnees:
@@ -557,7 +557,7 @@ def charger_inventaire(username):
                 "name": nom_item,
                 "object": item,
                 "quantity": quantite,
-                "icon": item.icon  # supposé généré à l'init de Item
+                "icon": item.icon  
             }
             icones[slot_index] = item.icon
             stack[slot_index] = font.render(str(quantite), True, (255, 255, 255))
@@ -593,6 +593,37 @@ def charger_inventaire_principal(username):
     
     conn.close()
     return inventaire_principal, icones_principal, stack_principal
+#fonction permettant de charger le stuff du joueur
+def charger_stuff(username):
+    global font
+    # Connexion à la base de données
+    conn = sqlite3.connect('database/data_yahya.db')
+    cursor = conn.cursor()
+    # Requête pour récupérer les données de l'inventaire
+    cursor.execute("SELECT slot_index, item_name, quantity FROM Stuff WHERE pseudo = ?", (username,))
+    donnees = cursor.fetchall()
+    
+    stuff = [{}]*4  # 4 slots
+    stuff_icones = [pygame.image.load(f"Items/slot.png")]*4  
+    stuff_stack = [font.render("", True, (255, 255, 255))]*4
+
+    for slot_index, nom_item, quantite in donnees:
+        item = charger_item_depuis_nom(conn, nom_item)
+        if item:
+            print(slot_index)
+            stuff[slot_index] = {
+                "name": nom_item,
+                "object": item,
+                "quantity": quantite,
+                "icon": item.icon  
+            }
+            stuff_icones[slot_index] = item.icon
+            
+        else : 
+            stuff[slot_index] = {}
+            stuff_icones[slot_index] = pygame.image.load(f"Items/slot.png")
+            
+    return stuff, stuff_icones
 
 def charger_quete():
     # Connexion à la base de données
@@ -942,9 +973,13 @@ def launch_game():
                 # Lancer l'affichage de la quête d'intro au début du jeu
                 quete_affichee = charger_quete() #On charge la quête enregistrer dans la base de donnée à l'aide de la fonction charger_quete()
                 
-                #On charge ici l'inventaire du joueur
+                # On charge ici la barre d'inventaire du joueur
                 player.inventory_bar_list,player.inventory_icons,player.stack_text = charger_inventaire(username)
+                # On charge ici l'inventaire du joueur
                 player.inventory_list,player.inventory_bag_icon,inventory_bag_stack_text = charger_inventaire_principal(username)
+                # On charge ici le stuff du joueur
+                player.armour_list,player.armour_icon_list = charger_stuff(username)
+
                 quete_affichee.active = True
                 current_quete = graphe_quetes.nodes[quete_affichee.id]["quete"] #on stocke ici la quête en cours
                 pnj1.restaurer_etat_quete() #On restaure la quete qui a été faite afin de ne pas retomber sur le dialogue de proposition du pnj enn cas d'interaction avec lui
@@ -1088,7 +1123,7 @@ def launch_game():
 
             player.handle_key_events(event)
 
-            save_menu.handle_event(event,username,player.level,player.rect.x,player.rect.y,player.health_value,player.mana_value,player.endurance_value,current_quete.id,player.inventory_bar_list,player.inventory_list)
+            save_menu.handle_event(event,username,player.level,player.rect.x,player.rect.y,player.health_value,player.mana_value,player.endurance_value,current_quete.id,player.inventory_bar_list,player.inventory_list,player.armour_list)
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_i:

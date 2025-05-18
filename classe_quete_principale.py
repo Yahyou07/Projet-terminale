@@ -10,16 +10,16 @@ cursor = conn.cursor()
 
 # Création de la table Inventaire
 cursor.execute("""
-
-CREATE TABLE IF NOT EXISTS InventairePrincipal (
+CREATE TABLE IF NOT EXISTS Stuff (
     pseudo TEXT,
-    row INTEGER,
-    col INTEGER,
+    slot_index INTEGER,
     item_name TEXT,
     quantity INTEGER,
-    PRIMARY KEY (pseudo, row, col),
-    FOREIGN KEY (pseudo) REFERENCES Login(pseudo)
+    PRIMARY KEY (pseudo, slot_index),
+    FOREIGN KEY (pseudo) REFERENCES Login(pseudo),
+    FOREIGN KEY (item_name) REFERENCES Item(name)
 );
+
 """)
 
 
