@@ -566,7 +566,7 @@ def charger_inventaire(username):
             icones[slot_index] = pygame.image.load(f"Items/slot.png")
             stack[slot_index] = font.render("", True, (255, 255, 255))
     return inventaire, icones, stack
-
+# Fonction qui charge l'inventaire principal
 def charger_inventaire_principal(username):
     global font
     conn = sqlite3.connect('database/data_yahya.db')
@@ -593,6 +593,7 @@ def charger_inventaire_principal(username):
     
     conn.close()
     return inventaire_principal, icones_principal, stack_principal
+
 #fonction permettant de charger le stuff du joueur
 def charger_stuff(username):
     global font
