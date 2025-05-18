@@ -141,7 +141,8 @@ class PNJ(Entity):
 
         self.quete_donnee = False #Boolen pour gérer si oui ou non une quete a été donnée
         self.quete_attribuee = None  # Pour stocker la quête qui a été donnée
-    
+
+        self.quetes_deja_proposees = set()  # Mémorise les quêtes déjà données
     def restaurer_etat_quete(self):
         """
         Appelée au lancement du jeu pour restaurer l’état du PNJ
@@ -159,46 +160,45 @@ class PNJ(Entity):
 
  
     def proposer_quetes(self, quetes):
-        """
-        Affiche un choix de quêtes au joueur dans le dialogue.
-        """
-        self.choix_de_quetes = quetes
+        # Filtrer quêtes déjà données ou terminées
+        quetes_disponibles = [q for q in quetes if q.nom not in self.quetes_deja_proposees and not q.terminee and not q.active]
+
+        if len(quetes_disponibles) < 2:
+            # Pas assez de quêtes à proposer
+            self.en_mode_choix = False
+            self.choix_de_quetes = None
+            return
+
+        self.choix_de_quetes = quetes_disponibles[:2]  # Propose les deux premières disponibles
         self.en_mode_choix = True
-        self.full_text = f"Choisissez votre quête :\n   1. {quetes[0].nom}\n   2. {quetes[1].nom}"
+        self.full_text = f"Choisissez votre quête :\n   1. {self.choix_de_quetes[0].nom}\n   2. {self.choix_de_quetes[1].nom}"
         self.current_text = ""
         self.text_index = 0
-        self.last_update_time = pygame.time.get_ticks()  
+        self.last_update_time = pygame.time.get_ticks()
 
     def activer_quete_choisie(self, index):
-        """
-        Active la quête choisie par le joueur à partir des choix proposés par le PNJ.
-        Met à jour l'état du PNJ pour éviter de reproposer la même sélection.
-        """
         quete = self.choix_de_quetes[index]
         quete.active = True
 
-        # Désactiver l'autre quête du choix
+        # Désactive l'autre quête proposée
         for i, q in enumerate(self.choix_de_quetes):
             if i != index:
                 q.terminee = True
                 q.active = False
 
-        # ✅ Stocker la quête attribuée
+        # Mémorise la quête pour ne pas la reproposer
+        self.quetes_deja_proposees.add(quete.nom)
+
         self.quete_donnee = True
         self.quete_attribuee = quete
-
-        # ✅ Modifier le dialogue pour les interactions futures
         self.parole = [f"Bonne chance pour ta mission : \n {quete.nom}. \n   Je compte sur toi!"]
 
-        # ✅ Appel du callback pour afficher le panneau de quête
         if self.panneau_callback:
             self.panneau_callback(quete)
 
-        # ✅ Réinitialisation de l'état de dialogue
         self.en_mode_choix = False
         self.choix_de_quetes = None
         self.CanDialog = False
-
 
 
 
@@ -262,10 +262,9 @@ class PNJ(Entity):
             self.start_dialog(self.current_parole_index)
         else:
             if not self.quete_donnee and self.choix_de_quetes:
-                # Si c’est la fin du dialogue et que les choix doivent être proposés
                 self.proposer_quetes(self.choix_de_quetes)
             else:
-                self.CanDialog = False  # Fin de dialogue classique
+                self.CanDialog = False
 
             
 

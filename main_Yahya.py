@@ -581,13 +581,6 @@ def launch_game():
     #pnj2 = PNJ("Wizard",200,500,"pnj",screen)
     chest1 = Coffre("chest1",chest_position.x,chest_position.y)
 
-    item = Item("pain", 24, 30, 352, 350, "Food")
-    item2 = Item("plastron", 1, 10, 300, 450, "Plastron")
-    item3 = Item("casque", 1, 10, 500, 270, "Casque")
-
-
-
-
 
     # Création des arbres et ajout au groupe
     trees = [Arbre("arbre", x, y) for x, y in tree_positions]
@@ -618,11 +611,6 @@ def launch_game():
 
     # Ajoute les objets au groupe
     group.add(player, layer=5)
-    group.add(item)
-    group.add(item2)
-    group.add(item3)
-
-   
 
     #On ajoute ici le coffre
     group.add(chest1,layer = 2)
@@ -1050,8 +1038,11 @@ def launch_game():
                             active_pnj.start_dialog(0)
                             # Gérer la fin de la quête précédente (Q2)
                             q2 = graphe_quetes.nodes["Q2"]["quete"]
+                            q5 = graphe_quetes.nodes["Q5"]["quete"]
                             if q2.active and not q2.terminee:
                                 terminer_quete("Q2")
+
+                            
                             
                             
                                
@@ -1110,25 +1101,26 @@ def launch_game():
         # Si la quête 5 est active et la précédente était la quête 3, on change le dialogue du PNJ
         if graphe_quetes.nodes["Q5"]["quete"].active:
             pred = list(graphe_quetes.predecessors("Q5"))
-            if pred and pred[0] == "Q3":
-                pnj1.parole = [
-                    "Merci d'avoir ramassé les 10 bûches !",
-                    "Tu as prouvé ta valeur en rendant\n service à un viel homme comme moi.",
-                    "Je t'en suis reconnaisant.",
-                    "Pour te remercier, voila quelque chose\n qui te sera utile pour ton aventure.",
-                    "Adieu ..."
+            if pred:
+                if pred[0] == "Q3":
+                    pnj1.parole = [
+                        "Merci d'avoir ramassé les 10 bûches !",
+                        "Tu as prouvé ta valeur en rendant\n service à un viel homme comme moi.",
+                        "Je t'en suis reconnaisant.",
+                        "Pour te remercier, voila quelque chose\n qui te sera utile pour ton aventure.",
+                        "Adieu ..."
+                    ]
+
+                elif pred[0] == "Q4":
+                    pnj1.parole = [
+                        "Merci d'avoir ramassé les 5 pommes !", 
+                        "Tu as prouvé ta valeur en rendant\n service à un viel homme comme moi.",
+                        "Je t'en suis reconnaisant.",
+                        "Pour te remercier, voila quelque chose\n qui te sera utile pour ton aventure.",
+                        "Adieu ..."
                 ]
-        # Si la quête 5 est active et la précédente était la quête 4, on change le dialogue du PNJ
-        if graphe_quetes.nodes["Q5"]["quete"].active:
-            pred = list(graphe_quetes.predecessors("Q5"))
-            if pred and pred[0] == "Q4":
-                pnj1.parole = [
-                    "Merci d'avoir ramassé les 5 pommes !",
-                    "Tu as prouvé ta valeur en rendant\n service à un viel homme comme moi.",
-                    "Je t'en suis reconnaisant.",
-                    "Pour te remercier, voila quelque chose\n qui te sera utile pour ton aventure.",
-                    "Adieu ..."
-                ]
+
+                    
 
         group.update(dt)
         
