@@ -3,7 +3,7 @@ import sys
 import sqlite3
 from pygame.locals import *
 
-class Save_game(object):
+class Save_game_y(object):
     """
         Permet de sauvegarder la partie d'un joueur en particulier
         Attributs:
@@ -75,7 +75,7 @@ class Save_game(object):
         #self.screen.blit(self.parametre_btn,(self.largeur-75, 0))
         #self.screen.blit(param_text, (self.parametre_btn.x + 10, self.parametre_btn.y + 10))
 
-    def handle_event(self, event, joueur : str , level_joueur : int , pos_x : int , pos_y : int ,vie : int,mana : int,endurance : int,inventory_barlist : list = None,invetory_list : list = None):
+    def handle_event(self, event, joueur : str , level_joueur : int , pos_x : int , pos_y : int ,vie : int,mana : int,endurance : int,quete_id : str ,inventory_barlist : list ,invetory_list : list = None):
         """
             Gère les événements de la fenêtre de jeu
             event : l'événement à gérer
@@ -95,7 +95,8 @@ class Save_game(object):
             if event.button == 1:  # Si le bouton gauche de la souris est cliqué  
                 if self.quit_rect.collidepoint(event.pos):
                         print("tu vas quitter la game chef")
-                        self.sauvegarder(joueur, level_joueur, pos_x, pos_y, vie, mana, endurance, inventory_barlist, invetory_list)
+                        self.sauvegarder(joueur, level_joueur, pos_x, pos_y, vie, mana, endurance,quete_id)
+                        self.sauvegarder_inventaire(joueur, inventory_barlist)
                         self.running = False
 
                 elif self.retour_rect.collidepoint(event.pos):
@@ -103,7 +104,7 @@ class Save_game(object):
                         self.return_game()
                 
 
-    def sauvegarder(self, joueur : str , level_joueur : int , pos_x : int , pos_y : int ,vie : int,mana : int,endurance : int, quete_id : str,inventory_barlist : list = None,invetory_list : list = None):
+    def sauvegarder(self, joueur : str , level_joueur : int , pos_x : int , pos_y : int ,vie : int,mana : int,endurance : int, quete_id : str):
         """
             Sauvegarde le joueur dans un fichier
             joueur : le joueur à sauvegarder
@@ -117,6 +118,24 @@ class Save_game(object):
         requeteSQL = '''update Login set pos_x = {}, pos_y = {} , level = {},health = {},mana = {},endurance = {} where pseudo = {}'''.format(pos_x,pos_y,level_joueur,vie,mana,endurance,joueur) # rerquête à modifier afin d'enregistrer l'emplacement du joueur et le contenu de son inventaire
         curseur.execute('''update Login set pos_x = ?, pos_y = ? , level = ?,health = ?,mana = ?,endurance = ?,current_quete = ? where pseudo = ?''',(pos_x,pos_y,level_joueur,vie,mana,endurance,quete_id,joueur))
         curseur.close()
+        
+
+    def sauvegarder_inventaire(self, pseudo, inventaire):
+        cursor = self.connexion.cursor()
+
+        # Supprimer les anciennes données
+        cursor.execute("DELETE FROM Inventaire WHERE pseudo = ?", (pseudo,))
+
+        # Ajouter les nouvelles données
+        index = 0
+        for slot in inventaire:
+            if slot:
+                cursor.execute("""
+                    INSERT INTO Inventaire (pseudo, slot_index, item_name, quantity)
+                    VALUES (?, ?, ?, ?)
+                """, (pseudo, index, slot['name'], slot['quantity']))
+            index += 1
+        cursor.close()
         self.connexion.commit()
         self.connexion.close()
 

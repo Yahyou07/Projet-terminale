@@ -82,6 +82,7 @@ graphe_quetes.add_edge("Q5","Q6")
 #variable username utilisé pour stocké le pseudo du joueur
 username = ""
 
+font = pygame.font.Font("Items/Minecraft.ttf", 14)
 def verification(username,password):
     """
         Fonction de vérification du login
@@ -526,6 +527,47 @@ def main_menu():
         screen.blit(username_text,(screen.get_width() - profile_image.get_width() - 150, profile_image.get_height()//2 +15))
         pygame.display.update()
 
+def charger_item_depuis_nom(conn, nom_item):
+    cursor = conn.cursor()
+    cursor.execute("SELECT name, stack_max, regen, type FROM Item WHERE name = ?", (nom_item,))
+    row = cursor.fetchone()
+    if row:
+        name, stack_max, regen, type_ = row
+        return Item(name, stack_max, regen, 0, 0, type_)
+    return None
+
+def charger_inventaire(username):
+    global font
+    # Connexion à la base de données
+    conn = sqlite3.connect('database/data_yahya.db')
+    cursor = conn.cursor()
+    # Requête pour récupérer les données de l'inventaire
+    cursor.execute("SELECT slot_index, item_name, quantity FROM Inventaire WHERE pseudo = ?", (username,))
+    donnees = cursor.fetchall()
+    
+    inventaire = [{}]*10  # 10 slots
+    icones = [pygame.image.load(f"Items/slot.png")]*10  # Remplacez par vos icônes de slot
+    stack = [font.render("", True, (255, 255, 255))]*10
+
+    for slot_index, nom_item, quantite in donnees:
+        item = charger_item_depuis_nom(conn, nom_item)
+        if item:
+            print(slot_index)
+            inventaire[slot_index] = {
+                "name": nom_item,
+                "object": item,
+                "quantity": quantite,
+                "icon": item.icon  # supposé généré à l'init de Item
+            }
+            icones[slot_index] = item.icon
+            stack[slot_index] = font.render(str(quantite), True, (255, 255, 255))
+        else : 
+            inventaire[slot_index] = {}
+            icones[slot_index] = pygame.image.load(f"Items/slot.png")
+            stack[slot_index] = font.render("", True, (255, 255, 255))
+    return inventaire, icones, stack
+
+
 def charger_quete():
     # Connexion à la base de données
     conn = sqlite3.connect('database/data_yahya.db')
@@ -565,7 +607,7 @@ def launch_game():
     player = Player(position_player[0],position_player[1], screen)  # Positionner le joueur
 
 
-    save_menu = Save_game(screen)
+    save_menu = Save_game_y(screen)
     chest_position = tmx_data.get_object_by_name("coffre1")
 
     
@@ -873,6 +915,10 @@ def launch_game():
                 cinematique = False  # Fin de l'animation
                 # Lancer l'affichage de la quête d'intro au début du jeu
                 quete_affichee = charger_quete() #On charge la quête enregistrer dans la base de donnée à l'aide de la fonction charger_quete()
+                
+                #On charge ici l'inventaire du joueur
+                player.inventory_bar_list,player.inventory_icons,player.stack_text = charger_inventaire(username)
+
                 quete_affichee.active = True
                 current_quete = graphe_quetes.nodes[quete_affichee.id]["quete"] #on stocke ici la quête en cours
                 pnj1.restaurer_etat_quete() #On restaure la quete qui a été faite afin de ne pas retomber sur le dialogue de proposition du pnj enn cas d'interaction avec lui
@@ -1016,7 +1062,7 @@ def launch_game():
 
             player.handle_key_events(event)
 
-            save_menu.handle_event(event,username,player.level,player.rect.x,player.rect.y,player.health_value,player.mana_value,player.endurance_value,current_quete.id)
+            save_menu.handle_event(event,username,player.level,player.rect.x,player.rect.y,player.health_value,player.mana_value,player.endurance_value,current_quete.id,player.inventory_bar_list)
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_i:
@@ -1071,6 +1117,7 @@ def launch_game():
             input()
 
         player.anim_player_full_animation()
+
 
         if show_inventory == False:
             # Clic droit maintenu pour gérer l'affichage du "progress circle"
