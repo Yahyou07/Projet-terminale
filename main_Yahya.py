@@ -567,6 +567,32 @@ def charger_inventaire(username):
             stack[slot_index] = font.render("", True, (255, 255, 255))
     return inventaire, icones, stack
 
+def charger_inventaire_principal(username):
+    global font
+    conn = sqlite3.connect('database/data_yahya.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT row, col, item_name, quantity FROM InventairePrincipal WHERE pseudo = ?", (username,))
+    donnees = cursor.fetchall()
+
+    # Grille 6x5 : 6 colonnes, 5 lignes
+    inventaire_principal = [[{} for _ in range(6)] for _ in range(5)]
+    icones_principal = [[pygame.image.load("Items/slot.png") for _ in range(6)] for _ in range(5)]
+    stack_principal = [[font.render("", True, (255, 255, 255)) for _ in range(6)] for _ in range(5)]
+
+    for row, col, nom_item, quantite in donnees:
+        item = charger_item_depuis_nom(conn, nom_item)
+        if item:
+            inventaire_principal[row][col] = {
+                "name": nom_item,
+                "object": item,
+                "quantity": quantite,
+                "icon": item.icon
+            }
+            icones_principal[row][col] = item.icon
+            stack_principal[row][col] = font.render(str(quantite), True, (255, 255, 255))
+    
+    conn.close()
+    return inventaire_principal, icones_principal, stack_principal
 
 def charger_quete():
     # Connexion à la base de données
@@ -918,7 +944,7 @@ def launch_game():
                 
                 #On charge ici l'inventaire du joueur
                 player.inventory_bar_list,player.inventory_icons,player.stack_text = charger_inventaire(username)
-
+                player.inventory_list,player.inventory_bag_icon,inventory_bag_stack_text = charger_inventaire_principal(username)
                 quete_affichee.active = True
                 current_quete = graphe_quetes.nodes[quete_affichee.id]["quete"] #on stocke ici la quête en cours
                 pnj1.restaurer_etat_quete() #On restaure la quete qui a été faite afin de ne pas retomber sur le dialogue de proposition du pnj enn cas d'interaction avec lui
@@ -1062,7 +1088,7 @@ def launch_game():
 
             player.handle_key_events(event)
 
-            save_menu.handle_event(event,username,player.level,player.rect.x,player.rect.y,player.health_value,player.mana_value,player.endurance_value,current_quete.id,player.inventory_bar_list)
+            save_menu.handle_event(event,username,player.level,player.rect.x,player.rect.y,player.health_value,player.mana_value,player.endurance_value,current_quete.id,player.inventory_bar_list,player.inventory_list)
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_i:

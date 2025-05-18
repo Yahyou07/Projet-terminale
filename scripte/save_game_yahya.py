@@ -75,7 +75,7 @@ class Save_game_y(object):
         #self.screen.blit(self.parametre_btn,(self.largeur-75, 0))
         #self.screen.blit(param_text, (self.parametre_btn.x + 10, self.parametre_btn.y + 10))
 
-    def handle_event(self, event, joueur : str , level_joueur : int , pos_x : int , pos_y : int ,vie : int,mana : int,endurance : int,quete_id : str ,inventory_barlist : list ,invetory_list : list = None):
+    def handle_event(self, event, joueur : str , level_joueur : int , pos_x : int , pos_y : int ,vie : int,mana : int,endurance : int,quete_id : str ,inventory_barlist : list ,inventory_list : list ):
         """
             Gère les événements de la fenêtre de jeu
             event : l'événement à gérer
@@ -97,6 +97,7 @@ class Save_game_y(object):
                         print("tu vas quitter la game chef")
                         self.sauvegarder(joueur, level_joueur, pos_x, pos_y, vie, mana, endurance,quete_id)
                         self.sauvegarder_inventaire(joueur, inventory_barlist)
+                        self.sauvegarder_inventaire_principal(joueur,inventory_list)
                         self.running = False
 
                 elif self.retour_rect.collidepoint(event.pos):
@@ -135,6 +136,28 @@ class Save_game_y(object):
                     VALUES (?, ?, ?, ?)
                 """, (pseudo, index, slot['name'], slot['quantity']))
             index += 1
+        cursor.close()
+        
+
+    def sauvegarder_inventaire_principal(self, pseudo, inventaire_principal):
+        cursor = self.connexion.cursor()
+
+        # Supprimer les anciennes données
+        cursor.execute("DELETE FROM InventairePrincipal WHERE pseudo = ?", (pseudo,))
+
+        # Ajouter les nouvelles données
+        row_index = 0
+        for row in inventaire_principal:
+            col_index = 0
+            for slot in row:
+                if slot:
+                    cursor.execute("""
+                        INSERT INTO InventairePrincipal (pseudo, row, col, item_name, quantity)
+                        VALUES (?, ?, ?, ?, ?)
+                    """, (pseudo, row_index, col_index, slot['name'], slot['quantity']))
+                col_index += 1
+            row_index += 1
+
         cursor.close()
         self.connexion.commit()
         self.connexion.close()
