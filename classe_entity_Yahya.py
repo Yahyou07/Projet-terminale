@@ -263,7 +263,6 @@ class PNJ(Entity):
         else:
             if not self.quete_donnee and self.choix_de_quetes:
                 # Si c’est la fin du dialogue et que les choix doivent être proposés
-                #self.en_mode_choix = True
                 self.proposer_quetes(self.choix_de_quetes)
             else:
                 self.CanDialog = False  # Fin de dialogue classique

@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "mais.tsx",
+    "activeFile": "maps.tmx",
     "expandedProjectPaths": [
         "."
     ],
@@ -17,6 +17,11 @@
             "scaleInEditor": 1
         },
         "houses.tsx": {
+            "scaleInDock": 0.75,
+            "scaleInEditor": 1
+        },
+        "housess.tsx": {
+            "scaleInDock": 1,
             "scaleInEditor": 1
         },
         "lage.tsx": {
@@ -55,11 +60,11 @@
             }
         },
         "maps.tmx": {
-            "scale": 2,
+            "scale": 3,
             "selectedLayer": 2,
             "viewCenter": {
-                "x": 172,
-                "y": 193.75
+                "x": 135.33333333333331,
+                "y": 132.83333333333331
             }
         },
         "murs.tsx": {
@@ -67,7 +72,7 @@
             "scaleInEditor": 1
         },
         "objects.tsx": {
-            "scaleInDock": 1.5,
+            "scaleInDock": 1,
             "scaleInEditor": 1
         },
         "ombre plant.tsx": {
@@ -99,19 +104,14 @@
     "map.width": 100,
     "openFiles": [
         "maps.tmx",
-        "grass.tsx",
-        "objects.tsx",
-        "murs.tsx",
-        "escaliers.tsx",
-        "plants.tsx",
-        "ombre plant.tsx",
         "ombres.tsx",
-        "water_ex.tsx",
-        "water2.tsx",
-        "mais.tsx"
+        "housess.tsx"
     ],
     "project": "Projet_jeu_RPG.tiled-project",
     "recentFiles": [
+        "housess.tsx",
+        "ombres.tsx",
+        "maps.tmx",
         "map_test.tmx",
         "lage.tsx",
         "houses.tsx",
@@ -120,10 +120,7 @@
         "water2.tsx",
         "water_ex.tsx",
         "ombre plant.tsx",
-        "plants.tsx",
-        "grass.tsx",
-        "objects.tsx",
-        "murs.tsx"
+        "plants.tsx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {

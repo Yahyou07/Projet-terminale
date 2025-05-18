@@ -17,7 +17,7 @@ BUTTON_TEXT_COLOR = (255, 255, 255)
  
 # Fenêtre
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Connexion")
+pygame.display.set_caption("The Last Heir")
  
 # Champs de texte
 class InputBox:

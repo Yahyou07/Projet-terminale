@@ -63,20 +63,21 @@ q2 = Quete("Q2", "Trouver le guide", "Trouver le guide dans le bois.")
 q3 = Quete("Q3", "Ramasser du bois", "Ramasser 10 buches dans la forêt.")
 q4 = Quete("Q4","Récupérer des pommes","Ramasser 5 pommes dans la foret.")
 q5 = Quete("Q5","Retrouver le vieux guide","Retrouver le vieux guide.")
-
+q6 = Quete("Q6","Trouver le portail","Trouver le portail menant au monde principal.")
 # Ajout des nœuds avec attributs
 graphe_quetes.add_node("Q1", quete=q1)
 graphe_quetes.add_node("Q2", quete=q2)
 graphe_quetes.add_node("Q3", quete=q3)
 graphe_quetes.add_node("Q4",quete = q4)
 graphe_quetes.add_node("Q5",quete = q5)
-
+graphe_quetes.add_node("Q6",quete = q6 )
 # Ajout des relations (choix ou dépendances)
 graphe_quetes.add_edge("Q1", "Q2")  # Après Q1, Q2 est possible
 graphe_quetes.add_edge("Q2", "Q3",choix=True)  # Après Q2, Q3 est possible
 graphe_quetes.add_edge("Q2","Q4",choix=True)     # Après Q2, Q4 est possible
 graphe_quetes.add_edge("Q3","Q5")
 graphe_quetes.add_edge("Q4","Q5")
+graphe_quetes.add_edge("Q5","Q6")
 
 #variable username utilisé pour stocké le pseudo du joueur
 username = ""
@@ -161,8 +162,7 @@ def create_account(username,password,confirm_password):
             cursor = conn.cursor()
             # Requête pour stocker le nom d'utilisateur et le mot de passe dans la table "users"
             cursor.execute('''INSERT INTO Login (pseudo,password,pos_x,pos_y,health,mana,endurance,level,current_quete) values (?,?,?,?,100,0,100,0,?) ''',(username,password,player_position.x,player_position.y,id_quete_deBase))
-            cursor.execute('''INSERT INTO Inventory (pseudo) VALUES (?)''', (username,))
-            cursor.execute('''INSERT INTO Stuff (pseudo) VALUES (?)''', (username,))
+
             cursor.close()
             conn.commit()
             conn.close()
@@ -720,7 +720,7 @@ def launch_game():
     pnj1.choix_de_quetes = [graphe_quetes.nodes["Q3"]["quete"], graphe_quetes.nodes["Q4"]["quete"]]
     
     #On ajoute ici les PNJ
-    group.add(pnj1, layer=2)
+    #group.add(pnj1, layer=2)
 
 
     def afficher_panneau_slide(screen, quete, y):
@@ -782,6 +782,7 @@ def launch_game():
             elif player.last_direction == "left":
                 player.idle_left()
 
+    #-------------fonctions d'accomplissement des quêtes--------------------------------------------------------
     def accomplissement_quete3():
         nonlocal current_quete
         quete3 = graphe_quetes.nodes["Q3"]["quete"]
@@ -828,6 +829,9 @@ def launch_game():
                 suivants = list(graphe_quetes.successors("Q3"))
                 if suivants:
                     current_quete = graphe_quetes.nodes[suivants[0]]["quete"]
+    
+    #-----------------------------------------------------------------------------------------------------------
+    
     # Paramètres la progression du cercle pour le "manger"
     fill_time = 3.0  # Durée du remplissage
     fill_time_cut = 11
@@ -1036,16 +1040,19 @@ def launch_game():
                         if quete.active and not quete.terminee:
                             terminer_quete("Q1")
                             current_quete = graphe_quetes.nodes["Q2"]["quete"]
+                        
                             
                         
                     elif active_pnj:  # ← Si on a un PNJ actif
                         active_pnj.CanDialog = not active_pnj.CanDialog
                         if active_pnj.CanDialog:
+
                             active_pnj.start_dialog(0)
                             # Gérer la fin de la quête précédente (Q2)
                             q2 = graphe_quetes.nodes["Q2"]["quete"]
                             if q2.active and not q2.terminee:
                                 terminer_quete("Q2")
+                            
                             
                                
 
@@ -1053,8 +1060,15 @@ def launch_game():
                     if active_pnj and active_pnj.CanDialog:
                         active_pnj.next_dialog()
 
-
-
+        # Ajout dynamique du PNJ1 si la quête Q2, Q3, Q4 ou Q5 est active ou terminée
+        if not any(isinstance(s, PNJ) and getattr(s, "name", "") == "Wizard" for s in group.sprites()):
+            quetes_pnj = ["Q2", "Q3", "Q4", "Q5","Q6"]
+            for q in quetes_pnj:
+                quete = graphe_quetes.nodes[q]["quete"]
+                if quete.active or quete.terminee:
+                    group.add(pnj1, layer=2)
+                    break
+        
 
 
         quete = graphe_quetes.nodes["Q2"]["quete"]
@@ -1093,8 +1107,28 @@ def launch_game():
         keys = pygame.key.get_pressed()
         player.regeneration_endurance(keys)
 
-        
-
+        # Si la quête 5 est active et la précédente était la quête 3, on change le dialogue du PNJ
+        if graphe_quetes.nodes["Q5"]["quete"].active:
+            pred = list(graphe_quetes.predecessors("Q5"))
+            if pred and pred[0] == "Q3":
+                pnj1.parole = [
+                    "Merci d'avoir ramassé les 10 bûches !",
+                    "Tu as prouvé ta valeur en rendant\n service à un viel homme comme moi.",
+                    "Je t'en suis reconnaisant.",
+                    "Pour te remercier, voila quelque chose\n qui te sera utile pour ton aventure.",
+                    "Adieu ..."
+                ]
+        # Si la quête 5 est active et la précédente était la quête 4, on change le dialogue du PNJ
+        if graphe_quetes.nodes["Q5"]["quete"].active:
+            pred = list(graphe_quetes.predecessors("Q5"))
+            if pred and pred[0] == "Q4":
+                pnj1.parole = [
+                    "Merci d'avoir ramassé les 5 pommes !",
+                    "Tu as prouvé ta valeur en rendant\n service à un viel homme comme moi.",
+                    "Je t'en suis reconnaisant.",
+                    "Pour te remercier, voila quelque chose\n qui te sera utile pour ton aventure.",
+                    "Adieu ..."
+                ]
 
         group.update(dt)
         
@@ -1310,12 +1344,12 @@ def launch_game():
             group.remove(player) # on remove le joueur du group
 
 
-        #gestion de l'accomplissement des quêtes sans avoir besoin de rencontrer une entité
+        #-----gestion de l'accomplissement des quêtes sans avoir besoin de rencontrer une entité----
 
-        # On gère ici l'accomplissment de la quete 3 
+            
         accomplissement_quete3()
         accomplissement_quete4()
-
+        #-------------------------------------------------------------------------------------------
 
         #affichage des UI 
         player.affiche_ui(map_layer)
