@@ -660,10 +660,13 @@ def launch_game():
     conn = sqlite3.connect('database/data_yahya.db')
     cursor = conn.cursor()
     # Requête pour récupérer la position du joueur
-    cursor.execute('''SELECT pos_x,pos_y FROM Login WHERE pseudo = ?;''', (username,))
+    cursor.execute('''SELECT pos_x,pos_y,health,mana,endurance FROM Login WHERE pseudo = ?;''', (username,))
     result = cursor.fetchone()
-    position_player = result
-    player = Player(position_player[0],position_player[1], screen)  # Positionner le joueur
+    pos_x,pos_y,health,mana,endurance = result
+    player = Player(pos_x,pos_y, screen)  # Positionner le joueur
+    player.health_value = health
+    player.mana_value = mana
+    player.endurance_value = endurance
 
 
     save_menu = Save_game_y(screen)
