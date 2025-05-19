@@ -12,14 +12,14 @@ def decouper_sprite_sheet(chemin_sprite_sheet, dossier_sortie):
     os.makedirs(dossier_sortie, exist_ok=True)
 
     compteur = 0
-    for y in range(0, hauteur, 64):
-        for x in range(0, largeur, 64):
+    for y in range(0, hauteur, 592):
+        for x in range(0, largeur, 250):
             # Découper une image 64x64
-            morceau = sprite_sheet.crop((x, y, x + 64, y + 64))
+            morceau = sprite_sheet.crop((x, y, x + 250, y + 592))
             morceau.save(os.path.join(dossier_sortie, f"frame{compteur}.png"))
             compteur += 1
 
     print(f"{compteur} sprites enregistrés dans {dossier_sortie}")
 
 # Exemple d'utilisation
-decouper_sprite_sheet("enemy/explosion.png", "enemy")
+decouper_sprite_sheet("UI/portail.png", "UI")
