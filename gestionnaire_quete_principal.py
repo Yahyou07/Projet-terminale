@@ -126,9 +126,9 @@ class GestionnairePrincipale:
         """
         """
         Restaure la vie du joueur à 100 % si la quête est terminée
+        # 1) Vérifier que la quête est bien active
         ET que la récompense n'a pas encore été donnée.
         """
-        # 1) Vérifier que la quête est bien active
         if not self.active:
             return
 

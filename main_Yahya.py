@@ -592,6 +592,7 @@ def charger_inventaire_principal(username):
             stack_principal[row][col] = font.render(str(quantite), True, (255, 255, 255))
     
     conn.close()
+    print(stack_principal)
     return inventaire_principal, icones_principal, stack_principal
 
 #fonction permettant de charger le stuff du joueur
@@ -1292,9 +1293,9 @@ def launch_game():
                                     cut_progressing = False
                                     if hasattr(sprite, 'feuillage'):
                                         group.remove(sprite.feuillage)  # ← On supprime le feuillage lié
-                                    group.add(Item("buche1", 24, 10, sprite.rect.x + 50, sprite.rect.y + 50, "Food"))
-                                    group.add(Item("buche1", 24, 10, sprite.rect.x + 30, sprite.rect.y + 30, "Food"))
-                                    group.add(Item("buche1", 24, 10, sprite.rect.x + 20, sprite.rect.y + 50, "Food"))
+                                    group.add(Item("buche1", 24, 10, sprite.rect.x + 50, sprite.rect.y + 50, "Wood"))
+                                    group.add(Item("buche1", 24, 10, sprite.rect.x + 30, sprite.rect.y + 30, "Wood"))
+                                    group.add(Item("buche1", 24, 10, sprite.rect.x + 20, sprite.rect.y + 50, "Wood"))
                                     if choice([1,2,3,4,5,6,7,8,9,10]) == 1:
                                         group.add(Item("apple", 24, 10, sprite.rect.x + 20, sprite.rect.y + 10, "Food"))
                                         
