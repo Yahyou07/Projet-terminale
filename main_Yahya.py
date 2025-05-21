@@ -1,6 +1,6 @@
 
 import random
-from quete_secondaire import *
+from quete_principales_final import *
 def generate_tree_positions(max_x, max_y, num_trees, min_distance, max_attempts=1000):
     positions = list()
     for i in range(num_trees):
@@ -16,13 +16,10 @@ def generate_tree_positions(max_x, max_y, num_trees, min_distance, max_attempts=
 
 
 #tree_positions = [(216, 860), (1430, 1322), (1026, 1471), (20, 537), (899, 706), (1332, 1150), (1124, 395), (698, 252), (816, 18), (1513, 1237), (327, 119), (479, 1026), (613, 619),(114,1460),(298,1460)]
-tree_positions = [
-                   (931, 1390), (383, 1226), (450, 199), (1030, 190),
-                   (9, 341), (83, 49), (1331, 1053), (1522, 1112), 
-                   (137, 941), (192, 757), (1182, 897), (1264, 1498), 
-                   (297, 705), (550, 705), (585, 1300)
-                   ]
+tree_positions = [(988, 1664), (186, 43), (270, 979), (827, 1323), (492, 2135), (898, 791), (327, 370), (1149, 1163), (1426, 1594), (397, 192), (1235, 1442), (747, 2010), (28, 2318), (688, 1731), (1072, 1542), (1573, 279), (1190, 2062), (445, 1894), (557, 1953), (1304, 488), (89, 1278), (1509, 1039), (603, 329), (944, 533), 
+                  (1358, 850), (143, 731), (1467, 893), (647, 131), (227, 649), (1029, 234)]
 
+print(generate_tree_positions(1585,2381,35,40))
 
 
 import pygame, sys
@@ -42,8 +39,7 @@ pygame.init()
 pygame.key.set_repeat(400, 20)  # délai initial 400ms, puis 40ms entre répétitions
 pygame.display.set_caption("The Last Heir")
 from scripte.save_game_yahya import*
-from classe_enemy_Yahya import *
-from scripte.pnj import *
+
 import pygame
 from classe_entity_Yahya import *
 from dialog_data import *
