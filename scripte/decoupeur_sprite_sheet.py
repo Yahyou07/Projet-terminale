@@ -22,4 +22,4 @@ def decouper_sprite_sheet(chemin_sprite_sheet, dossier_sortie):
     print(f"{compteur} sprites enregistrés dans {dossier_sortie}")
 
 # Exemple d'utilisation
-decouper_sprite_sheet("UI/portail.png", "UI")
+decouper_sprite_sheet("philipusmartinus.png", "ennemy/phillipus_martinus")
