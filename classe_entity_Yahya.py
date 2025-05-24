@@ -128,7 +128,7 @@ class PNJ(Entity):
 
         self.current_text = ""    # Le texte affiché progressivement
         self.full_text = ""       # Le texte complet à afficher
-        self.text_index = 0       # Où on en est dans le texte
+        
         self.last_update_time = pygame.time.get_ticks()  # Pour gérer la vitesse
         self.text_speed = 30      # Millisecondes entre chaque lettre (plus petit = plus rapide)
         self.current_parole_index = 0  # Numéro de la phrase actuelle
@@ -143,6 +143,7 @@ class PNJ(Entity):
         self.quete_attribuee = None  # Pour stocker la quête qui a été donnée
 
         self.quetes_deja_proposees = set()  # Mémorise les quêtes déjà données
+        
     def restaurer_etat_quete(self):
         """
         Appelée au lancement du jeu pour restaurer l’état du PNJ
@@ -214,7 +215,7 @@ class PNJ(Entity):
             self.screen.blit(self.dialog_box_name,(350,750))
             self.screen.blit(self.name_entity,(410,770))
             
-            if self.parole.index == len(self.parole)-1:
+            if self.current_parole_index== len(self.parole)-1:
                 self.pass_message = self.font_dialog_box_pass.render("[ESPACE] pour quitter",True, (255, 255, 255))
                 self.screen.blit(self.pass_message,(680,780))
             else:

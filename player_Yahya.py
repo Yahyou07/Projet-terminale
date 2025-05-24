@@ -4,7 +4,8 @@ import math
 import time
 import sqlite3
 from items import Item
-
+from classe_entity_Yahya import *
+from objects_Yahya import *
 class Player(pygame.sprite.Sprite): 
     def __init__(self,pos_x,pos_y,screen):
         super().__init__()  # Initialisation du sprite
@@ -19,6 +20,7 @@ class Player(pygame.sprite.Sprite):
         self.font_book = pygame.font.Font("Items/Minecraft.ttf", 20)  # Police par défaut, taille 20
         self.font_fantasy = pygame.font.Font("Items/Minecraft.ttf", 45)  # Police par défaut, taille 20
         self.Regen = False
+        self.start_time = 0
 
         self.level = 0
         #Booleen permettant gerer l'attaque du joueur
@@ -140,51 +142,6 @@ class Player(pygame.sprite.Sprite):
         self.button_map = pygame.image.load("UI/boouton_m.png")
         self.rect_button_map = self.button_map.get_rect()
 
-        # On charge ici les images utilisées pour l'interface du livre
-        self.OnBook = False
-        self.fond_table = pygame.image.load("UI/livre/table.png")
-        self.fond_table = pygame.transform.scale(self.fond_table,(self.screen.get_width(),self.screen.get_height()))
-        self.button_back_book = pygame.image.load("UI/button_back.png")
-        self.rect_button_back_book = self.button_back_book.get_rect()
-        self.rect_button_back_book.x = 5
-        self.rect_button_back_book.y = 10
-        
-        self.open_book = [pygame.image.load(f"UI/livre/open_book/frame_{j}.png") for j in range(0, 8)]
-        self.turn_left = [pygame.image.load(f"UI/livre/turn_right1/frame_{j}.png") for j in range(0, 8)]
-        self.turn_right = [pygame.image.load(f"UI/livre/turn_left/frame_{j}.png") for j in range(0, 8)]
-        
-        self.current_book_index = 0
-        self.current_book = self.open_book[self.current_book_index]
-        
-        self.current_book = pygame.transform.scale(self.current_book,(1200,1125))
-        
-        self.IsAnimating = True
-        self.IsOpen = False
-
-        self.y_buttons = self.screen.get_height() - 60
-
-        self.button_right_book = pygame.image.load("UI/bouton_droitBook.png")
-        self.rect_button_right_book = self.button_right_book.get_rect()
-        self.rect_button_right_book.x = 900
-        self.rect_button_right_book.y = self.y_buttons
-
-        self.button_left_book = pygame.image.load("UI/bouton_gaucheBook.png")
-        self.rect_button_left_book = self.button_left_book.get_rect()
-        self.rect_button_left_book.x = 660
-        self.rect_button_left_book.y = self.y_buttons
-        self.page = 0
-        self.page_a_cote = self.page + 1
-        self.max_page = 20
-        self.pages_text = self.font_fantasy.render(f"{str(self.page)} - {self.page_a_cote}",True, (255, 174, 111))
-
-        self.pages = [self.font_book .render("Q",True, (255, 255, 111)) for i in range(self.max_page)]
-                      
-
-        self.book_animation_list = []
-        self.book_anim_speed = 0
-        self.book_anim_index = 0
-        self.book_animating = False
-        self.Affiche_texte_page = True
         
         self.anim_move_player = []
         self.player_speed_anim = 0
@@ -248,14 +205,7 @@ class Player(pygame.sprite.Sprite):
         self.player_index_anim = 0
         self.player_attack_anim = True
         self.decalment = decal
-    def startBookAnimation(self, liste_mouv, speed):
-        
-        self.book_animation_list = liste_mouv
-        self.book_anim_speed = speed
-        self.book_anim_index = 0
-        self.book_animating = True
-        self.IsOpen = False
-        self.Affiche_texte_page = False
+
 
         
 
@@ -284,21 +234,7 @@ class Player(pygame.sprite.Sprite):
         self.hache = liste_mouv[int(self.current_hache)]
         self.hache = pygame.transform.scale(self.hache,(140,140))
     
-    def animBook(self):
-        if self.book_animating:
-            self.book_anim_index += self.book_anim_speed
-            if self.book_anim_index >= len(self.book_animation_list):
-                self.book_animating = False
-                self.IsOpen = True
-                self.book_anim_index = len(self.book_animation_list) - 1  # Assurez-vous que l'index est dans les limites
-               
-                self.Affiche_texte_page = True
-            elif self.book_anim_index < 0:
-                self.book_anim_index = 0  # Assurez-vous que l'index n'est pas négatif
-            self.current_book = self.book_animation_list[int(self.book_anim_index)]
-            
-            self.current_book = pygame.transform.scale(self.current_book, (1200,1125))  # Appliquez l'échelle ici
-
+ 
     def anim_player_full_animation(self):
         if self.player_attack_anim:
             self.player_index_anim += self.player_speed_anim
@@ -460,7 +396,7 @@ class Player(pygame.sprite.Sprite):
         
         self.current_item = self.inventory_bar_list[self.inventory_index]
 
-        pygame.draw.circle(self.screen, (125,125,125), (self.rect_button_book.x+20, self.rect_button_book.y+40), 40,2)
+        
         
         #affichage des barres d'attaque au dessus du joueur
         for i in range(self.max_attacks):
@@ -468,24 +404,7 @@ class Player(pygame.sprite.Sprite):
             world_pos = (self.rect.centerx - 20 + i * 15, self.rect.top )
             screen_pos = map_layer.translate_point(world_pos)
             pygame.draw.rect(self.screen, color, (screen_pos[0], screen_pos[1], 30, 10),border_radius=3)
-        # Affichage des bouttons sur le cote
-        self.screen.blit(self.button_book,(self.screen.get_width()-80,200))
-
-        if self.OnBook:
-            self.screen.blit(self.fond_table, (0, 0))
-            self.screen.blit(self.current_book, (200, -300))
-            self.screen.blit(self.button_back_book, (5, 10))
-            
-
-            if self.IsOpen:
-                self.screen.blit(self.button_right_book, (900, self.y_buttons))
-                self.screen.blit(self.button_left_book, (660, self.y_buttons))
-                self.pages_text = self.font_fantasy.render(f"{str(self.page)} - {self.page_a_cote}",True, (255, 174, 111))
-                self.screen.blit(self.pages_text,(760,self.y_buttons + 10))
-
-                if self.Affiche_texte_page:
-                    self.screen.blit(self.pages[self.page],(513,300))
-                    self.screen.blit(self.pages[self.page_a_cote],(840,300))
+        
 
         
         self.feet.midbottom = self.hit_box.midbottom
@@ -577,6 +496,7 @@ class Player(pygame.sprite.Sprite):
     def regeneration_endurance(self,keys):
         if self.endurance_value == 0:
             self.Regen = True
+            self.start_time = None
         if self.endurance_value == 100:
             self.Regen = False
             self.start_time = None
@@ -892,3 +812,66 @@ class Player(pygame.sprite.Sprite):
                 print(f"Mange {item['object'].name}. Quantite restante: {item['quantity']}")
 
     
+    def handle_mouse_attack(self,group):
+        if self.remaining_attacks > 0:          
+            # Animation attaque
+            if self.last_direction == "right":
+                self.start_anim_attack(self.attack_right_mouv, 0.3, 0)
+                #Le joueur peut attaquer
+                self.is_attacking = True
+                self.remaining_attacks -= 1
+                self.attack_regen_timer = 0  # Reset du timer
+                
+                
+            if self.last_direction == "left":
+                self.start_anim_attack(self.attack_left_mouv, 0.3, -0)
+
+                #Le joueur peut attaquer
+                self.is_attacking = True
+                self.remaining_attacks -= 1
+                self.attack_regen_timer = 0  # Reset du timer
+                
+
+            # Définir une direction de dash
+            direction = pygame.math.Vector2(0, 0)
+            if self.last_direction == "right":
+                direction = pygame.math.Vector2(1, 0)
+            elif self.last_direction == "left":
+                direction = pygame.math.Vector2(-1, 0)
+
+            # Lancer le dash
+            self.dash_vector = direction * self.dash_speed
+            self.dashing = True
+            self.dash_timer = self.dash_duration
+
+            # Vérifie l'attaque sur les ennemis
+            for sprite in group.sprites():
+                if isinstance(sprite, Enemy) or isinstance(sprite, Slime):
+                    if self.last_direction == "right" :
+                        if self.attack_box_right.colliderect(sprite.rect):
+                            sprite.current_health -= self.degats  # Inflige 10 points de dégâts
+                            
+                            if sprite.current_health < 0:
+                                sprite.current_health = 0
+                            if sprite.current_health == 0:
+                                sprite.dead(group,sprite)
+                            sprite.knockback = True
+                            sprite.knockback_speed = 6
+                            sprite.knockback_direction = 1
+
+                    if self.last_direction == "left" :
+                        if self.attack_box_left.colliderect(sprite.rect):
+                            sprite.current_health -= self.degats  # Inflige 10 points de dégâts
+
+                            if sprite.current_health < 0:
+                                sprite.current_health = 0
+                            if sprite.current_health == 0:
+                                sprite.dead(group,sprite)
+
+                            sprite.knockback = True
+                            sprite.knockback_speed = 6
+                            sprite.knockback_direction = -1
+                if isinstance(sprite, Tronc) and self.feet.colliderect(sprite.hitbox):
+                    if self.last_direction == "right" :
+                        if self.attack_box_right.colliderect(sprite.hitbox):
+                            self.move_back()

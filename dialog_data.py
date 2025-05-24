@@ -11,12 +11,19 @@ pnj1_dialog = [
 ]
 
 # Nouveau : dialogue **après** avoir terminé la quête
-pnj1_dialog_après = [
-    "Merci d'avoir récolté tout le bois !",
-    "Les villageois vont enfin pouvoir \n se réchauffer.",
-    "Vous êtes désormais un héros \n pour nous."
-]
-
-
+pnj1_dialog_apres_Q3 = [
+                        "Merci d'avoir ramassé les 10 bûches !", 
+                        "Tu as prouvé ta valeur en rendant\n service à un viel homme comme moi.",
+                        "Je t'en suis reconnaisant.",
+                        "Pour te remercier, voila quelque chose\n qui te sera utile pour ton aventure.",
+                        "Adieu ..."
+                ]
+pnj1_dialog_apres_Q4 =[
+                        "Merci d'avoir ramassé les 5 pommes !", 
+                        "Tu as prouvé ta valeur en rendant\n service à un viel homme comme moi.",
+                        "Je t'en suis reconnaisant.",
+                        "Pour te remercier, voila quelque chose\n qui te sera utile pour ton aventure.",
+                        "Adieu ..."
+                ]
 
 

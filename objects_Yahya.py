@@ -41,13 +41,13 @@ class Feuillage(pygame.sprite.Sprite):
         self.hitbox = self.rect.copy().inflate(0, -47) 
         self.hitbox.y -= 25
 class Coffre(pygame.sprite.Sprite):
-    def __init__(self, name, x,y):
+    def __init__(self, name, x,y,index):
         super().__init__()
         self.name = name
 
         self.coffre_open_list = [pygame.image.load(f"Objects/{name}/frame{j}.png") for j in range(0, 12)]
-        self.current_chest = 0
-        self.image = pygame.image.load(f"Objects/{name}/frame0.png")
+        self.current_chest = index
+        self.image = self.coffre_open_list[self.current_chest]
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -70,10 +70,11 @@ class Coffre(pygame.sprite.Sprite):
 
         if near_chest is None:
             return
-        
+        if self.current_chest == 10:
+                self.Can_open = False
         if self.coffre_anim:
             self.coffre_anim_index += self.coffre_anim_speed
-           
+            
             # Si l'index est supérieur a la taille de la liste de mouvement :
             if self.coffre_anim_index >= len(self.coffre_animation_list):
                 
@@ -107,3 +108,27 @@ class Crater(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 
+class Portals(pygame.sprite.Sprite):
+    def __init__(self,name,x,y):
+        super().__init__()
+        self.name = name
+        self.portal_anim_list = [pygame.image.load(f"Objects/portals/{name}/frame{i}.png") for i in range(0,4)]
+        self.portal_anim_index = 0
+        self.image = self.portal_anim_list[self.portal_anim_index]
+        self.image = pygame.transform.scale(self.image,(42,100))
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.speed_anim = 0.10
+
+    
+    def anim_portal(self):
+        self.portal_anim_index += self.speed_anim
+        if self.portal_anim_index>=len(self.portal_anim_list)-1:
+            self.portal_anim_index =0
+        self.image = self.portal_anim_list[int(self.portal_anim_index)]
+        self.image = pygame.transform.scale(self.image,(42,100))
+    
+
+
+        

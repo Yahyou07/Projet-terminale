@@ -16,7 +16,7 @@ def generate_tree_positions(max_x, max_y, num_trees, min_distance, max_attempts=
 
 
 #tree_positions = [(216, 860), (1430, 1322), (1026, 1471), (20, 537), (899, 706), (1332, 1150), (1124, 395), (698, 252), (816, 18), (1513, 1237), (327, 119), (479, 1026), (613, 619),(114,1460),(298,1460)]
-tree_positions = [(988, 1664), (186, 43), (270, 979), (827, 1323), (492, 2135), (898, 791), (327, 370), (1149, 1163), (1426, 1594), (397, 192), (1235, 1442), (747, 2010), (28, 2318), (688, 1731), (1072, 1542), (1573, 279), (1190, 2062), (445, 1894), (557, 1953), (1304, 488), (89, 1278), (1509, 1039), (603, 329), (944, 533), 
+tree_positions = [(988, 1664), (186, 43), (270, 979), (790, 1323), (492, 2135), (898, 791), (327, 370), (1149, 1163), (1426, 1594), (397, 192), (1235, 1442), (747, 2010), (28, 2318), (688, 1731), (1072, 1542), (1573, 279), (1190, 2062), (445, 1894), (557, 1953), (1304, 488), (89, 1278), (1509, 1039), (603, 329), (944, 533), 
                   (1358, 850), (143, 731), (1467, 893), (647, 131), (227, 649), (1029, 234)]
 
 print(generate_tree_positions(1585,2381,35,40))
@@ -46,7 +46,7 @@ from dialog_data import *
 
 from login_class import *
 import networkx as nx
-
+from classe_book_yahya import *
 
 
 # Création du graphe dirigé
@@ -59,7 +59,7 @@ q2 = Quete("Q2", "Trouver le guide", "Trouver le guide dans le bois.")
 q3 = Quete("Q3", "Ramasser du bois", "Ramasser 10 buches dans la forêt.")
 q4 = Quete("Q4","Récupérer des pommes","Ramasser 5 pommes dans la foret.")
 q5 = Quete("Q5","Retrouver le vieux guide","Retrouver le vieux guide.")
-q6 = Quete("Q6","Trouver le portail","Trouver le portail menant au monde principal.")
+q6 = Quete("Q6","Trouver le portail","Rejoignez le portail pour le monde \n principal.")
 # Ajout des nœuds avec attributs
 graphe_quetes.add_node("Q1", quete=q1)
 graphe_quetes.add_node("Q2", quete=q2)
@@ -159,7 +159,7 @@ def create_account(username,password,confirm_password):
             cursor = conn.cursor()
             # Requête pour stocker le nom d'utilisateur et le mot de passe dans la table "users"
             cursor.execute('''INSERT INTO Login (pseudo,password,pos_x,pos_y,health,mana,endurance,level,current_quete) values (?,?,?,?,100,0,100,0,?) ''',(username,password,player_position.x,player_position.y,id_quete_deBase))
-
+            cursor.execute('''INSERT INTO Coffre (chest_name,chest_index,pseudo) values ("coffre1",0,?) ''',(username,))
             cursor.close()
             conn.commit()
             conn.close()
@@ -530,7 +530,7 @@ def charger_item_depuis_nom(conn, nom_item):
     if row:
         name, stack_max, regen, type_ = row
         return Item(name, stack_max, regen, 0, 0, type_)
-    return None
+    return None 
 
 def charger_inventaire(username):
     global font
@@ -664,11 +664,15 @@ def launch_game():
     player.mana_value = mana
     player.endurance_value = endurance
 
-
+    #instanciation de l'objet save_game
     save_menu = Save_game_y(screen)
-    chest_position = tmx_data.get_object_by_name("coffre1")
 
-    
+    # Instanciation de l'objet book
+    book = Book(screen)
+    chest_position = tmx_data.get_object_by_name("coffre1")
+    portail1_position = tmx_data.get_object_by_name("portail1")
+    #quete courante de base
+    current_quete = graphe_quetes.nodes["Q1"]["quete"]
 
     #Création des gobelins
     gobelin1 = Enemy("gobelin_epee",250,300,"enemy",screen,(100,100))
@@ -679,9 +683,11 @@ def launch_game():
 
     slime1 = Slime("slime1","enemy",600,100,"suiveur",screen)
     #pnj2 = PNJ("Wizard",200,500,"pnj",screen)
-    chest1 = Coffre("chest1",chest_position.x,chest_position.y)
-
-
+    chest1 = Coffre("chest1",chest_position.x,chest_position.y,0)
+    
+    #Instanciations des portail 
+    portail1 = Portals("portal1",portail1_position.x,portail1_position.y)
+    
     # Création des arbres et ajout au groupe
     trees = [Arbre("arbre", x, y) for x, y in tree_positions]
 
@@ -716,7 +722,7 @@ def launch_game():
     group.add(chest1,layer = 2)
 
     
-
+    
     #On ajoute ici les gobelins
     #group.add(pnj2, layer = 2)
 
@@ -763,10 +769,11 @@ def launch_game():
 
         # Successeurs SANS le flag "choix" (donc à activer automatiquement)
         suivantes = [
-            s for s in graphe_quetes.successors(id_quete)
-            if not graphe_quetes[id_quete][s].get("choix", False)
+            suivante for suivante in graphe_quetes.successors(id_quete)
+            if not graphe_quetes[id_quete][suivante].get("choix", False)
         ]
 
+        #Si la quête ne possède pas des succeseurs n'ayant pas le flag "choix"
         if not suivantes:
             # Afficher au moins "quête accomplie" même sans suite directe
             panneau_visible = True
@@ -785,9 +792,9 @@ def launch_game():
         panneau_target_y = 50
         temps_depart_panneau = pygame.time.get_ticks()
         affichage_etape = "accomplie"
-        file_quete_a_afficher = [graphe_quetes.nodes[s]["quete"] for s in suivantes]
+        file_quete_a_afficher = [graphe_quetes.nodes[s]["quete"] for s in suivantes] 
 
-        print("→ file_quete_a_afficher :", [q.id for q in file_quete_a_afficher])
+        print("→ file_quete_a_afficher :", [q.nom for q in file_quete_a_afficher]) 
 
 
     
@@ -804,8 +811,9 @@ def launch_game():
         quete_affichee = quete
         affichage_etape = "nouvelle_quete"
 
-    pnj1 = PNJ("Wizard",200,200,"pnj",screen,(50,50),pnj1_dialog,panneau_callback=afficher_panneau_nouvelle_quete)
-    pnj1.choix_de_quetes = [graphe_quetes.nodes["Q3"]["quete"], graphe_quetes.nodes["Q4"]["quete"]]
+    pnj1_pos = tmx_data.get_object_by_name("le_guide")
+    pnj1 = PNJ("Wizard",pnj1_pos.x,pnj1_pos.y,"pnj",screen,(50,50),pnj1_dialog,panneau_callback=afficher_panneau_nouvelle_quete)
+    
     
     #On ajoute ici les PNJ
     #group.add(pnj1, layer=2)
@@ -816,10 +824,17 @@ def launch_game():
         screen.blit(panneau_quest_img, (screen.get_width() // 2 - panneau_quest_img.get_width() // 2, y))
         
         titre = police_quetes.render('Nouvelle quête principale', True, (255, 255,0))
-        desc = police_quetes_mission.render(quete.description, True, (0, 0, 0))
+
+        lines = quete.description.split('\n')  # ← ici
+        for i, line in enumerate(lines):
+            desc = police_quetes_mission.render(line, True, (0, 0, 0))
+            screen.blit(desc, (screen.get_width() // 2 - panneau_quest_img.get_width() // 2 +120, y + 65 + i * 30))# ← 25 px entre chaque ligne
+        
+
+        
         
         screen.blit(titre, (screen.get_width() // 2 - titre.get_width() // 2, y + 20))
-        screen.blit(desc, (screen.get_width() // 2 - panneau_quest_img.get_width() // 2 +120, y + 65))
+        
 
     def afficher_panneau_texte(screen, titre_texte, desc_texte, y):
         screen.blit(panneau_quest_img, (screen.get_width() // 2 - panneau_quest_img.get_width() // 2, y))
@@ -887,7 +902,7 @@ def launch_game():
                 if slot and 'object' in slot and getattr(slot['object'], 'name', '') == "buche1":
                     count_buche += slot['quantity']
             
-            if count_buche == 10 :
+            if count_buche >= 10 :
                 terminer_quete("Q3")
                 pnj1.parole = ["Merci d'avoir ramassé les 10 bûches !", "Tu as prouvé ta valeur en rendant\n service à un viel homme comme moi.","Je t'en suis reconnaisant.", "Pour te remercier, voila quelque chose\n qui te sera utile pour ton aventure.","Adieu ..."]
                 # Récupérer le successeur de Q3 (s'il existe)
@@ -953,7 +968,7 @@ def launch_game():
 
     fps_font = pygame.font.SysFont("arial", 20)
     
-    current_quete = graphe_quetes.nodes["Q1"]["quete"]
+    
         
     
     while running:
@@ -980,7 +995,8 @@ def launch_game():
                 player.inventory_list,player.inventory_bag_icon,inventory_bag_stack_text = charger_inventaire_principal(username)
                 # On charge ici le stuff du joueur
                 player.armour_list,player.armour_icon_list = charger_stuff(username)
-
+                
+                
                 quete_affichee.active = True
                 current_quete = graphe_quetes.nodes[quete_affichee.id]["quete"] #on stocke ici la quête en cours
                 pnj1.restaurer_etat_quete() #On restaure la quete qui a été faite afin de ne pas retomber sur le dialogue de proposition du pnj enn cas d'interaction avec lui
@@ -995,6 +1011,7 @@ def launch_game():
         for event in pygame.event.get():
             quit()
             if event.type == pygame.KEYDOWN:
+                #Gestion desévenement de la touche [i]
                 if event.key == pygame.K_e:
                     show_inventory = not show_inventory  # On inverse l'état de l'inventaire
                     player.OnBag = True
@@ -1007,75 +1024,7 @@ def launch_game():
             
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if show_inventory == False and player.dead == False and can_attack:
-                    if player.remaining_attacks > 0:
-                        
-                        # Animation attaque
-                        if player.last_direction == "right":
-                            player.start_anim_attack(player.attack_right_mouv, 0.3, 0)
-                                #Le joueur peut attaquer
-                            player.is_attacking = True
-                            player.remaining_attacks -= 1
-                            player.attack_regen_timer = 0  # Reset du timer
-                            
-                            
-                        if player.last_direction == "left":
-                            player.start_anim_attack(player.attack_left_mouv, 0.3, -0)
-
-                            #Le joueur peut attaquer
-                            player.is_attacking = True
-                            player.remaining_attacks -= 1
-                            player.attack_regen_timer = 0  # Reset du timer
-                            
-
-                        # Définir une direction de dash
-                        direction = pygame.math.Vector2(0, 0)
-                        if player.last_direction == "right":
-                            direction = pygame.math.Vector2(1, 0)
-                        elif player.last_direction == "left":
-                            direction = pygame.math.Vector2(-1, 0)
-
-                        # Lancer le dash
-                        player.dash_vector = direction * player.dash_speed
-                        player.dashing = True
-                        player.dash_timer = player.dash_duration
-
-                        # Vérifie l'attaque sur les ennemis
-                        for sprite in group.sprites():
-                            if isinstance(sprite, Enemy) or isinstance(sprite, Slime):
-                                if player.last_direction == "right" :
-                                    if player.attack_box_right.colliderect(sprite.rect):
-                                        sprite.current_health -= player.degats  # Inflige 10 points de dégâts
-                                        
-                                        if sprite.current_health < 0:
-                                            sprite.current_health = 0
-                                        if sprite.current_health == 0:
-                                            sprite.dead(group,sprite)
-                                        sprite.knockback = True
-                                        sprite.knockback_speed = 6
-                                        sprite.knockback_direction = 1
-
-                                if player.last_direction == "left" :
-                                    if player.attack_box_left.colliderect(sprite.rect):
-                                        sprite.current_health -= player.degats  # Inflige 10 points de dégâts
-
-                                        if sprite.current_health < 0:
-                                            sprite.current_health = 0
-                                        if sprite.current_health == 0:
-                                            sprite.dead(group,sprite)
-
-                                        sprite.knockback = True
-                                        sprite.knockback_speed = 6
-                                        sprite.knockback_direction = -1
-                            if isinstance(sprite, Tronc) and player.feet.colliderect(sprite.hitbox):
-                                if player.last_direction == "right" :
-                                    if player.attack_box_right.colliderect(sprite.hitbox):
-                                        player.move_back()
-                            
-
-
-    
-                                    
-
+                    player.handle_mouse_attack(group)
 
                 if player.rect_button_armour.collidepoint(event.pos):
                     player.OnArmour = True
@@ -1083,35 +1032,13 @@ def launch_game():
                 if player.rect_button_bag.collidepoint(event.pos):
                     player.OnArmour = False
                     player.OnBag = True
-                if player.rect_button_book.collidepoint(event.pos):
-                    show_inventory = False
-                    player.OnBook = True
-                    player.startBookAnimation(player.open_book, 0.3)  
-
-                if player.rect_button_back_book.collidepoint(event.pos):
-                    player.OnBook = False
-                    moving = True
-                    player.current_book_index = 0
-                    player.IsAnimating = True
-                    player.IsOpen = False
-
-                if player.rect_button_left_book.collidepoint(event.pos) and player.page > 0:
-                    player.startBookAnimation(player.turn_left, 0.25)
-                    
-                    player.IsOpen = True
-                    player.page_a_cote = player.page - 1
-                    player.page -= 2
-
-                if player.rect_button_right_book.collidepoint(event.pos) and player.page < 20:
-                    player.startBookAnimation(player.turn_right, 0.25)
-                    player.IsOpen = True
-                    player.page += 2
-                    player.page_a_cote = player.page + 1
+                
+                book.handle_mouse_event(event)
 
                 if player.dead:
                     #On gère ici l'appuie sur les boutton du menu de mort
                     if player.rect_reesayer_dead.collidepoint(event.pos):
-                        player = Player(position_player[0], position_player[1], screen)
+                        player = Player(pos_x, pos_y, screen)
                         group.add(player, layer=5)
                         
                     if player.rect_quiiter_dead.collidepoint(event.pos):
@@ -1127,6 +1054,7 @@ def launch_game():
             save_menu.handle_event(event,username,player.level,player.rect.x,player.rect.y,player.health_value,player.mana_value,player.endurance_value,current_quete.id,player.inventory_bar_list,player.inventory_list,player.armour_list)
 
             if event.type == pygame.KEYDOWN:
+                #Gestion desévenement de la touche [i]
                 if event.key == pygame.K_i:
                     if near_chest and near_chest.Can_open:
                         near_chest.start_animation_coffre(near_chest.coffre_open_list, 0.3)
@@ -1136,9 +1064,7 @@ def launch_game():
                         if quete.active and not quete.terminee:
                             terminer_quete("Q1")
                             current_quete = graphe_quetes.nodes["Q2"]["quete"]
-                        
-                            
-                        
+
                     elif active_pnj:  # ← Si on a un PNJ actif
                         active_pnj.CanDialog = not active_pnj.CanDialog
                         if active_pnj.CanDialog:
@@ -1146,18 +1072,22 @@ def launch_game():
                             active_pnj.start_dialog(0)
                             # Gérer la fin de la quête précédente (Q2)
                             q2 = graphe_quetes.nodes["Q2"]["quete"]
-                            q5 = graphe_quetes.nodes["Q5"]["quete"]
                             if q2.active and not q2.terminee:
                                 terminer_quete("Q2")
-
-                            
-                            
-                            
-                               
-
+      
+                #Gestion desévenement de la touche [ESPACE]
                 if event.key == pygame.K_SPACE:
                     if active_pnj and active_pnj.CanDialog:
                         active_pnj.next_dialog()
+                        q5 = graphe_quetes.nodes["Q5"]["quete"]
+
+                        if q5.active and not q5.terminee : 
+                            # On termine la quête 5 uniquement si on est à la dernière phrase du dialogue
+                            if active_pnj.current_parole_index >= len(active_pnj.parole)-1:
+                                terminer_quete("Q5")
+                                current_quete = graphe_quetes.nodes["Q6"]["quete"]
+                
+        
 
         # Ajout dynamique du PNJ1 si la quête Q2, Q3, Q4 ou Q5 est active ou terminée
         if not any(isinstance(s, PNJ) and getattr(s, "name", "") == "Wizard" for s in group.sprites()):
@@ -1168,10 +1098,16 @@ def launch_game():
                     group.add(pnj1, layer=2)
                     break
         
+        quetes_por = ["Q6"]
+        for q in quetes_por:
+            quete = graphe_quetes.nodes[q]["quete"]
+            if quete.active or quete.terminee:
+                group.add(portail1,layer = 4)
+                break
 
 
-        quete = graphe_quetes.nodes["Q2"]["quete"]
-                      
+  
+                   
 
         
         # vérifier si l'on peut marcher
@@ -1212,22 +1148,13 @@ def launch_game():
             pred = list(graphe_quetes.predecessors("Q5"))
             if pred:
                 if pred[0] == "Q3":
-                    pnj1.parole = [
-                        "Merci d'avoir ramassé les 10 bûches !",
-                        "Tu as prouvé ta valeur en rendant\n service à un viel homme comme moi.",
-                        "Je t'en suis reconnaisant.",
-                        "Pour te remercier, voila quelque chose\n qui te sera utile pour ton aventure.",
-                        "Adieu ..."
-                    ]
+                    pnj1.parole = pnj1_dialog_apres_Q3 #On charge le dialogue du pnj depuis dialog_data pour alléger le code
 
                 elif pred[0] == "Q4":
-                    pnj1.parole = [
-                        "Merci d'avoir ramassé les 5 pommes !", 
-                        "Tu as prouvé ta valeur en rendant\n service à un viel homme comme moi.",
-                        "Je t'en suis reconnaisant.",
-                        "Pour te remercier, voila quelque chose\n qui te sera utile pour ton aventure.",
-                        "Adieu ..."
-                ]
+                    pnj1.parole = pnj1_dialog_apres_Q4 #On charge le dialogue du pnj depuis dialog_data pour alléger le code
+        if graphe_quetes.nodes["Q6"]["quete"].active:
+            pnj1.parole = ["Bon voyage aventurier..."]
+                
 
                     
 
@@ -1238,11 +1165,11 @@ def launch_game():
         group.draw(screen)
         
 
-        if player.OnBook:
-            player.animBook()
+        if book.OnBook:
+            book.animBook()
 
         if progressing:
-            world_pos = (player.rect.centerx , player.rect.top - 10)
+            world_pos = (player.rect.centerx , player.rect.top - 20)
             screen_pos = map_layer.translate_point(world_pos)
 
             radius = 30
@@ -1309,7 +1236,7 @@ def launch_game():
                                 progress_cut = 0.0
 
                         if cut_progressing:
-                            world_pos = (player.rect.centerx, player.rect.top - 10)
+                            world_pos = (player.rect.centerx, player.rect.top - 30)
                             screen_pos = map_layer.translate_point(world_pos)
 
                             radius = 60
@@ -1454,9 +1381,9 @@ def launch_game():
 
         #affichage des UI 
         player.affiche_ui(map_layer)
-
+        book.affiche_book_ui()
         
-
+       
         
         if show_inventory:
             player.display_inventory()  # On appelle la méthode display_inventory pour afficher l'inventaire
@@ -1479,7 +1406,8 @@ def launch_game():
         
         
         pnj1.idle()
-
+        portail1.anim_portal()
+ 
         #gestion de l'affichage des panneau des quête
         if panneau_visible:
             
@@ -1551,6 +1479,12 @@ def launch_game():
             if fondu_opacite <= 0:
                 fondu_actif = False
         
+
+
+        # On remplit la liste des quêtes proposées par le PNJ avec les successeurs de Q2 ayant choix=True, si la quête actuelle est Q2
+        pnj1.choix_de_quetes = [graphe_quetes.nodes[s]["quete"] for s in graphe_quetes.successors("Q2") if graphe_quetes["Q2"][s].get("choix", False)
+        ] if current_quete.id == "Q2" else []
+
         pygame.display.update()
 
 if __name__ == "__main__":
