@@ -14,7 +14,7 @@
             "scaleInEditor": 1
         },
         "grass.tsx": {
-            "scaleInDock": 3,
+            "scaleInDock": 1,
             "scaleInEditor": 1
         },
         "houses.tsx": {
@@ -53,6 +53,17 @@
             "scaleInDock": 1.5,
             "scaleInEditor": 1
         },
+        "map_principale1.tmx": {
+            "expandedObjectLayers": [
+                2
+            ],
+            "scale": 0.0625,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 3984,
+                "y": 4936
+            }
+        },
         "map_test.tmx": {
             "expandedObjectLayers": [
                 2
@@ -65,11 +76,14 @@
             }
         },
         "maps.tmx": {
-            "scale": 3,
+            "expandedObjectLayers": [
+                2
+            ],
+            "scale": 0.5,
             "selectedLayer": 7,
             "viewCenter": {
-                "x": 1125,
-                "y": 1530.5
+                "x": 874,
+                "y": 271
             }
         },
         "murs.tsx": {
@@ -118,21 +132,23 @@
         }
     },
     "last.imagePath": "C:/Users/Bloc/Documents/Projet NSI terminale/Projet-terminale/maps/TileSet image",
-    "map.height": 100,
+    "map.height": 500,
     "map.lastUsedFormat": "tmx",
     "map.tileHeight": 16,
     "map.tileWidth": 16,
-    "map.width": 100,
+    "map.width": 500,
     "openFiles": [
         "maps.tmx",
         "ombres.tsx",
         "housess.tsx",
         "portal.tsx",
         "objet_avec_ombres.tsx",
-        "supp.tsx"
+        "supp.tsx",
+        "map_principale1.tmx"
     ],
     "project": "Projet_jeu_RPG.tiled-project",
     "recentFiles": [
+        "map_principale1.tmx",
         "supp.tsx",
         "objet_avec_ombres.tsx",
         "portal.tsx",
@@ -143,8 +159,7 @@
         "le protail v2.tsx",
         "map_test.tmx",
         "lage.tsx",
-        "houses.tsx",
-        "maisonnn.tsx"
+        "houses.tsx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {

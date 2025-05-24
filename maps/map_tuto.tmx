@@ -1161,9 +1161,6 @@
   <object id="113" name="collision" x="1271.07" y="78.733" width="19.6515" height="30.9091"/>
   <object id="114" name="collision" x="582.303" y="1799.55" width="19.6666" height="34.6667"/>
   <object id="115" name="collision" x="646.303" y="1799.05" width="19.6666" height="34.6667"/>
-  <object id="116" x="1585.67" y="2381.83">
-   <point/>
-  </object>
   <object id="117" x="862" y="1321.33">
    <point/>
   </object>

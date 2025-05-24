@@ -158,7 +158,7 @@ def create_account(username,password,confirm_password):
             conn = sqlite3.connect('database/data_yahya.db')
             cursor = conn.cursor()
             # Requête pour stocker le nom d'utilisateur et le mot de passe dans la table "users"
-            cursor.execute('''INSERT INTO Login (pseudo,password,pos_x,pos_y,health,mana,endurance,level,current_quete) values (?,?,?,?,100,0,100,0,?) ''',(username,password,player_position.x,player_position.y,id_quete_deBase))
+            cursor.execute('''INSERT INTO Login (pseudo,password,pos_x,pos_y,health,mana,endurance,level,current_quete,current_map) values (?,?,?,?,100,0,100,0,?,map_tuto) ''',(username,password,player_position.x,player_position.y,id_quete_deBase))
             cursor.execute('''INSERT INTO Coffre (chest_name,chest_index,pseudo) values ("coffre1",0,?) ''',(username,))
             cursor.close()
             conn.commit()
@@ -634,14 +634,24 @@ def charger_quete():
         return graphe_quetes.nodes[result[0]]["quete"]
     return None
 
+def charger_map():
+    # Connexion à la base de données
+    conn = sqlite3.connect('database/data_yahya.db')
+    cursor = conn.cursor()
+    # Requête pour récupérer la position du joueur
+    cursor.execute('''SELECT current_map FROM Login WHERE pseudo = ?;''', (username,))
+    result = cursor.fetchone()
+    if result:
+        return result[0]
+    return None
 # Fonction pour lancer le jeu 
 def launch_game():
     global tree_positions, graphe_quetes
     
-
+    current_map = charger_map()
     mainClock = pygame.time.Clock()
     # Chargement de la carte Tiled
-    tmx_data = load_pygame("maps/maps.tmx")  
+    tmx_data = load_pygame(f"maps/{current_map}.tmx")  
 
 
     collision_rects = []
@@ -669,8 +679,7 @@ def launch_game():
 
     # Instanciation de l'objet book
     book = Book(screen)
-    chest_position = tmx_data.get_object_by_name("coffre1")
-    portail1_position = tmx_data.get_object_by_name("portail1")
+    
     #quete courante de base
     current_quete = graphe_quetes.nodes["Q1"]["quete"]
 
@@ -683,10 +692,12 @@ def launch_game():
 
     slime1 = Slime("slime1","enemy",600,100,"suiveur",screen)
     #pnj2 = PNJ("Wizard",200,500,"pnj",screen)
-    chest1 = Coffre("chest1",chest_position.x,chest_position.y,0)
+
+
+    chest1 = Coffre("chest1",962,1402,0)
     
     #Instanciations des portail 
-    portail1 = Portals("portal1",portail1_position.x,portail1_position.y)
+    portail1 = Portals("portal1",1220,30.25)
     
     # Création des arbres et ajout au groupe
     trees = [Arbre("arbre", x, y) for x, y in tree_positions]
@@ -811,8 +822,8 @@ def launch_game():
         quete_affichee = quete
         affichage_etape = "nouvelle_quete"
 
-    pnj1_pos = tmx_data.get_object_by_name("le_guide")
-    pnj1 = PNJ("Wizard",pnj1_pos.x,pnj1_pos.y,"pnj",screen,(50,50),pnj1_dialog,panneau_callback=afficher_panneau_nouvelle_quete)
+    
+    pnj1 = PNJ("Wizard",184,1251,"pnj",screen,(50,50),pnj1_dialog,panneau_callback=afficher_panneau_nouvelle_quete)
     
     
     #On ajoute ici les PNJ
@@ -1051,7 +1062,7 @@ def launch_game():
 
             player.handle_key_events(event)
 
-            save_menu.handle_event(event,username,player.level,player.rect.x,player.rect.y,player.health_value,player.mana_value,player.endurance_value,current_quete.id,player.inventory_bar_list,player.inventory_list,player.armour_list)
+            save_menu.handle_event(event,username,player.level,player.rect.x,player.rect.y,player.health_value,player.mana_value,player.endurance_value,current_quete.id,player.inventory_bar_list,player.inventory_list,player.armour_list,current_map)
 
             if event.type == pygame.KEYDOWN:
                 #Gestion desévenement de la touche [i]
@@ -1199,6 +1210,51 @@ def launch_game():
         
 
         for sprite in group.sprites():
+
+            if isinstance(sprite, Portals) and player.feet.colliderect(sprite.rect):
+                if sprite.name == "portal1":
+                    # Afficher un écran noir avec "Téléportation"
+                    screen.fill((0, 0, 0))
+                    font_teleport = pygame.font.Font("UI/dialog_font.ttf", 60)
+                    text_teleport = font_teleport.render("Téléportation...", True, (255, 255, 255))
+                    text_rect = text_teleport.get_rect(center=(screen.get_width() // 2, screen.get_height() // 2))
+                    screen.blit(text_teleport, text_rect)
+                    pygame.display.flip()
+                    pygame.time.delay(900)
+                    # Téléportation vers la nouvelle map "map_principale1"
+                    # Charger la nouvelle map
+                    tmx_data_new = load_pygame("maps/map_principale1.tmx")
+                    map_data_new = pyscroll.data.TiledMapData(tmx_data_new)
+                    map_layer_new = pyscroll.orthographic.BufferedRenderer(map_data_new, screen.get_size())
+                    map_layer_new.zoom = 2.2
+
+                    # Trouver la position de départ du joueur sur la nouvelle map
+                    try:
+                        player_start = tmx_data_new.get_object_by_name("Player")
+                        player.rect.x = player_start.x
+                        player.rect.y = player_start.y
+                    # Sinon on le met par défaut en (0,0)
+                    except Exception:
+                        player.rect.x = 0
+                        player.rect.y = 0
+
+                    # Mettre à jour le groupe de rendu avec la nouvelle map
+                    group._map_layer = map_layer_new
+                    group.center(player.rect.center)
+                    # Mettre à jour les collisions pour la nouvelle map
+                    collision_rects.clear()
+                    for obj in tmx_data_new.objects:
+                        if obj.name == "collision" or obj.type == "collision":
+                            rect = pygame.Rect(obj.x, obj.y, obj.width, obj.height)
+                            collision_rects.append(rect)
+                    current_map = "map_principale1"
+                    # Optionnel : retirer/ajouter les entités spécifiques à la nouvelle map ici
+                    # Retirer toutes les entités de la map précédente (hors joueur)
+                    for sprite in group.sprites():
+                        if sprite != player:
+                            group.remove(sprite)
+                    continue  # pour éviter d'autres collisions ce frame
+
             if show_inventory == False:
                 if isinstance(sprite, Tronc) and player.hit_box.colliderect(sprite.hitbox):
                     

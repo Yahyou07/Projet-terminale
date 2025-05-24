@@ -75,7 +75,7 @@ class Save_game_y(object):
         #self.screen.blit(self.parametre_btn,(self.largeur-75, 0))
         #self.screen.blit(param_text, (self.parametre_btn.x + 10, self.parametre_btn.y + 10))
 
-    def handle_event(self, event, joueur : str , level_joueur : int , pos_x : int , pos_y : int ,vie : int,mana : int,endurance : int,quete_id : str ,inventory_barlist : list ,inventory_list : list,stuff_list : list ):
+    def handle_event(self, event, joueur : str , level_joueur : int , pos_x : int , pos_y : int ,vie : int,mana : int,endurance : int,quete_id : str ,inventory_barlist : list ,inventory_list : list,stuff_list : list,map_id :str ):
         """
             Gère les événements de la fenêtre de jeu
             event : l'événement à gérer
@@ -95,7 +95,7 @@ class Save_game_y(object):
             if event.button == 1:  # Si le bouton gauche de la souris est cliqué  
                 if self.quit_rect.collidepoint(event.pos):
                         print("tu vas quitter la game chef")
-                        self.sauvegarder(joueur, level_joueur, pos_x, pos_y, vie, mana, endurance,quete_id)
+                        self.sauvegarder(joueur, level_joueur, pos_x, pos_y, vie, mana, endurance,quete_id,map_id)
                         self.sauvegarder_inventaire(joueur, inventory_barlist)
                         self.sauvegarder_inventaire_principal(joueur,inventory_list)
                         self.sauvegarder_stuff(joueur,stuff_list)
@@ -106,7 +106,7 @@ class Save_game_y(object):
                         self.return_game()
                 
 
-    def sauvegarder(self, joueur : str , level_joueur : int , pos_x : int , pos_y : int ,vie : int,mana : int,endurance : int, quete_id : str):
+    def sauvegarder(self, joueur : str , level_joueur : int , pos_x : int , pos_y : int ,vie : int,mana : int,endurance : int, quete_id : str,map_id : str):
         """
             Sauvegarde le joueur dans un fichier
             joueur : le joueur à sauvegarder
@@ -118,7 +118,7 @@ class Save_game_y(object):
         """
         curseur = self.connexion.cursor()
         requeteSQL = '''update Login set pos_x = {}, pos_y = {} , level = {},health = {},mana = {},endurance = {} where pseudo = {}'''.format(pos_x,pos_y,level_joueur,vie,mana,endurance,joueur) # rerquête à modifier afin d'enregistrer l'emplacement du joueur et le contenu de son inventaire
-        curseur.execute('''update Login set pos_x = ?, pos_y = ? , level = ?,health = ?,mana = ?,endurance = ?,current_quete = ? where pseudo = ?''',(pos_x,pos_y,level_joueur,vie,mana,endurance,quete_id,joueur))
+        curseur.execute('''update Login set pos_x = ?, pos_y = ? , level = ?,health = ?,mana = ?,endurance = ?,current_quete = ?,current_map = ? where pseudo = ?''',(pos_x,pos_y,level_joueur,vie,mana,endurance,quete_id,map_id,joueur))
         curseur.close()
         
 
