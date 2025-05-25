@@ -13,29 +13,18 @@ class Save_game_y(object):
         self.screen = ecran
         self.image = pygame.image.load("UI/pause.png")
         self.largeur, self.hauteur = self.screen.get_size() #récuparation de la taille de l'écran
-        #self.quit = pygame.Rect(self.largeur//3 + 100, self.hauteur//4 + 100, 275, 50)
     
         self.quit = pygame.image.load("UI/quit.png")
-
         self.retour = pygame.image.load("UI/return_game.png")
 
         self.activate = pygame.image.load("UI/activate.png") # état du bouton activer
         self.desactivate = pygame.image.load("UI/disactivate.png") # état du bouton désactiver
+        self.activation_temp = self.activate  # Variable pour stocker l'état du bouton d'activation
 
         self.quit_rect = self.quit.get_rect(topleft=((self.largeur-768)//2+390,(self.hauteur-512)//2+337))  # Met à jour la position du bouton quitter
         self.retour_rect = self.retour.get_rect(topleft=((self.largeur-768)//2+125,(self.hauteur-512)//2+337))  # Met à jour la position du bouton retour
         self.activate_rect = self.activate.get_rect(topleft=((self.largeur-768)//2+456,(self.hauteur-512)//2 + 117))  # Met à jour la position du bouton activer
-        self.desactivate_rect = self.desactivate.get_rect(topleft=((self.largeur-768)//2+456,(self.hauteur-512)//2 + 117))  # Met à jour la position du bouton désactiver  
 
-
-        #self.retour = pygame.Rect(self.largeur//3 + 100, self.hauteur//4 + 200, 275, 50)
-
-        #self.parametre_btn = pygame.image.load("parametre.png")
-        #self.parametre_btn = pygame.transform.scale(self.parametre_btn, (75,75))
-
-        self.text_quit = "Quitter la partie"
-        self.text_param = "Paramètre"
-        self.text_retour = "Retourner"
         self.connexion = sqlite3.connect('database/data_yahya.db')
         self.clock = pygame.time.Clock()
         self.running = True
@@ -46,7 +35,12 @@ class Save_game_y(object):
         self.confirm_no = pygame.Rect(470, 420, 160, 50)
 
         self.music = True # Variable pour contrôler la musique
-        
+
+        # si la musique est activée, elle sera jouée en continue
+        if self.music:
+            pygame.mixer.music.load("music/music.mp3")
+            pygame.mixer.music.play(-1)  # Joue la musique en boucle
+            print("Musique lancée")
         
 
     def update(self):
@@ -55,35 +49,15 @@ class Save_game_y(object):
         """
         font = pygame.font.SysFont(None, 50)
         
-        pygame.mixer.music.load("music/music.mp3")
-        pygame.mixer.music.play(-1)  # Joue la musique en boucle
         
         if self.quitte:
             fond = pygame.Surface((self.screen.get_width(), self.screen.get_height()), pygame.SRCALPHA)
             fond.fill((40, 40, 40, 200))  # Rouge avec 50% de transparence (128/255)
             self.screen.blit(fond, (0, 0))
             self.screen.blit(self.image,((self.largeur-768)//2,(self.hauteur-512)//2))
-            """pygame.draw.rect(self.screen, (255, 255, 255), self.quit)
-            pygame.draw.rect(self.screen, (0, 0, 0), self.quit, 2)
-            
-
-            pygame.draw.rect(self.screen, (255, 255, 255), self.retour)
-            pygame.draw.rect(self.screen, (0, 0, 0), self.retour, 2)
-
-            quit_text = font.render(self.text_quit, True, (0, 0, 0))
-            self.screen.blit(quit_text, (self.quit.x + 5, self.quit.y + 10))
-
-            
-            retour_text = font.render(self.text_retour, True, (0, 0, 0))
-            self.screen.blit(retour_text, (self.retour.x + 5, self.retour.y + 10))
-            """
             self.screen.blit(self.quit,((self.largeur-768)//2+390,(self.hauteur-512)//2+337))
             self.screen.blit(self.retour,((self.largeur-768)//2+125,(self.hauteur-512)//2+337))
-        #pygame.draw.rect(self.screen, (255, 255, 255), self.parametre_btn)
-        #pygame.draw.rect(self.screen, (0, 0, 0), self.parametre_btn, 2)
-        param_text = font.render(self.text_param, True, (0, 0, 0))
-        #self.screen.blit(self.parametre_btn,(self.largeur-75, 0))
-        #self.screen.blit(param_text, (self.parametre_btn.x + 10, self.parametre_btn.y + 10))
+            self.screen.blit(self.activation_temp,((self.largeur-768)//2+456,(self.hauteur-512)//2 + 117))  # Affiche le bouton activé
 
     def handle_event(self, event, joueur : str , level_joueur : int , pos_x : int , pos_y : int ,vie : int,mana : int,endurance : int,quete_id : str ,inventory_barlist : list ,inventory_list : list,stuff_list : list,map_id :str ):
         """
@@ -108,6 +82,7 @@ class Save_game_y(object):
                         self.sauvegarder_inventaire(joueur, inventory_barlist)
                         self.sauvegarder_inventaire_principal(joueur,inventory_list)
                         self.sauvegarder_stuff(joueur,stuff_list)
+                        pygame.mixer.music.stop()  # Arrête la musique
                         self.running = False
 
                 elif self.retour_rect.collidepoint(event.pos):
@@ -116,10 +91,12 @@ class Save_game_y(object):
                     self.music = not self.music  # Inverse l'état de la musique
                     if self.music:
                         pygame.mixer.music.unpause()  # Reprend la musique si elle était en pause
-                        self.screen.blit(self.activate, self.activate_rect.topleft)  # Affiche le bouton activé
-                    else:
+                        self.activation_temp = self.activate  # Met à jour l'état du bouton d'activation
+                        print("Musique activée")
+                    if not self.music:
                         pygame.mixer.music.pause()
-                        self.screen.blit(self.desactivate, self.activate_rect.topleft)  # Affiche le bouton désactivé
+                        self.activation_temp = self.desactivate
+                        print("Musique désactivée")
                         
                 
 
