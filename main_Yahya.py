@@ -527,7 +527,7 @@ def main_menu():
         "Musique Pixabay",
         "Remerciements spéciaux à :",
         "Albin, Mr Martin alias Philipus Martinus",
-        "(qui ne goutera qu'a 2% des bénéfices)",
+        "(qui ne goutera qu'a 2% des bénéfices si on n'a pas 20)",
         "A Raph aussi",
         "A Tchoupi",
         "et au PNJ",
