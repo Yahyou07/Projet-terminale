@@ -20,7 +20,7 @@ class Enigme(object):
         self.screen = screen
         
         self.largeur, self.hauteur = self.screen.get_size() #récuparation de la taille de l'écran
-        self.image = pygame.image.load("enigme.png")    # chargement de l'image où il y a l'énigme
+        self.image = pygame.image.load("UI/enigme.png")    # chargement de l'image où il y a l'énigme
         self.witdh, self.height = self.image.get_size() #récupération de la taille de l'image
         self.Loose = False
         self.Perdu = False

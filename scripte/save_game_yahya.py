@@ -11,16 +11,21 @@ class Save_game_y(object):
     """
     def __init__(self, ecran):
         self.screen = ecran
-        self.image = pygame.image.load("pause.png")
+        self.image = pygame.image.load("UI/pause.png")
         self.largeur, self.hauteur = self.screen.get_size() #récuparation de la taille de l'écran
         #self.quit = pygame.Rect(self.largeur//3 + 100, self.hauteur//4 + 100, 275, 50)
+    
+        self.quit = pygame.image.load("UI/quit.png")
 
-        self.quit = pygame.image.load("quit.png")
+        self.retour = pygame.image.load("UI/return_game.png")
 
-        self.retour = pygame.image.load("return_game.png")
+        self.activate = pygame.image.load("UI/activate.png") # état du bouton activer
+        self.desactivate = pygame.image.load("UI/disactivate.png") # état du bouton désactiver
 
         self.quit_rect = self.quit.get_rect(topleft=((self.largeur-768)//2+390,(self.hauteur-512)//2+337))  # Met à jour la position du bouton quitter
-        self.retour_rect = self.retour.get_rect(topleft=((self.largeur-768)//2+125,(self.hauteur-512)//2+337))  # Met à jour la position du bouton retour   
+        self.retour_rect = self.retour.get_rect(topleft=((self.largeur-768)//2+125,(self.hauteur-512)//2+337))  # Met à jour la position du bouton retour
+        self.activate_rect = self.activate.get_rect(topleft=((self.largeur-768)//2+456,(self.hauteur-512)//2 + 117))  # Met à jour la position du bouton activer
+        self.desactivate_rect = self.desactivate.get_rect(topleft=((self.largeur-768)//2+456,(self.hauteur-512)//2 + 117))  # Met à jour la position du bouton désactiver  
 
 
         #self.retour = pygame.Rect(self.largeur//3 + 100, self.hauteur//4 + 200, 275, 50)
@@ -39,15 +44,20 @@ class Save_game_y(object):
         self.confirm_box = pygame.Rect(250, 300, 400, 200)
         self.confirm_yes = pygame.Rect(270, 420, 160, 50)
         self.confirm_no = pygame.Rect(470, 420, 160, 50)
+
+        self.music = True # Variable pour contrôler la musique
         
         
 
     def update(self):
         """
-        Affiche les boutons "Quitter" et "Paramètre" en permanence
+            Affiche les boutons "Quitter" et "Paramètre" en permanence
         """
         font = pygame.font.SysFont(None, 50)
-
+        
+        pygame.mixer.music.load("music/music.mp3")
+        pygame.mixer.music.play(-1)  # Joue la musique en boucle
+        
         if self.quitte:
             fond = pygame.Surface((self.screen.get_width(), self.screen.get_height()), pygame.SRCALPHA)
             fond.fill((40, 40, 40, 200))  # Rouge avec 50% de transparence (128/255)
@@ -94,7 +104,6 @@ class Save_game_y(object):
         if event.type == pygame.MOUSEBUTTONDOWN and self.quitte:
             if event.button == 1:  # Si le bouton gauche de la souris est cliqué  
                 if self.quit_rect.collidepoint(event.pos):
-                        print("tu vas quitter la game chef")
                         self.sauvegarder(joueur, level_joueur, pos_x, pos_y, vie, mana, endurance,quete_id,map_id)
                         self.sauvegarder_inventaire(joueur, inventory_barlist)
                         self.sauvegarder_inventaire_principal(joueur,inventory_list)
@@ -102,8 +111,16 @@ class Save_game_y(object):
                         self.running = False
 
                 elif self.retour_rect.collidepoint(event.pos):
-                        print("retour dans le jeu")
                         self.return_game()
+                elif self.activate_rect.collidepoint(event.pos):
+                    self.music = not self.music  # Inverse l'état de la musique
+                    if self.music:
+                        pygame.mixer.music.unpause()  # Reprend la musique si elle était en pause
+                        self.screen.blit(self.activate, self.activate_rect.topleft)  # Affiche le bouton activé
+                    else:
+                        pygame.mixer.music.pause()
+                        self.screen.blit(self.desactivate, self.activate_rect.topleft)  # Affiche le bouton désactivé
+                        
                 
 
     def sauvegarder(self, joueur : str , level_joueur : int , pos_x : int , pos_y : int ,vie : int,mana : int,endurance : int, quete_id : str,map_id : str):
