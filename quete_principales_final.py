@@ -11,16 +11,9 @@ class Quete:
         self.entites = entites or []
         self.active = False
         self.terminee = False
-        self.est_choix = False  # si c’est une quête à choix multiple
+        
 
-    def demarrer(self):
-        self.active = True
-        print(f"Début de la quête : {self.nom}")
 
-    def terminer(self):
-        self.active = False
-        self.terminee = True
-        print(f"Quête terminée : {self.nom}")
 
 
 

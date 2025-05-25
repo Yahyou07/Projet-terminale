@@ -60,6 +60,7 @@ q3 = Quete("Q3", "Ramasser du bois", "Ramasser 10 buches dans la forêt.")
 q4 = Quete("Q4","Récupérer des pommes","Ramasser 5 pommes dans la foret.")
 q5 = Quete("Q5","Retrouver le vieux guide","Retrouver le vieux guide.")
 q6 = Quete("Q6","Trouver le portail","Rejoignez le portail pour le monde \n principal.")
+q7 = Quete("Q7","trouver le maire de Grotval","Trouver le maire de Grotval, \n le village des mineurs.)")
 # Ajout des nœuds avec attributs
 graphe_quetes.add_node("Q1", quete=q1)
 graphe_quetes.add_node("Q2", quete=q2)
@@ -67,6 +68,7 @@ graphe_quetes.add_node("Q3", quete=q3)
 graphe_quetes.add_node("Q4",quete = q4)
 graphe_quetes.add_node("Q5",quete = q5)
 graphe_quetes.add_node("Q6",quete = q6 )
+graphe_quetes.add_node("Q7",quete = q7 )
 # Ajout des relations (choix ou dépendances)
 graphe_quetes.add_edge("Q1", "Q2")  # Après Q1, Q2 est possible
 graphe_quetes.add_edge("Q2", "Q3",choix=True)  # Après Q2, Q3 est possible
@@ -74,6 +76,7 @@ graphe_quetes.add_edge("Q2","Q4",choix=True)     # Après Q2, Q4 est possible
 graphe_quetes.add_edge("Q3","Q5")
 graphe_quetes.add_edge("Q4","Q5")
 graphe_quetes.add_edge("Q5","Q6")
+graphe_quetes.add_edge("Q6","Q7")
 
 #variable username utilisé pour stocké le pseudo du joueur
 username = ""
@@ -405,6 +408,47 @@ def login():
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN) 
 
 run = False
+def credits_screen(background_image):
+    clock = pygame.time.Clock()
+    font = pygame.font.Font("UI/dialog_font.ttf", 30)
+    credits = [
+        "Game developed by YourName",
+        "Graphics by YourArtist",
+        "Music by YourMusician",
+        "Special Thanks to...",
+        "Made with Pygame",
+        "2025"
+    ]
+
+    # Créer un grand texte à défiler
+    lines = [font.render(line, True, (255, 255, 255)) for line in credits]
+    total_height = sum(line.get_height() + 20 for line in lines)
+    start_y = screen.get_height()
+
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
+                running = False  # quitter l'écran des crédits
+
+        screen.blit(background_image, (0, 0))
+
+        y = start_y
+        for line in lines:
+            x = (screen.get_width() - line.get_width()) // 2
+            screen.blit(line, (x, y))
+            y += line.get_height() + 20
+
+        start_y -= 1  # fait défiler vers le haut
+
+        if y < 0:
+            start_y = screen.get_height()  # recommencer le défilement
+
+        pygame.display.flip()
+        clock.tick(60)
 
 # fonction pour afficher le menu principal
 def main_menu():
@@ -412,6 +456,10 @@ def main_menu():
     
     WHITE = (255, 255, 255)
     GRAY = (100, 100, 100)
+
+    retour_image = pygame.image.load("UI/retour_account.png")
+    rect_retour_image = retour_image.get_rect(topleft=(0,0))
+
     background_image = pygame.image.load("UI/bg_menu.png")
     background_image = pygame.transform.scale(background_image, screen.get_size())
     button_bg = pygame.image.load("UI/button_play.png")
@@ -470,6 +518,33 @@ def main_menu():
     sprites = pygame.sprite.Group()
     skin = Player(100, 100, screen) 
     sprites.add(skin)
+
+
+    font = pygame.font.Font("UI/dialog_font.ttf", 30)
+    credits = [
+        "Un jeu développé par Yahya et Ayyoub",
+        "Grafics YahyouSyle ",
+        "Musique Pixabay",
+        "Remerciements spéciaux à :",
+        "Albin, Mr Martin alias Philipus Martinus",
+        "(qui ne goutera qu'a 2% des bénéfices)",
+        "A Raph aussi",
+        "A Tchoupi",
+        "et au PNJ",
+        "Un jeu fait avec Pygame",
+        "2025",
+        "Realease le 15 juin 2025 ",
+        "The Last Heir ©"
+
+    ]
+
+    # Créer un grand texte à défiler
+    lines = [font.render(line, True, (255, 255, 255)) for line in credits]
+    total_height = sum(line.get_height() + 20 for line in lines)
+    start_y = screen.get_height()
+
+    Acceuil = True
+    Credits = False
     while running_menu:
         mouse_pos = pygame.mouse.get_pos()
         
@@ -487,40 +562,56 @@ def main_menu():
                 elif quit_rect.collidepoint(event.pos):
                     pygame.quit()
                     sys.exit()
+                elif credits_rect.collidepoint(event.pos):
+                    Credits = True
+                    Acceuil = False
         screen.blit(background_image, (0, 0))
-
-        screen.blit(game_logo,(0,-80))
-
-        # Détection du hover
-        play_color = GRAY if play_rect.collidepoint(mouse_pos) else WHITE
-        quit_color = GRAY if quit_rect.collidepoint(mouse_pos) else WHITE
-        credits_color = GRAY if credits_rect.collidepoint(mouse_pos) else WHITE
-        #création des textes
-        play_text = button_font.render("LAUNCH GAME", True, play_color)
-        credits_text = button_font.render("CREDITS", True, credits_color)
-        quit_text = button_font.render("EXIT", True, quit_color)
         
-        # Ombre
-        shadow_offset = (5, 2)
-        play_shadow = button_font.render("LAUNCH GAME", True, (0, 0, 0))  # ombre noire
-        screen.blit(play_shadow, (play_rect.x + shadow_offset[0], play_rect.y + shadow_offset[1]))
-        screen.blit(play_text, play_rect)
-        #Affichage bouton quitter avec ombre
-        quit_shadow = button_font.render("EXIT", True, (0, 0, 0))
-        screen.blit(quit_shadow, (quit_rect.x + shadow_offset[0], quit_rect.y + shadow_offset[1]))
-        screen.blit(quit_text, quit_rect)
+        if Acceuil:
+            screen.blit(game_logo,(0,-80))
 
-        #Affichage bouton credits avec ombre
-        credits_shadow = button_font.render("CREDITS", True, (0, 0, 0))
-        screen.blit(credits_shadow, (credits_rect.x + shadow_offset[0], credits_rect.y + shadow_offset[1]))
-        screen.blit(credits_text, credits_rect)
+            # Détection du hover
+            play_color = GRAY if play_rect.collidepoint(mouse_pos) else WHITE
+            quit_color = GRAY if quit_rect.collidepoint(mouse_pos) else WHITE
+            credits_color = GRAY if credits_rect.collidepoint(mouse_pos) else WHITE
+            #création des textes
+            play_text = button_font.render("LAUNCH GAME", True, play_color)
+            credits_text = button_font.render("CREDITS", True, credits_color)
+            quit_text = button_font.render("EXIT", True, quit_color)
+            
+            # Ombre
+            shadow_offset = (5, 2)
+            play_shadow = button_font.render("LAUNCH GAME", True, (0, 0, 0))  # ombre noire
+            screen.blit(play_shadow, (play_rect.x + shadow_offset[0], play_rect.y + shadow_offset[1]))
+            screen.blit(play_text, play_rect)
+            #Affichage bouton quitter avec ombre
+            quit_shadow = button_font.render("EXIT", True, (0, 0, 0))
+            screen.blit(quit_shadow, (quit_rect.x + shadow_offset[0], quit_rect.y + shadow_offset[1]))
+            screen.blit(quit_text, quit_rect)
 
-        player_idle.idle_for_acceuil()
-        screen.blit(player_idle.image, player_idle.rect)
+            #Affichage bouton credits avec ombre
+            credits_shadow = button_font.render("CREDITS", True, (0, 0, 0))
+            screen.blit(credits_shadow, (credits_rect.x + shadow_offset[0], credits_rect.y + shadow_offset[1]))
+            screen.blit(credits_text, credits_rect)
 
-        screen.blit(profile_image,(screen.get_width() - profile_image.get_width() - 250, 20))
-        # Affichage du texte du nom d'utilisateur
-        screen.blit(username_text,(screen.get_width() - profile_image.get_width() - 150, profile_image.get_height()//2 +15))
+            player_idle.idle_for_acceuil()
+            screen.blit(player_idle.image, player_idle.rect)
+
+            screen.blit(profile_image,(screen.get_width() - profile_image.get_width() - 250, 20))
+            # Affichage du texte du nom d'utilisateur
+            screen.blit(username_text,(screen.get_width() - profile_image.get_width() - 150, profile_image.get_height()//2 +15))
+        if Credits:
+            screen.blit(retour_image,rect_retour_image)
+            y = start_y
+            for line in lines:
+                x = (screen.get_width() - line.get_width()) // 2
+                screen.blit(line, (x, y))
+                y += line.get_height() + 20
+
+            start_y -= 1  # fait défiler vers le haut
+
+            if y < 0:
+                start_y = screen.get_height()  # recommencer le défilement
         pygame.display.update()
 
 def charger_item_depuis_nom(conn, nom_item):
@@ -771,8 +862,6 @@ def launch_game():
         nonlocal panneau_visible, panneau_y, panneau_target_y
         nonlocal temps_depart_panneau, quete_affichee, affichage_etape, file_quete_a_afficher
 
-        print("→ terminer_quete appelée pour :", id_quete)
-
         # Récupérer la quête
         quete = graphe_quetes.nodes[id_quete]["quete"]
         quete.terminee = True
@@ -783,7 +872,6 @@ def launch_game():
             suivante for suivante in graphe_quetes.successors(id_quete)
             if not graphe_quetes[id_quete][suivante].get("choix", False)
         ]
-
         #Si la quête ne possède pas des succeseurs n'ayant pas le flag "choix"
         if not suivantes:
             # Afficher au moins "quête accomplie" même sans suite directe
@@ -796,7 +884,6 @@ def launch_game():
             file_quete_a_afficher = []
             print("→ quete accomplie sans suite automatique")
             return
-
         # Préparer l’affichage "quête accomplie"
         panneau_visible = True
         panneau_y = -200
@@ -1096,7 +1183,10 @@ def launch_game():
                             # On termine la quête 5 uniquement si on est à la dernière phrase du dialogue
                             if active_pnj.current_parole_index >= len(active_pnj.parole)-1:
                                 terminer_quete("Q5")
-                                current_quete = graphe_quetes.nodes["Q6"]["quete"]
+                                # Récupérer le successeur de Q5 (s'il existe)
+                                suivants = list(graphe_quetes.successors("Q5"))
+                                if suivants:
+                                    current_quete = graphe_quetes.nodes[suivants[0]]["quete"]
                 
         
 
@@ -1253,6 +1343,12 @@ def launch_game():
                     for sprite in group.sprites():
                         if sprite != player:
                             group.remove(sprite)
+                    q6 =  graphe_quetes.nodes["Q6"]["quete"]
+                    if q6.active or not q6.terminee:
+                        terminer_quete("Q6")
+                        current_quete = graphe_quetes.nodes["Q7"]["quete"]
+                    
+
                     continue  # pour éviter d'autres collisions ce frame
 
             if show_inventory == False:

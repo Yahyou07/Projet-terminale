@@ -3,18 +3,42 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "maps.tmx",
+    "activeFile": "ombres.tsx",
     "expandedProjectPaths": [
         "."
     ],
     "file.lastUsedOpenFilter": "Tous les Fichiers (*)",
     "fileStates": {
+        "RPG Nature Tileset Autumn.tsx": {
+            "scaleInDock": 2,
+            "scaleInEditor": 1
+        },
+        "RPG Nature Tileset.tsx": {
+            "scaleInDock": 2,
+            "scaleInEditor": 1
+        },
+        "TX_Tileset_Grass-removebg-preview.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "chemin1.tsx": {
+            "scaleInDock": 0.5,
+            "scaleInEditor": 1
+        },
+        "chemin2.tsx": {
+            "scaleInDock": 2,
+            "scaleInEditor": 1
+        },
+        "eau.tsx": {
+            "scaleInDock": 0.125,
+            "scaleInEditor": 1
+        },
         "escaliers.tsx": {
             "scaleInDock": 1.5,
             "scaleInEditor": 1
         },
         "grass.tsx": {
-            "scaleInDock": 1,
+            "scaleInDock": 2,
             "scaleInEditor": 1
         },
         "houses.tsx": {
@@ -22,7 +46,7 @@
             "scaleInEditor": 1
         },
         "housess.tsx": {
-            "scaleInDock": 1,
+            "scaleInDock": 0.75,
             "scaleInEditor": 1
         },
         "lage.tsx": {
@@ -57,11 +81,11 @@
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 0.0625,
-            "selectedLayer": 1,
+            "scale": 1.5,
+            "selectedLayer": 3,
             "viewCenter": {
-                "x": 3984,
-                "y": 4936
+                "x": 3647.333333333333,
+                "y": 1840.3333333333333
             }
         },
         "map_test.tmx": {
@@ -75,6 +99,17 @@
                 "y": 359.090909090909
             }
         },
+        "map_tuto.tmx": {
+            "expandedObjectLayers": [
+                2
+            ],
+            "scale": 2,
+            "selectedLayer": 6,
+            "viewCenter": {
+                "x": 320,
+                "y": 1181.25
+            }
+        },
         "maps.tmx": {
             "expandedObjectLayers": [
                 2
@@ -85,6 +120,14 @@
                 "x": 874,
                 "y": 271
             }
+        },
+        "moulin-avce-removebg-preview (1).tsx": {
+            "scaleInDock": 0.75,
+            "scaleInEditor": 1
+        },
+        "moulins.tsx": {
+            "scaleInDock": 2,
+            "scaleInEditor": 1
         },
         "murs.tsx": {
             "scaleInDock": 1.5,
@@ -138,28 +181,33 @@
     "map.tileWidth": 16,
     "map.width": 500,
     "openFiles": [
-        "maps.tmx",
         "ombres.tsx",
-        "housess.tsx",
         "portal.tsx",
         "objet_avec_ombres.tsx",
         "supp.tsx",
-        "map_principale1.tmx"
+        "map_principale1.tmx",
+        "map_tuto.tmx",
+        "moulins.tsx",
+        "RPG Nature Tileset.tsx",
+        "moulin-avce-removebg-preview (1).tsx",
+        "RPG Nature Tileset Autumn.tsx",
+        "TX_Tileset_Grass-removebg-preview.tsx",
+        "housess.tsx"
     ],
     "project": "Projet_jeu_RPG.tiled-project",
     "recentFiles": [
+        "housess.tsx",
+        "TX_Tileset_Grass-removebg-preview.tsx",
+        "RPG Nature Tileset Autumn.tsx",
+        "moulin-avce-removebg-preview (1).tsx",
+        "RPG Nature Tileset.tsx",
+        "moulins.tsx",
+        "map_tuto.tmx",
         "map_principale1.tmx",
         "supp.tsx",
         "objet_avec_ombres.tsx",
         "portal.tsx",
-        "housess.tsx",
-        "ombres.tsx",
-        "maps.tmx",
-        "support.tsx",
-        "le protail v2.tsx",
-        "map_test.tmx",
-        "lage.tsx",
-        "houses.tsx"
+        "ombres.tsx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {
