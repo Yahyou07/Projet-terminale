@@ -125,7 +125,7 @@ def create_account(username,password,confirm_password):
     x_pannel_create_an_account = screen.get_width() // 2 - pannel_create_an_account.get_width() // 2
     y_pannel_create_an_account = screen.get_height()//2 - pannel_create_an_account.get_height()//2
 
-    tmx_data = load_pygame("maps/maps.tmx")  
+    tmx_data = load_pygame("maps/map_tuto.tmx")  
     player_position = tmx_data.get_object_by_name("Player")
     id_quete_deBase = "Q1"
     if username == "" or password == "" or confirm_password == "":
@@ -161,7 +161,7 @@ def create_account(username,password,confirm_password):
             conn = sqlite3.connect('database/data_yahya.db')
             cursor = conn.cursor()
             # Requête pour stocker le nom d'utilisateur et le mot de passe dans la table "users"
-            cursor.execute('''INSERT INTO Login (pseudo,password,pos_x,pos_y,health,mana,endurance,level,current_quete,current_map) values (?,?,?,?,100,0,100,0,?,map_tuto) ''',(username,password,player_position.x,player_position.y,id_quete_deBase))
+            cursor.execute('''INSERT INTO Login (pseudo,password,pos_x,pos_y,health,mana,endurance,level,current_quete,current_map) values (?,?,?,?,100,0,100,0,?,"map_tuto") ''',(username,password,player_position.x,player_position.y,id_quete_deBase))
             cursor.execute('''INSERT INTO Coffre (chest_name,chest_index,pseudo) values ("coffre1",0,?) ''',(username,))
             cursor.close()
             conn.commit()
