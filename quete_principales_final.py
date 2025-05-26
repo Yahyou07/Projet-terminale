@@ -3,12 +3,10 @@ import networkx as nx               # Pour créer et manipuler un graphe orient�
 # Définition de la classe Quete
 
 class Quete:
-    def __init__(self, id, nom, description, map_a_charger=None, entites=None):
+    def __init__(self, id, nom, description):
         self.id = id
         self.nom = nom
         self.description = description
-        self.map_a_charger = map_a_charger
-        self.entites = entites or []
         self.active = False
         self.terminee = False
         

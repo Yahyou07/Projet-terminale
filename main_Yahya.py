@@ -408,47 +408,6 @@ def login():
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN) 
 
 run = False
-def credits_screen(background_image):
-    clock = pygame.time.Clock()
-    font = pygame.font.Font("UI/dialog_font.ttf", 30)
-    credits = [
-        "Game developed by YourName",
-        "Graphics by YourArtist",
-        "Music by YourMusician",
-        "Special Thanks to...",
-        "Made with Pygame",
-        "2025"
-    ]
-
-    # Créer un grand texte à défiler
-    lines = [font.render(line, True, (255, 255, 255)) for line in credits]
-    total_height = sum(line.get_height() + 20 for line in lines)
-    start_y = screen.get_height()
-
-    running = True
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
-                running = False  # quitter l'écran des crédits
-
-        screen.blit(background_image, (0, 0))
-
-        y = start_y
-        for line in lines:
-            x = (screen.get_width() - line.get_width()) // 2
-            screen.blit(line, (x, y))
-            y += line.get_height() + 20
-
-        start_y -= 1  # fait défiler vers le haut
-
-        if y < 0:
-            start_y = screen.get_height()  # recommencer le défilement
-
-        pygame.display.flip()
-        clock.tick(60)
 
 # fonction pour afficher le menu principal
 def main_menu():
@@ -545,10 +504,19 @@ def main_menu():
 
     Acceuil = True
     Credits = False
+    Music = True
+    button_sfx = pygame.mixer.Sound("music/button1.mp3")
+
+    if Music:
+            pygame.mixer.music.load("music/music.mp3")
+            pygame.mixer.music.set_volume(0.5)  # 0.0 (muet) à 1.0 (volume max)
+            pygame.mixer.music.play(-1)  # Joue la musique en boucle
+            print("Musique lancée")
     while running_menu:
         mouse_pos = pygame.mouse.get_pos()
         
         
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -556,15 +524,24 @@ def main_menu():
             
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if play_rect.collidepoint(event.pos):
+                    button_sfx.play()
+                    Music =False
                     launch_game()
                     pygame.event.clear()
+                    
 
                 elif quit_rect.collidepoint(event.pos):
+                    button_sfx.play()
                     pygame.quit()
                     sys.exit()
                 elif credits_rect.collidepoint(event.pos):
+                    button_sfx.play()
                     Credits = True
                     Acceuil = False
+                elif rect_retour_image.collidepoint(event.pos):
+                    button_sfx.play()
+                    Credits = False
+                    Acceuil = True
         screen.blit(background_image, (0, 0))
         
         if Acceuil:
@@ -856,7 +833,9 @@ def launch_game():
     #paraetre pour le panneau de quête à afficher
     file_quete_a_afficher = []
     affichage_etape = None
-
+    
+    print("lien a faire : ",not graphe_quetes["Q1"]["Q2"].get("choix", False))
+    print("lien a faire 2: ", graphe_quetes["Q1"]["Q2"].get("choix", True))
     # Fonction pour terminer une quête
     def terminer_quete(id_quete):
         nonlocal panneau_visible, panneau_y, panneau_target_y
@@ -867,11 +846,12 @@ def launch_game():
         quete.terminee = True
         quete.active = False
 
-        # Successeurs SANS le flag "choix" (donc à activer automatiquement)
-        suivantes = [
-            suivante for suivante in graphe_quetes.successors(id_quete)
-            if not graphe_quetes[id_quete][suivante].get("choix", False)
-        ]
+        
+        suivantes = []  # Liste pour stocker les quêtes suivantes à activer automatiquement
+        for suivante in graphe_quetes.successors(id_quete):  # Parcourt tous les successeurs de la quête terminée
+            if not graphe_quetes[id_quete][suivante].get("choix", False):  # Vérifie si le lien n'a pas l'attribut "choix" à True
+                suivantes.append(suivante)  # Ajoute ce successeur à la liste des suivantes à activer
+        
         #Si la quête ne possède pas des succeseurs n'ayant pas le flag "choix"
         if not suivantes:
             # Afficher au moins "quête accomplie" même sans suite directe

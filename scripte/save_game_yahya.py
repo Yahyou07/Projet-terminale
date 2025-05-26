@@ -37,10 +37,11 @@ class Save_game_y(object):
         self.music = True # Variable pour contrôler la musique
 
         # si la musique est activée, elle sera jouée en continue
-        if self.music:
+        '''if self.music:
             pygame.mixer.music.load("music/music.mp3")
+            pygame.mixer.music.set_volume(0.5)  # 0.0 (muet) à 1.0 (volume max)
             pygame.mixer.music.play(-1)  # Joue la musique en boucle
-            print("Musique lancée")
+            print("Musique lancée")'''
         
 
     def update(self):

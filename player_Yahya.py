@@ -183,7 +183,7 @@ class Player(pygame.sprite.Sprite):
         self.dash_target = None
         self.dash_vector = pygame.math.Vector2(0, 0)
         self.dashing = False
-        self.dash_speed = 5
+        self.dash_speed = 0
         self.dash_duration = 7  # nombre de frames
         self.dash_timer = 0
 

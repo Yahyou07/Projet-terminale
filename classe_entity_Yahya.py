@@ -144,6 +144,10 @@ class PNJ(Entity):
 
         self.quetes_deja_proposees = set()  # Mémorise les quêtes déjà données
         
+        #on load le son que l'on veut jouer 
+        self.text_sound = pygame.mixer.Sound("music/digital_text.mp3")
+        self.text_channel = pygame.mixer.Channel(5)  # Choisis un canal libre
+
     def restaurer_etat_quete(self):
         """
         Appelée au lancement du jeu pour restaurer l’état du PNJ
@@ -229,7 +233,10 @@ class PNJ(Entity):
                     self.current_text += self.full_text[self.text_index]
                     self.text_index += 1
                     self.last_update_time = now
-
+                else:
+                    if self.text_channel.get_busy():
+                        self.text_channel.stop()
+                    
             # --------- Affichage avec saut de ligne ---------
             lines = self.current_text.split('\n')  # ← ici
             for i, line in enumerate(lines):
@@ -256,7 +263,9 @@ class PNJ(Entity):
         self.text_index = 0
         self.current_parole_index = index
         self.last_update_time = pygame.time.get_ticks()
-        
+        if not self.text_channel.get_busy():
+            self.text_channel.play(self.text_sound, loops=-1)  # Joue en boucle
+
     def next_dialog(self):
         if self.current_parole_index + 1 < len(self.parole):
             self.current_parole_index += 1
