@@ -70,6 +70,10 @@ class Player(pygame.sprite.Sprite):
         
         self.inventory_index = 0
         self.current_item = self.inventory_bar_list[self.inventory_index]
+
+        #boolene pour gérer le son
+        self.is_moving = False
+
         #On stocke ici les mouvement du personnage selon s'il marche en haut, en bas, a droite ou a gauche
         self.down  =  [pygame.image.load(f"animation/walk/walk1/down{i}.png") for i in range(1, 6)]
         self.up    =  [pygame.image.load(f"animation/walk/walk2/up{j}.png") for j in range(1, 6)]

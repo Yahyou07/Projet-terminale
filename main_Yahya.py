@@ -182,7 +182,7 @@ def create_account(username,password,confirm_password):
 def login():
 
     global username
-
+    button_sfx = pygame.mixer.Sound("music/button1.mp3")
     Login = True
     Confirm = False
     background_image = pygame.image.load("UI/bg_menu.png")
@@ -305,12 +305,14 @@ def login():
                     if rect_creer_compte.collidepoint(event.pos):
                         Login = False
                         Confirm = True
+                        button_sfx.play()
                         
                     if rect_oeil_ouvert1.collidepoint(event.pos):
                         if Can_see_password == False:
                             password_box.set_password_mode(False)  # ou False
                             Can_see_password = True
                             oeil_ouvert1 = oeil_ferme
+                            button_sfx.play()
                         else:
                             password_box.set_password_mode(True)
                             Can_see_password = False
@@ -323,6 +325,7 @@ def login():
                             password_box1.set_password_mode(False)  # ou False
                             Can_see_password = True
                             oeil_ouvert2 = oeil_ferme
+                            button_sfx.play()
                         else:
                             password_box1.set_password_mode(True)
                             Can_see_password = False
@@ -333,15 +336,18 @@ def login():
                             confirm_password_box1.set_password_mode(False)  # ou False
                             Can_see_password = True
                             oeil_ouvert3 = oeil_ferme
+                            button_sfx.play()
                         else:
                             confirm_password_box1.set_password_mode(True)
                             Can_see_password = False
                             oeil_ouvert3 = pygame.image.load("UI/oeil_ouvert.png")
                             oeil_ouvert3 = pygame.transform.scale(oeil_ouvert1,(50,50))
                     if rect_retour_image.collidepoint(event.pos):
+                        button_sfx.play()
                         Login = True
                         Confirm = False
                     if btn_create_account.collidepoint(event.pos):
+                        button_sfx.play()
                         
                         #if create_account(username_box1.text,password_box1.text,confirm_password_box1.text) == "rien":
                             
@@ -492,7 +498,7 @@ def main_menu():
         "et au PNJ",
         "Un jeu fait avec Pygame",
         "2025",
-        "Realease le 15 juin 2025 ",
+        "Realease le 15 juillet 2025 ",
         "The Last Heir ©"
 
     ]
@@ -507,11 +513,11 @@ def main_menu():
     Music = True
     button_sfx = pygame.mixer.Sound("music/button1.mp3")
 
-    if Music:
-            pygame.mixer.music.load("music/music.mp3")
-            pygame.mixer.music.set_volume(0.5)  # 0.0 (muet) à 1.0 (volume max)
-            pygame.mixer.music.play(-1)  # Joue la musique en boucle
-            print("Musique lancée")
+   
+    pygame.mixer.music.load("music/music.mp3")
+    pygame.mixer.music.set_volume(0.5)  # 0.0 (muet) à 1.0 (volume max)
+    pygame.mixer.music.play(-1)  # Joue la musique en boucle
+    print("Musique lancée")
     while running_menu:
         mouse_pos = pygame.mouse.get_pos()
         
@@ -525,7 +531,7 @@ def main_menu():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if play_rect.collidepoint(event.pos):
                     button_sfx.play()
-                    Music =False
+                    pygame.mixer.music.pause()
                     launch_game()
                     pygame.event.clear()
                     
@@ -585,7 +591,7 @@ def main_menu():
                 screen.blit(line, (x, y))
                 y += line.get_height() + 20
 
-            start_y -= 1  # fait défiler vers le haut
+            start_y -= 5  # fait défiler vers le haut
 
             if y < 0:
                 start_y = screen.get_height()  # recommencer le défilement
@@ -681,7 +687,7 @@ def charger_stuff(username):
                 "name": nom_item,
                 "object": item,
                 "quantity": quantite,
-                "icon": item.icon  
+                "icon": item.icon 
             }
             stuff_icones[slot_index] = item.icon
             
@@ -729,7 +735,12 @@ def launch_game():
             rect = pygame.Rect(obj.x, obj.y, obj.width, obj.height)
             collision_rects.append(rect)
 
-
+    #----------------sons -------------------------
+    open_iventory_sfx = pygame.mixer.Sound("music/open_inventory.mp3")
+    footstep_sound = pygame.mixer.Sound("music/run_sfx.mp3")
+    footstep_sound.set_volume(0.3)  # Volume entre 0.0 et 1.0
+    quest_sfx = pygame.mixer.Sound("music/quest.mp3")
+    #----------------------------------------------
     # Connexion à la base de données
     conn = sqlite3.connect('database/data_yahya.db')
     cursor = conn.cursor()
@@ -752,9 +763,9 @@ def launch_game():
     current_quete = graphe_quetes.nodes["Q1"]["quete"]
 
     #Création des gobelins
-    gobelin1 = Enemy("gobelin_epee",250,300,"enemy",screen,(100,100))
+    gobelin1 = Enemy("gobelin_epee",1086,425,"enemy",screen,(100,100))
 
-    gobelin2 = Enemy("gobelin_epee",350,250,"enemy",screen,(100,100))
+    gobelin2 = Enemy("gobelin_epee",1095,490,"enemy",screen,(100,100))
 
     gobelin3 = Enemy("gobelin_epee",350,400,"enemy",screen,(100,100))
 
@@ -836,6 +847,7 @@ def launch_game():
     
     print("lien a faire : ",not graphe_quetes["Q1"]["Q2"].get("choix", False))
     print("lien a faire 2: ", graphe_quetes["Q1"]["Q2"].get("choix", True))
+
     # Fonction pour terminer une quête
     def terminer_quete(id_quete):
         nonlocal panneau_visible, panneau_y, panneau_target_y
@@ -870,10 +882,10 @@ def launch_game():
         panneau_target_y = 50
         temps_depart_panneau = pygame.time.get_ticks()
         affichage_etape = "accomplie"
-        file_quete_a_afficher = [graphe_quetes.nodes[s]["quete"] for s in suivantes] 
+        file_quete_a_afficher = [graphe_quetes.nodes[s]["quete"] for s in suivantes] #On récupère les quêtes suivantes à afficher
 
         print("→ file_quete_a_afficher :", [q.nom for q in file_quete_a_afficher]) 
-
+        quest_sfx.play()  # On joue le son de nouvelle quête
 
     
     def afficher_panneau_nouvelle_quete(quete):
@@ -952,7 +964,14 @@ def launch_game():
 
         if dx != 0 or dy != 0:
             player.move(dx, dy, sprinting)  # Passe la variable sprinting
+            if not player.is_moving:
+                footstep_sound.play(-1)  # -1 = boucle
+                player.is_moving = True
+                
         else:
+            if player.is_moving:
+                footstep_sound.stop()
+                player.is_moving = False
             # Animation idle quand le joueur ne bouge pas
             if player.last_direction == "down":
                 player.idle_down()
@@ -1091,6 +1110,7 @@ def launch_game():
             if event.type == pygame.KEYDOWN:
                 #Gestion desévenement de la touche [i]
                 if event.key == pygame.K_e:
+                    open_iventory_sfx.play()  # On joue le son d'ouverture de l'inventaire
                     show_inventory = not show_inventory  # On inverse l'état de l'inventaire
                     player.OnBag = True
                     player.OnArmour = False
@@ -1184,6 +1204,8 @@ def launch_game():
             quete = graphe_quetes.nodes[q]["quete"]
             if quete.active or quete.terminee:
                 group.add(portail1,layer = 4)
+                group.add(gobelin1,layer = 3)
+                group.add(gobelin2,layer = 3)
                 break
 
 
@@ -1569,7 +1591,7 @@ def launch_game():
             elif affichage_etape == "nouvelle_quete":
                 if quete_affichee:
                     afficher_panneau_slide(screen, quete_affichee, panneau_y)
-
+                
                 if (pygame.time.get_ticks() - temps_depart_panneau) / 1000 > temps_affichage_panneau:
                     if file_quete_a_afficher:
                         panneau_y = -200

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="300" height="300" tilewidth="16" tileheight="16" infinite="0" nextlayerid="26" nextobjectid="14">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="300" height="300" tilewidth="16" tileheight="16" infinite="0" nextlayerid="26" nextobjectid="16">
  <tileset firstgid="1" source="grass.tsx"/>
  <tileset firstgid="257" source="houses.tsx"/>
  <tileset firstgid="1559" source="chemin1.tsx"/>
@@ -1244,5 +1244,7 @@
   <object id="13" name="Player" x="2642.67" y="4100">
    <point/>
   </object>
+  <object id="14" name="collision" x="2577.75" y="4030.25" width="28.75" height="74.25"/>
+  <object id="15" name="collision" x="2674" y="4032" width="28.5" height="73.75"/>
  </objectgroup>
 </map>

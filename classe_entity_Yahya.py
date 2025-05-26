@@ -166,8 +166,13 @@ class PNJ(Entity):
  
     def proposer_quetes(self, quetes):
         # Filtrer quêtes déjà données ou terminées
-        quetes_disponibles = [q for q in quetes if q.nom not in self.quetes_deja_proposees and not q.terminee and not q.active]
+        quetes_disponibles = []
+        for q in quetes:
+            # Vérifie si la quête n'a pas déjà été proposée, n'est pas terminée et n'est pas active
+            if q.nom not in self.quetes_deja_proposees and not q.terminee and not q.active:
+                quetes_disponibles.append(q)
 
+        # Si aucune quête n'est disponible(si les quêtes disponible sont inférieurs à 2), on ne propose rien
         if len(quetes_disponibles) < 2:
             # Pas assez de quêtes à proposer
             self.en_mode_choix = False
@@ -271,6 +276,7 @@ class PNJ(Entity):
             self.current_parole_index += 1
             self.start_dialog(self.current_parole_index)
         else:
+            # Si on est en mode choix de quêtes, on propose les quêtes
             if not self.quete_donnee and self.choix_de_quetes:
                 self.proposer_quetes(self.choix_de_quetes)
             else:
