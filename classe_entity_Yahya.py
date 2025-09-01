@@ -320,6 +320,7 @@ class Enemy(Entity):
         self.attack_cooldown = 1000  # 1000 ms = 1 seconde entre 2 attaques
         self.last_attack_time = 0  # Dernier moment où l'ennemi a attaqué
 
+        self.sfx_weapon = pygame.mixer.Sound("music\sword_gobelin.mp3")
        
 
         self.degats = 15
@@ -415,6 +416,7 @@ class Enemy(Entity):
                     if dy > 0:
                         self.animation_attack(self.bottom_attack, 0.15, (100, 100), player, 0, 1)
                         self.last_dir = "down"
+                        self.sfx_weapon.play()
                     else:
                         self.animation_attack(self.top_attack, 0.15, (100, 100), player, 0, -1)
                         self.last_dir = "up"

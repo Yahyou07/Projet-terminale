@@ -1,6 +1,7 @@
 
 import random
 from quete_principales_final import *
+
 def generate_tree_positions(max_x, max_y, num_trees, min_distance, max_attempts=1000):
     positions = list()
     for i in range(num_trees):
@@ -34,7 +35,7 @@ import pyscroll
 import pyscroll.data
 import time
 from objects_Yahya import *
-from random import *
+import random
 pygame.init()
 pygame.key.set_repeat(400, 20)  # délai initial 400ms, puis 40ms entre répétitions
 pygame.display.set_caption("The Last Heir")
@@ -518,6 +519,7 @@ def main_menu():
     pygame.mixer.music.set_volume(0.5)  # 0.0 (muet) à 1.0 (volume max)
     pygame.mixer.music.play(-1)  # Joue la musique en boucle
     print("Musique lancée")
+    hovered_button = None  # <-- Move hovered_button here to persist between frames
     while running_menu:
         mouse_pos = pygame.mouse.get_pos()
         
@@ -552,7 +554,22 @@ def main_menu():
         
         if Acceuil:
             screen.blit(game_logo,(0,-80))
-
+            # Gestion du hover sonore pour les boutons
+            if play_rect.collidepoint(mouse_pos):
+                if hovered_button != "play":
+                    button_sfx.play()
+                    hovered_button = "play"
+            elif quit_rect.collidepoint(mouse_pos):
+                if hovered_button != "quit":
+                    button_sfx.play()
+                    hovered_button = "quit"
+            elif credits_rect.collidepoint(mouse_pos):
+                if hovered_button != "credits":
+                    button_sfx.play()
+                    hovered_button = "credits"
+            else:
+                hovered_button = None
+                hovered_button = None
             # Détection du hover
             play_color = GRAY if play_rect.collidepoint(mouse_pos) else WHITE
             quit_color = GRAY if quit_rect.collidepoint(mouse_pos) else WHITE
@@ -740,6 +757,7 @@ def launch_game():
     footstep_sound = pygame.mixer.Sound("music/run_sfx.mp3")
     footstep_sound.set_volume(0.3)  # Volume entre 0.0 et 1.0
     quest_sfx = pygame.mixer.Sound("music/quest.mp3")
+    teleportation = pygame.mixer.Sound("music\magic-teleport.mp3")
     #----------------------------------------------
     # Connexion à la base de données
     conn = sqlite3.connect('database/data_yahya.db')
@@ -884,8 +902,8 @@ def launch_game():
         affichage_etape = "accomplie"
         file_quete_a_afficher = [graphe_quetes.nodes[s]["quete"] for s in suivantes] #On récupère les quêtes suivantes à afficher
 
-        print("→ file_quete_a_afficher :", [q.nom for q in file_quete_a_afficher]) 
-        quest_sfx.play()  # On joue le son de nouvelle quête
+        print("file_quete_a_afficher :", [q.nom for q in file_quete_a_afficher]) 
+        
 
     
     def afficher_panneau_nouvelle_quete(quete):
@@ -943,15 +961,22 @@ def launch_game():
             pygame.quit()
             sys.exit()
         
-
+    footstep_sound2_grass = [pygame.mixer.Sound("music/foot_step_grass/step3.mp3"),pygame.mixer.Sound("music/foot_step_grass/step2.mp3")]
+    last_step_time = 0
+    STEP_INTERVAL_NORMAL = 400
+    STEP_INTERVAL_SPRINT = 250
     # Fonction input pour gérer les entrées clavier
     def input():
+        
+        nonlocal last_step_time,footstep_sound2_grass,STEP_INTERVAL_NORMAL,STEP_INTERVAL_SPRINT
+
         if player.is_attacking:
-            return  # ← NE RIEN FAIRE SI ATTAQUE EN COURS
+            return
+
         pressed = pygame.key.get_pressed()
         dx, dy = 0, 0
 
-        sprinting = pressed[pygame.K_r] and player.endurance_value > 0 and player.Regen == False  # Vérifie si le joueur peut sprinter
+        sprinting = pressed[pygame.K_r] and player.endurance_value > 0 and not player.Regen
 
         if pressed[pygame.K_UP] or pressed[pygame.K_z]:
             dy = -1
@@ -963,16 +988,18 @@ def launch_game():
             dx = 1
 
         if dx != 0 or dy != 0:
-            player.move(dx, dy, sprinting)  # Passe la variable sprinting
-            if not player.is_moving:
-                footstep_sound.play(-1)  # -1 = boucle
-                player.is_moving = True
-                
+            player.move(dx, dy, sprinting)
+
+            now = pygame.time.get_ticks()
+            step_interval = STEP_INTERVAL_SPRINT if sprinting else STEP_INTERVAL_NORMAL
+            if now - last_step_time >= step_interval:
+                #footstep_sound2_grass[random.randint(0,len(footstep_sound2_grass)-1)].play()
+                last_step_time = now
+
+            player.is_moving = True
+
         else:
-            if player.is_moving:
-                footstep_sound.stop()
-                player.is_moving = False
-            # Animation idle quand le joueur ne bouge pas
+            player.is_moving = False
             if player.last_direction == "down":
                 player.idle_down()
             elif player.last_direction == "up":
@@ -981,6 +1008,7 @@ def launch_game():
                 player.idle_right()
             elif player.last_direction == "left":
                 player.idle_left()
+
 
     #-------------fonctions d'accomplissement des quêtes--------------------------------------------------------
     def accomplissement_quete3():
@@ -1066,8 +1094,10 @@ def launch_game():
     fps_font = pygame.font.SysFont("arial", 20)
     
     
-        
-    
+    Hache_sfx = pygame.mixer.Sound("music/ax.mp3")
+    Logs_fall_sfx = pygame.mixer.Sound("music/log_fall.mp3")
+    last_axe_sound_time = 0
+    axe_sound_delay = 700  # en millisecondes (0.5 seconde)
     while running:
         dt = mainClock.tick(60) / 1000  # Temps écoulé en secondes
 
@@ -1305,6 +1335,7 @@ def launch_game():
 
             if isinstance(sprite, Portals) and player.feet.colliderect(sprite.rect):
                 if sprite.name == "portal1":
+                    teleportation.play()
                     # Afficher un écran noir avec "Téléportation"
                     screen.fill((0, 0, 0))
                     font_teleport = pygame.font.Font("UI/dialog_font.ttf", 60)
@@ -1362,12 +1393,19 @@ def launch_game():
                                 player.is_attacking = False
                                 cut_progressing = True
                                 progress_cut = 0.0
+                                
                             else:
                                 progress_cut += dt / fill_time_cut
 
                                 if player.inventory_bar_list[player.inventory_index] != {}:
                                     if player.inventory_bar_list[player.inventory_index]['object'].type == "Hache":
                                         player.animation_hache(player.hache_anim, 1.5)
+                                        # → Joue le son à intervalle régulier
+                                        current_time = pygame.time.get_ticks()
+                                        if current_time - last_axe_sound_time >= axe_sound_delay:
+                                            Hache_sfx.play()
+                                            last_axe_sound_time = current_time
+                                                                    
 
                                 if progress_cut >= 1.0:
                                     cut_progressing = False
@@ -1376,13 +1414,14 @@ def launch_game():
                                     group.add(Item("buche1", 24, 10, sprite.rect.x + 50, sprite.rect.y + 50, "Wood"))
                                     group.add(Item("buche1", 24, 10, sprite.rect.x + 30, sprite.rect.y + 30, "Wood"))
                                     group.add(Item("buche1", 24, 10, sprite.rect.x + 20, sprite.rect.y + 50, "Wood"))
-                                    if choice([1,2,3,4,5,6,7,8,9,10]) == 1:
+                                    if random.choice([1,2,3,4,5,6,7,8,9,10]) == 1:
                                         group.add(Item("apple", 24, 10, sprite.rect.x + 20, sprite.rect.y + 10, "Food"))
                                         
                                     sprite.image = pygame.image.load("Objects/souche.png")
                                     sprite.hitbox = sprite.rect.copy().inflate(-63, -130)
                                     sprite.hitbox.y +=55
                                     sprite.Can_cut = False
+                                    Logs_fall_sfx.play()
                                     finished_time_cut = pygame.time.get_ticks()
                         else:
                             if progress_cut < 1.0:
@@ -1591,7 +1630,8 @@ def launch_game():
             elif affichage_etape == "nouvelle_quete":
                 if quete_affichee:
                     afficher_panneau_slide(screen, quete_affichee, panneau_y)
-                
+                quest_sfx.play()  # On joue le son de nouvelle quête
+
                 if (pygame.time.get_ticks() - temps_depart_panneau) / 1000 > temps_affichage_panneau:
                     if file_quete_a_afficher:
                         panneau_y = -200
